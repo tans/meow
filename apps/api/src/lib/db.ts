@@ -4,6 +4,15 @@ export interface DemoTaskRecord {
   status: "draft" | "published";
 }
 
+export interface DemoSubmissionRecord {
+  id: string;
+  taskId: string;
+  creatorId: string;
+  assetUrl: string;
+  description: string;
+  status: "submitted";
+}
+
 const taskStore = new Map<string, DemoTaskRecord>([
   [
     "task-1",
@@ -14,6 +23,7 @@ const taskStore = new Map<string, DemoTaskRecord>([
     }
   ]
 ]);
+const submissionStore = new Map<string, DemoSubmissionRecord>();
 
 let nextTaskId = 2;
 
@@ -35,5 +45,12 @@ export const db = {
   saveTask(task: DemoTaskRecord): DemoTaskRecord {
     taskStore.set(task.id, task);
     return task;
+  },
+  getSubmission(submissionId: string): DemoSubmissionRecord | undefined {
+    return submissionStore.get(submissionId);
+  },
+  saveSubmission(submission: DemoSubmissionRecord): DemoSubmissionRecord {
+    submissionStore.set(submission.id, submission);
+    return submission;
   }
 };

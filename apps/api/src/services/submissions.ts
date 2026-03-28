@@ -33,12 +33,12 @@ export const createSubmission = (
     throw new AppError(403, "task is not published");
   }
 
-  return {
+  return db.saveSubmission({
     id: `submission-${nextSubmissionId++}`,
     taskId,
     creatorId,
     assetUrl: input.assetUrl,
     description: input.description,
     status: "submitted"
-  };
+  });
 };
