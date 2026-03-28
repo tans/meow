@@ -10,6 +10,8 @@ export interface RouteContract {
 }
 
 export interface PublishTaskResponse {
+  id: string;
+  merchantId: string;
   status: "published";
   ledgerEffect: "merchant_escrow_locked";
 }

@@ -14,7 +14,7 @@ merchantRoutes.post("/tasks", (c) => {
 merchantRoutes.post("/tasks/:taskId/publish", (c) => {
   const session = requireMerchant(c);
   const taskId = c.req.param("taskId");
-  const response = publishTask(taskId, session.merchantId);
+  const response = publishTask(session.merchantId, taskId);
 
   return c.json(response);
 });

@@ -18,8 +18,8 @@ export const createTaskDraft = (merchantId: string): CreateTaskDraftResponse => 
 };
 
 export const publishTask = (
-  taskId: string,
-  merchantId: string
+  merchantId: string,
+  taskId: string
 ): PublishTaskResponse => {
   const task = db.getTask(taskId);
 
@@ -39,6 +39,8 @@ export const publishTask = (
   });
 
   return {
+    id: taskId,
+    merchantId,
     status: "published",
     ledgerEffect: ledgerResult.ledgerEffect
   };
