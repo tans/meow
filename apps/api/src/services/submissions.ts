@@ -29,6 +29,10 @@ export const createSubmission = (
     throw new AppError(404, "task not found");
   }
 
+  if (task.status !== "published") {
+    throw new AppError(403, "task is not published");
+  }
+
   return {
     id: `submission-${nextSubmissionId++}`,
     taskId,
