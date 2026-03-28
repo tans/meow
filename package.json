@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "turbo run build",
+    "db:schema-smoke": "pnpm --filter @meow/database test -- schema-smoke.test.ts",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "lint": "turbo run lint",
