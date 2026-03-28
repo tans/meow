@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b tsconfig.json",
+    "dev": "tsc -b tsconfig.json --watch --preserveWatchOutput",
     "typecheck": "tsc -b tsconfig.json"
   },
   "dependencies": {
