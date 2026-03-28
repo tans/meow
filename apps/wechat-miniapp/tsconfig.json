@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "files": [],
+  "references": [
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/domain-core" },
+    { "path": "../../packages/domain-task" },
+    { "path": "../../packages/domain-user" }
+  ]
+}

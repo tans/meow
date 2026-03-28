@@ -1,0 +1,19 @@
+{
+  "name": "@meow/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/client.js",
+  "types": "./dist/client.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "typecheck": "tsc -b tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  }
+}

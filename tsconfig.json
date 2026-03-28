@@ -1,0 +1,17 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/domain-core" },
+    { "path": "./packages/domain-user" },
+    { "path": "./packages/domain-task" },
+    { "path": "./packages/domain-finance" },
+    { "path": "./packages/domain-risk" },
+    { "path": "./packages/contracts" },
+    { "path": "./packages/database" },
+    { "path": "./apps/app" },
+    { "path": "./apps/admin" },
+    { "path": "./apps/harness" },
+    { "path": "./apps/api" },
+    { "path": "./apps/wechat-miniapp" }
+  ]
+}

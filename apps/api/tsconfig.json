@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/contracts" },
+    { "path": "../../packages/database" },
+    { "path": "../../packages/domain-core" },
+    { "path": "../../packages/domain-finance" },
+    { "path": "../../packages/domain-risk" },
+    { "path": "../../packages/domain-task" },
+    { "path": "../../packages/domain-user" }
+  ]
+}
