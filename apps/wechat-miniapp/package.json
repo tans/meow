@@ -4,14 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b tsconfig.json",
-    "dev": "tsc -b tsconfig.json --watch --preserveWatchOutput",
-    "typecheck": "tsc -b tsconfig.json"
+    "build": "node ./scripts/check-js.mjs",
+    "dev": "node -e \"console.log('Use WeChat DevTools to run apps/wechat-miniapp/miniprogram')\"",
+    "typecheck": "node ./scripts/check-js.mjs",
+    "test": "vitest run"
   },
-  "dependencies": {
-    "@meow/contracts": "workspace:*",
-    "@meow/domain-core": "workspace:*",
-    "@meow/domain-task": "workspace:*",
-    "@meow/domain-user": "workspace:*"
+  "devDependencies": {
+    "vitest": "^3.1.2"
   }
 }

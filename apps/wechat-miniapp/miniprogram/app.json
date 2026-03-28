@@ -1,0 +1,46 @@
+{
+  "pages": [
+    "pages/workspace/index",
+    "pages/tasks/index",
+    "pages/wallet/index",
+    "pages/profile/index",
+    "pages/merchant/task-create/index",
+    "pages/merchant/task-detail/index",
+    "pages/merchant/review/index",
+    "pages/merchant/settlement/index",
+    "pages/creator/task-feed/index",
+    "pages/creator/task-detail/index",
+    "pages/creator/submission-edit/index",
+    "pages/creator/earnings/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "创意喵",
+    "navigationBarBackgroundColor": "#f6fbff",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f1f6fb"
+  },
+  "tabBar": {
+    "color": "#6a7b91",
+    "selectedColor": "#2b7de9",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/workspace/index",
+        "text": "工作台"
+      },
+      {
+        "pagePath": "pages/tasks/index",
+        "text": "任务"
+      },
+      {
+        "pagePath": "pages/wallet/index",
+        "text": "收益"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{subtitle}}</view>
+  </view>
+
+  <view class="page-section list-card">
+    <view
+      wx:for="{{entries}}"
+      wx:key="path"
+      class="list-card__row"
+      data-path="{{item.path}}"
+      bind:tap="onOpenEntry"
+    >
+      <view>
+        <view class="list-card__title">{{item.title}}</view>
+        <view class="list-card__meta">{{item.meta}}</view>
+      </view>
+      <view class="pill">进入</view>
+    </view>
+  </view>
+</view>

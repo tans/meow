@@ -1,0 +1,3 @@
+.workspace-card__summary {
+  margin-top: 16rpx;
+}

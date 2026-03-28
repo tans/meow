@@ -1,0 +1,12 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{summary}}</view>
+  </view>
+
+  <view class="page-section list-card">
+    <view wx:for="{{highlights}}" wx:key="*this" class="list-card__row">
+      <view class="list-card__title">{{item}}</view>
+    </view>
+  </view>
+</view>

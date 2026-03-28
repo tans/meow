@@ -1,0 +1,58 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{summary}}</view>
+  </view>
+
+  <view class="page-section card native-form">
+    <view class="native-form__field">
+      <view class="native-form__label">任务标题</view>
+      <input
+        class="native-form__input"
+        value="{{form.title}}"
+        data-field="title"
+        bind:input="onFieldInput"
+      />
+    </view>
+
+    <view class="native-form__field">
+      <view class="native-form__label">基础奖金额</view>
+      <input
+        class="native-form__input"
+        type="number"
+        value="{{form.baseAmount}}"
+        data-field="baseAmount"
+        bind:input="onFieldInput"
+      />
+    </view>
+
+    <view class="native-form__field">
+      <view class="native-form__label">基础奖份数</view>
+      <input
+        class="native-form__input"
+        type="number"
+        value="{{form.baseCount}}"
+        data-field="baseCount"
+        bind:input="onFieldInput"
+      />
+    </view>
+
+    <view class="native-form__field">
+      <view class="native-form__label">排名奖总额</view>
+      <input
+        class="native-form__input"
+        type="number"
+        value="{{form.rankingTotal}}"
+        data-field="rankingTotal"
+        bind:input="onFieldInput"
+      />
+    </view>
+
+    <view class="pill">需锁定预算 ¥{{budgetSummary.lockedTotal}}</view>
+    <view class="native-button" bind:tap="onPublishTap">
+      {{loading ? "发布中..." : "创建并发布任务"}}
+    </view>
+    <view wx:if="{{publishStatus}}" class="pill">{{publishStatus}}</view>
+    <view wx:if="{{error}}" class="native-empty">{{error}}</view>
+  </view>
+</view>

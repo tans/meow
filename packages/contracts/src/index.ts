@@ -34,6 +34,36 @@ export interface CreateSubmissionResponse extends CreateSubmissionInput {
   status: "submitted";
 }
 
+export interface ReviewSubmissionResponse {
+  submissionId: string;
+  status: "approved" | "rejected";
+  rewardType?: "base";
+  rewardStatus?: "frozen" | "cancelled";
+}
+
+export interface CreateTipResponse {
+  submissionId: string;
+  taskId: string;
+  rewardType: "tip";
+  rewardStatus: "frozen";
+  amount: number;
+}
+
+export interface CreateRankingRewardResponse {
+  submissionId: string;
+  taskId: string;
+  rewardType: "ranking";
+  rewardStatus: "frozen";
+  amount: number;
+}
+
+export interface SettleTaskResponse {
+  taskId: string;
+  status: "settled";
+  creatorAvailableDelta: number;
+  merchantRefundDelta: number;
+}
+
 export const routeContracts: RouteContract[] = [
   {
     id: "merchant-task-create",

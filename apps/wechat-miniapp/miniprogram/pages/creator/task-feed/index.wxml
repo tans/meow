@@ -1,0 +1,30 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{summary}}</view>
+  </view>
+
+  <view wx:if="{{cards.length}}" class="page-section list-card">
+    <view
+      wx:for="{{cards}}"
+      wx:key="id"
+      class="list-card__row"
+      data-task-id="{{item.id}}"
+      bind:tap="onCardTap"
+    >
+      <view>
+        <view class="list-card__title">{{item.title}}</view>
+        <view class="list-card__meta">{{item.merchantText}} · {{item.rewardText}}</view>
+      </view>
+      <view class="pill">{{item.badge}}</view>
+    </view>
+  </view>
+
+  <view wx:elif="{{error}}" class="page-section native-empty">
+    {{error}}
+  </view>
+
+  <view wx:else class="page-section native-empty">
+    当前没有公开任务，请先从商家身份发布任务。
+  </view>
+</view>

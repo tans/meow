@@ -1,0 +1,17 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{summary}}</view>
+  </view>
+
+  <view wx:if="{{task}}" class="page-section card">
+    <view class="list-card__title">{{task.title}}</view>
+    <view class="list-card__meta">状态：{{task.status}}</view>
+    <view class="list-card__meta">奖励：{{task.rewardText}}</view>
+    <view class="native-button" bind:tap="onSubmitTap">立即投稿</view>
+  </view>
+
+  <view wx:else class="page-section native-empty">
+    请先从任务池选择任务。
+  </view>
+</view>

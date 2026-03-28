@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/domain-core" },
+    { "path": "../../packages/domain-finance" },
+    { "path": "../../packages/domain-risk" },
+    { "path": "../../packages/contracts" }
+  ]
+}

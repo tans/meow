@@ -1,0 +1,20 @@
+{
+  "name": "@meow/app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "typecheck": "tsc -b tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@meow/contracts": "workspace:*",
+    "@meow/domain-core": "workspace:*",
+    "@meow/domain-task": "workspace:*",
+    "@meow/domain-user": "workspace:*"
+  }
+}

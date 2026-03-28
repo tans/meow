@@ -1,0 +1,16 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{summary}}</view>
+  </view>
+
+  <view wx:if="{{settlement}}" class="page-section card">
+    <view class="list-card__title">{{settlement.title}}</view>
+    <view class="list-card__meta">投稿 {{settlement.submittedCount}} · 通过 {{settlement.approvedCount}}</view>
+    <view wx:for="{{settlement.rewardPreview}}" wx:key="*this" class="pill">{{item}}</view>
+    <view class="native-button" bind:tap="onSettleTap">执行结算</view>
+  </view>
+
+  <view wx:if="{{result}}" class="pill">{{result}}</view>
+  <view wx:if="{{error}}" class="native-empty">{{error}}</view>
+</view>

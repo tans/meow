@@ -1,13 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "files": [],
+  "include": ["src"],
   "references": [
-    { "path": "../../packages/contracts" },
     { "path": "../../packages/domain-core" },
+    { "path": "../../packages/domain-user" },
     { "path": "../../packages/domain-task" },
-    { "path": "../../packages/domain-user" }
+    { "path": "../../packages/contracts" }
   ]
 }
+

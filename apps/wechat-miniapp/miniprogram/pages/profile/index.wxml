@@ -1,0 +1,22 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{subtitle}}</view>
+  </view>
+
+  <view class="page-section list-card">
+    <view
+      wx:for="{{roleCards}}"
+      wx:key="role"
+      class="list-card__row"
+      data-role="{{item.role}}"
+      bind:tap="onRoleTap"
+    >
+      <view>
+        <view class="list-card__title">{{item.title}}</view>
+        <view class="list-card__meta">{{item.description}}</view>
+      </view>
+      <view class="pill">{{item.active ? "当前身份" : "切换"}}</view>
+    </view>
+  </view>
+</view>

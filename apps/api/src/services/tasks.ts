@@ -31,12 +31,14 @@ export const publishTask = (
     throw new AppError(403, "merchant does not own task");
   }
 
-  const ledgerResult = lockMerchantEscrow();
+  const ledgerResult = lockMerchantEscrow(taskId);
 
   db.saveTask({
     ...task,
-    status: "published"
+    status: "published",
+    escrowLockedAmount: ledgerResult.lockedAmount
   });
+  db.appendLedgerEntries(ledgerResult.entries);
 
   return {
     id: taskId,
