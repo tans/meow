@@ -16,6 +16,24 @@ export interface PublishTaskResponse {
   ledgerEffect: "merchant_escrow_locked";
 }
 
+export interface CreatorTaskFeedItem {
+  id: string;
+  merchantId: string;
+  status: "published";
+}
+
+export interface CreateSubmissionInput {
+  assetUrl: string;
+  description: string;
+}
+
+export interface CreateSubmissionResponse extends CreateSubmissionInput {
+  id: string;
+  taskId: string;
+  creatorId: string;
+  status: "submitted";
+}
+
 export const routeContracts: RouteContract[] = [
   {
     id: "merchant-task-create",
@@ -40,6 +58,14 @@ export const routeContracts: RouteContract[] = [
     context: "task",
     permissions: ["creator:task:view"],
     purpose: "创作者浏览、筛选和报名任务"
+  },
+  {
+    id: "creator-submission-create",
+    surface: "app",
+    path: "/creator/tasks/:taskId/submissions",
+    context: "submission",
+    permissions: ["creator:submission:create"],
+    purpose: "创作者向公开任务提交作品"
   },
   {
     id: "creator-wallet",

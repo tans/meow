@@ -29,6 +29,9 @@ export const db = {
   getTask(taskId: string): DemoTaskRecord | undefined {
     return taskStore.get(taskId);
   },
+  listTasks(): DemoTaskRecord[] {
+    return [...taskStore.values()];
+  },
   saveTask(task: DemoTaskRecord): DemoTaskRecord {
     taskStore.set(task.id, task);
     return task;
