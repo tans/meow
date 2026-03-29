@@ -1,5 +1,5 @@
 import { listPublicTasks, setSelectedTaskId } from "../../src/services/tasks.js";
-import { mapTaskCard } from "../../src/view-models/task-feed.js";
+import { filterTaskCardsByChannel, mapTaskCard } from "../../src/view-models/task-feed.js";
 import { buildLobbyModel } from "../../src/view-models/workspace.js";
 
 Page({
@@ -37,13 +37,16 @@ Page({
 
     try {
       const tasks = await listPublicTasks();
+      const allCards = tasks.map(mapTaskCard);
+      const channelCards = filterTaskCardsByChannel(allCards, activeChannel);
+
       this.setData({
         title: lobby.title,
         heroText: lobby.heroText,
         heroSubtext: lobby.heroSubtext,
         activeChannel,
         channels: lobby.channels,
-        cards: tasks.map(mapTaskCard),
+        cards: channelCards,
         error: ""
       });
     } catch (error) {
