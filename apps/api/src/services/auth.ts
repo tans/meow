@@ -33,7 +33,14 @@ const resolveInitialRole = (roles: AppRole[]): AppRole => {
   return fallback;
 };
 
+const isDemoAuthEnabled = (): boolean =>
+  process.env.MEOW_DEMO_AUTH === "true" || process.env.MEOW_AUTH_MODE === "demo";
+
 export const loginWithDemoCredentials = (input: LoginRequest): LoginResult => {
+  if (!isDemoAuthEnabled()) {
+    throw new AppError(403, "demo auth disabled");
+  }
+
   if (input.secret !== "demo-pass") {
     throw new AppError(401, "invalid credentials");
   }
@@ -64,19 +71,29 @@ export const loginWithDemoCredentials = (input: LoginRequest): LoginResult => {
 };
 
 export const switchRoleForSession = (
-  session: AuthSessionPayload,
+  sessionId: string,
   input: SwitchRoleRequest
 ): AuthSessionPayload => {
-  if (!session.roles.includes(input.role)) {
+  const session = db.findSession(sessionId);
+  if (!session) {
+    throw new AppError(401, "invalid session");
+  }
+
+  const user = db.getUser(session.userId);
+  if (!user) {
+    throw new AppError(401, "invalid session");
+  }
+
+  if (!user.roles.includes(input.role)) {
     throw new AppError(403, "role access denied");
   }
 
-  const next = db.switchSessionRole(session.sessionId, input.role);
+  const next = db.switchSessionRole(session.id, input.role);
 
   return {
     sessionId: next.id,
     userId: next.userId,
     activeRole: next.activeRole,
-    roles: session.roles
+    roles: user.roles
   };
 };

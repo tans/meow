@@ -1,5 +1,6 @@
 import type { Context } from "hono";
 import type { AuthSessionPayload } from "@meow/contracts";
+import { getCookie } from "hono/cookie";
 import { db } from "./db.js";
 import { AppError } from "./errors.js";
 
@@ -11,24 +12,8 @@ export interface CreatorSession {
   id: "creator-1";
 }
 
-const readCookieValue = (cookie: string, name: string): string | undefined => {
-  const prefix = `${name}=`;
-
-  for (const part of cookie.split(";")) {
-    const token = part.trim();
-    if (!token.startsWith(prefix)) {
-      continue;
-    }
-
-    return token.slice(prefix.length);
-  }
-
-  return undefined;
-};
-
 export const requireSession = (c: Context): AuthSessionPayload => {
-  const cookie = c.req.header("cookie") ?? "";
-  const sessionId = readCookieValue(cookie, "meow_session");
+  const sessionId = getCookie(c, "meow_session");
 
   if (!sessionId) {
     throw new AppError(401, "missing session");
@@ -41,6 +26,10 @@ export const requireSession = (c: Context): AuthSessionPayload => {
 
   const user = db.getUser(session.userId);
   if (!user) {
+    throw new AppError(401, "invalid session");
+  }
+
+  if (!user.roles.includes(session.activeRole)) {
     throw new AppError(401, "invalid session");
   }
 

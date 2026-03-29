@@ -1,5 +1,6 @@
 import type { AppRole, LoginRequest, SwitchRoleRequest } from "@meow/contracts";
 import type { Context } from "hono";
+import { setCookie } from "hono/cookie";
 import { Hono } from "hono";
 import { AppError } from "../lib/errors.js";
 import { requireSession } from "../lib/session.js";
@@ -23,6 +24,11 @@ const readAuthJson = async (c: Context): Promise<Record<string, unknown>> => {
 
 const roleValues: AppRole[] = ["creator", "merchant", "operator"];
 const clientValues: LoginRequest["client"][] = ["web", "miniapp", "admin"];
+const sessionCookieName = "meow_session";
+const sessionCookieMaxAge = 60 * 60 * 24 * 7;
+
+const shouldSetSecureCookie = (): boolean =>
+  process.env.MEOW_COOKIE_SECURE === "true";
 
 const parseLoginInput = (input: Record<string, unknown>): LoginRequest => {
   const identifier = input.identifier;
@@ -41,8 +47,8 @@ const parseLoginInput = (input: Record<string, unknown>): LoginRequest => {
   }
 
   return {
-    identifier,
-    secret,
+    identifier: identifier.trim(),
+    secret: secret.trim(),
     client: client as LoginRequest["client"]
   };
 };
@@ -62,10 +68,13 @@ const parseSwitchRoleInput = (
 authRoutes.post("/login", async (c) => {
   const body = parseLoginInput(await readAuthJson(c));
   const { user, session } = loginWithDemoCredentials(body);
-  c.header(
-    "Set-Cookie",
-    `meow_session=${session.id}; Path=/; HttpOnly; SameSite=Lax`
-  );
+  setCookie(c, sessionCookieName, session.id, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "Lax",
+    maxAge: sessionCookieMaxAge,
+    secure: shouldSetSecureCookie()
+  });
 
   return c.json({
     sessionId: session.id,
@@ -85,5 +94,5 @@ authRoutes.post("/switch-role", async (c) => {
   const session = requireSession(c);
   const body = parseSwitchRoleInput(await readAuthJson(c));
 
-  return c.json(switchRoleForSession(session, body));
+  return c.json(switchRoleForSession(session.sessionId, body));
 });
