@@ -3,7 +3,9 @@ export interface DatabaseClient {
 }
 
 export const databaseClient: DatabaseClient = {
-  connected: false
+  connected: true
 };
 
 export * from "./schema.js";
+export * from "./repository.js";
+export * from "./seed.js";

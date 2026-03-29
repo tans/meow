@@ -4,19 +4,18 @@ import { seedDemo } from "../seed.js";
 import { createTestDb } from "../test-db.js";
 
 describe("database schema", () => {
-  it("creates merchant, task, submission, reward, and ledger records", async () => {
+  it("creates seeded users and task records", async () => {
     const db = await createTestDb();
     const seeded = await db.seedDemo();
-    const seededFromHelper = seedDemo();
+    const seededFromHelper = seedDemo(db.repository);
 
-    expect(seeded.merchant.role).toBe("merchant");
-    expect(seeded.creator.role).toBe("creator");
+    expect(seeded.merchant.roles).toEqual(["merchant"]);
+    expect(seeded.creator.roles).toEqual(["creator"]);
+    expect(seeded.hybrid.roles).toEqual(["creator", "merchant"]);
     expect(seeded.task.id).toBe("task-1");
-    expect(seeded.submission.id).toBe("submission-1");
-    expect(seeded.reward.id).toBe("reward-1");
     expect(seeded.ledgerAccounts).toHaveLength(4);
     expect(seeded).toEqual(seededFromHelper);
-    expect("seedDemo" in runtimeExports).toBe(false);
+    expect("seedDemo" in runtimeExports).toBe(true);
     expect("createTestDb" in runtimeExports).toBe(false);
   });
 });

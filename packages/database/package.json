@@ -9,6 +9,14 @@
     ".": {
       "types": "./dist/client.d.ts",
       "default": "./dist/client.js"
+    },
+    "./sqlite": {
+      "types": "./dist/sqlite.d.ts",
+      "default": "./dist/sqlite.js"
+    },
+    "./repository": {
+      "types": "./dist/repository.d.ts",
+      "default": "./dist/repository.js"
     }
   },
   "scripts": {
@@ -16,5 +24,13 @@
     "test": "vitest run",
     "typecheck": "tsc -b tsconfig.json",
     "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@meow/domain-finance": "workspace:*",
+    "better-sqlite3": "^12.8.0",
+    "drizzle-orm": "^0.43.1"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.1"
   }
 }
