@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -9,12 +9,7 @@ const miniProgramRoot = path.resolve(
   projectRoot,
   projectConfig.miniprogramRoot || "."
 );
-const canonicalMiniProgramRoot = existsSync(
-  path.join(projectRoot, "miniprogram", "app.json")
-)
-  ? path.join(projectRoot, "miniprogram")
-  : miniProgramRoot;
-const appConfigPath = path.join(canonicalMiniProgramRoot, "app.json");
+const appConfigPath = path.join(miniProgramRoot, "app.json");
 const appConfig = JSON.parse(readFileSync(appConfigPath, "utf8"));
 
 const relativeImportPattern =
