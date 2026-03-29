@@ -10,6 +10,6 @@ if (!container) {
 
 createRoot(container).render(
   <StrictMode>
-    <App />
+    <App bootstrapSession />
   </StrictMode>
 );
