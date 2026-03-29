@@ -9,6 +9,35 @@ export interface RouteContract {
   purpose: string;
 }
 
+export type AppRole = "creator" | "merchant" | "operator";
+export type AppClient = "web" | "miniapp" | "admin";
+
+export interface AuthUserSummary {
+  id: string;
+  displayName: string;
+}
+
+export interface AuthSessionPayload {
+  sessionId: string;
+  userId: string;
+  activeRole: AppRole;
+  roles: AppRole[];
+}
+
+export interface LoginRequest {
+  identifier: string;
+  secret: string;
+  client: AppClient;
+}
+
+export interface LoginResponse extends AuthSessionPayload {
+  user: AuthUserSummary;
+}
+
+export interface SwitchRoleRequest {
+  role: AppRole;
+}
+
 export interface PublishTaskResponse {
   id: string;
   merchantId: string;
