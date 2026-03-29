@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node ./scripts/check-js.mjs",
-    "dev": "node -e \"console.log('Use WeChat DevTools to run apps/wechat-miniapp/miniprogram')\"",
+    "dev": "node -e \"console.log('Use WeChat DevTools to run apps/wechat-miniapp')\"",
     "typecheck": "node ./scripts/check-js.mjs",
     "test": "vitest run"
   },
