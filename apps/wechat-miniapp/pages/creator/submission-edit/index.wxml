@@ -1,0 +1,36 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{summary}}</view>
+  </view>
+
+  <view wx:if="{{task}}" class="page-section card native-form">
+    <view class="pill">{{task.title}}</view>
+    <view class="native-form__field">
+      <view class="native-form__label">素材链接</view>
+      <input
+        class="native-form__input"
+        value="{{form.assetUrl}}"
+        data-field="assetUrl"
+        bind:input="onFieldInput"
+      />
+    </view>
+    <view class="native-form__field">
+      <view class="native-form__label">作品描述</view>
+      <input
+        class="native-form__input"
+        value="{{form.description}}"
+        data-field="description"
+        bind:input="onFieldInput"
+      />
+    </view>
+    <view class="native-button" bind:tap="onSubmitTap">{{submitLabel}}</view>
+  </view>
+
+  <view wx:else class="page-section native-empty">
+    请先从任务池选择任务。
+  </view>
+
+  <view wx:if="{{result}}" class="pill">{{result}}</view>
+  <view wx:if="{{error}}" class="native-empty">{{error}}</view>
+</view>

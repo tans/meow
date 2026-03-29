@@ -1,0 +1,61 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{summary}}</view>
+  </view>
+
+  <view wx:if="{{task}}" class="page-section card">
+    <view class="list-card__title">{{task.title}}</view>
+    <view class="list-card__meta">状态：{{task.status}}</view>
+    <view class="list-card__meta">奖励：{{task.rewardText}}</view>
+    <view class="list-card__meta">我的投稿：{{task.creatorSubmissionCount}}</view>
+    <view
+      wx:if="{{task.canSubmit}}"
+      class="native-button"
+      bind:tap="onSubmitTap"
+    >
+      立即投稿
+    </view>
+    <view wx:else class="native-empty">
+      当前任务不可投稿
+    </view>
+  </view>
+
+  <view wx:if="{{task}}" class="page-section list-card">
+    <view class="list-card__title">我的投稿</view>
+    <view wx:if="{{submissionCards.length}}">
+      <view
+        wx:for="{{submissionCards}}"
+        wx:key="submissionId"
+        class="list-card__row"
+      >
+        <view>
+          <view class="list-card__title">{{item.title}}</view>
+          <view class="list-card__meta">状态：{{item.statusText}}</view>
+        </view>
+        <view>
+          <view class="pill">{{item.rewardTag}}</view>
+          <view wx:if="{{item.canEdit}}" class="native-button native-button--ghost" data-submission-id="{{item.submissionId}}" bind:tap="onEditTap">
+            修改
+          </view>
+          <view wx:if="{{item.canWithdraw}}" class="native-button native-button--ghost" data-submission-id="{{item.submissionId}}" bind:tap="onWithdrawTap">
+            撤回
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="native-empty">
+      还没有投稿记录
+    </view>
+  </view>
+
+  <view wx:if="{{feedback}}" class="pill">{{feedback}}</view>
+
+  <view wx:if="{{error}}" class="page-section native-empty">
+    {{error}}
+  </view>
+
+  <view wx:if="{{!task && !error}}" class="page-section native-empty">
+    请先从任务池选择任务。
+  </view>
+</view>

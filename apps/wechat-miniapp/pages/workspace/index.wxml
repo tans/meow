@@ -1,0 +1,19 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="pill">{{role}}</view>
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{subtitle}}</view>
+    <view class="page-section">
+      <view class="pill">{{primaryAction}}</view>
+    </view>
+  </view>
+
+  <view class="page-section list-card">
+    <view wx:for="{{stats}}" wx:key="label" class="list-card__row">
+      <view>
+        <view class="list-card__title">{{item.label}}</view>
+      </view>
+      <view class="pill">{{item.value}}</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,56 @@
+<view class="page-shell">
+  <view class="card">
+    <view class="page-title">{{title}}</view>
+    <view class="page-subtitle">{{summary}}</view>
+  </view>
+
+  <view wx:if="{{task}}" class="page-section card">
+    <view class="list-card__title">{{task.title}}</view>
+    <view class="list-card__meta">{{task.rewardText}}</view>
+  </view>
+
+  <view wx:if="{{cards.length}}" class="page-section list-card">
+    <view wx:for="{{cards}}" wx:key="submissionId" class="list-card__row">
+      <view>
+        <view class="list-card__title">{{item.creatorText}}</view>
+        <view class="list-card__meta">{{item.statusText}} · {{item.rewardTag}}</view>
+      </view>
+      <view class="native-form">
+        <view
+          wx:if="{{item.canApprove}}"
+          class="native-button native-button--ghost"
+          data-submission-id="{{item.submissionId}}"
+          data-index="{{index}}"
+          bind:tap="onApproveTap"
+        >
+          通过
+        </view>
+        <view
+          wx:if="{{item.canTip}}"
+          class="native-button native-button--ghost"
+          data-submission-id="{{item.submissionId}}"
+          data-index="{{index}}"
+          bind:tap="onTipTap"
+        >
+          打赏
+        </view>
+        <view
+          wx:if="{{item.canRanking}}"
+          class="native-button"
+          data-submission-id="{{item.submissionId}}"
+          data-index="{{index}}"
+          bind:tap="onRankingTap"
+        >
+          排名奖
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="page-section native-empty">
+    还没有投稿，请先在创作者身份下提交作品。
+  </view>
+
+  <view wx:if="{{feedback}}" class="pill">{{feedback}}</view>
+  <view wx:if="{{error}}" class="native-empty">{{error}}</view>
+</view>
