@@ -51,6 +51,13 @@ export interface CreatorTaskFeedItem {
   status: "published";
 }
 
+export interface CreatorTaskDetail {
+  id: string;
+  merchantId: string;
+  status: "published" | "paused" | "ended" | "settled" | "closed";
+  creatorSubmissionCount: number;
+}
+
 export interface CreateSubmissionInput {
   assetUrl: string;
   description: string;
@@ -61,6 +68,58 @@ export interface CreateSubmissionResponse extends CreateSubmissionInput {
   taskId: string;
   creatorId: string;
   status: "submitted";
+}
+
+export interface UpdateSubmissionResponse extends CreateSubmissionInput {
+  id: string;
+  taskId: string;
+  creatorId: string;
+  status: "submitted";
+}
+
+export interface WithdrawSubmissionResponse {
+  submissionId: string;
+  status: "withdrawn";
+}
+
+export interface MerchantTaskListItem {
+  id: string;
+  merchantId: string;
+  status: "draft" | "published" | "paused" | "ended" | "settled" | "closed";
+  escrowLockedAmount: number;
+  submissionCount: number;
+}
+
+export interface MerchantTaskDetail extends MerchantTaskListItem {
+  rewardTags: Array<"base" | "ranking" | "tip">;
+}
+
+export interface SubmissionReadModelItem {
+  id: string;
+  taskId: string;
+  creatorId: string;
+  status: "submitted" | "approved" | "rejected" | "withdrawn";
+  rewardTags: Array<"base" | "ranking" | "tip">;
+}
+
+export interface CreatorSubmissionItem extends SubmissionReadModelItem {
+  assetUrl: string;
+  description: string;
+}
+
+export interface CreatorWalletSnapshot {
+  creatorId: string;
+  frozenAmount: number;
+  availableAmount: number;
+  submissionCount: number;
+}
+
+export interface MerchantWalletSnapshot {
+  merchantId: string;
+  escrowAmount: number;
+  refundableAmount: number;
+  tipSpentAmount: number;
+  publishedTaskCount: number;
 }
 
 export interface ReviewSubmissionResponse {
@@ -159,3 +218,5 @@ export const routeContracts: RouteContract[] = [
     purpose: "系统参数、权限与日志管理"
   }
 ];
+
+export const surfaceIds = ["web", "wechat-miniapp", "admin", "api"] as const;

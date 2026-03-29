@@ -24,7 +24,7 @@
         bind:input="onFieldInput"
       />
     </view>
-    <view class="native-button" bind:tap="onSubmitTap">提交作品</view>
+    <view class="native-button" bind:tap="onSubmitTap">{{submitLabel}}</view>
   </view>
 
   <view wx:else class="page-section native-empty">

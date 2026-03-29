@@ -1,4 +1,4 @@
-import { getAppRole, setAppRole } from "../../../src/services/role.js";
+import { getAppRole, switchAppRole } from "../../../src/services/role.js";
 import { buildProfileModel } from "../../../src/view-models/workspace.js";
 
 Page({
@@ -21,18 +21,18 @@ Page({
     });
   },
 
-  onRoleTap(event) {
+  async onRoleTap(event) {
     const { role } = event.currentTarget.dataset;
 
     if (!role || role === this.data.currentRole) {
       return;
     }
 
-    setAppRole(role);
-    const model = buildProfileModel(role);
+    await switchAppRole(role);
+    const model = buildProfileModel(getAppRole());
 
     this.setData({
-      currentRole: role,
+      currentRole: getAppRole(),
       "roleCards[0].active": model.roleCards[0].active,
       "roleCards[1].active": model.roleCards[1].active
     });

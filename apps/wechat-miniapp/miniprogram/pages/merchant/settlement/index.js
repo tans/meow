@@ -14,7 +14,7 @@ Page({
 
   async onShow() {
     const task = await getSelectedTask();
-    const submissions = task ? listTaskSubmissions(task.id) : [];
+    const submissions = task ? await listTaskSubmissions(task.id) : [];
 
     this.setData({
       task,
@@ -27,8 +27,19 @@ Page({
   async onSettleTap() {
     try {
       const response = await settleMerchantTask(this.data.task.id);
+      const refreshedTask = await getSelectedTask();
+      const submissions = refreshedTask
+        ? await listTaskSubmissions(refreshedTask.id)
+        : [];
       this.setData({
-        "settlement.rewardPreview": [`创作者可提现 +${response.creatorAvailableDelta}`, `商家退款 +${response.merchantRefundDelta}`],
+        task: refreshedTask,
+        settlement: {
+          ...buildSettlementSummary(refreshedTask, submissions),
+          rewardPreview: [
+            `创作者可提现 +${response.creatorAvailableDelta}`,
+            `商家退款 +${response.merchantRefundDelta}`
+          ]
+        },
         result: `任务 ${response.taskId} 已结算`,
         error: ""
       });

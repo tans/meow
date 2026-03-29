@@ -1,10 +1,35 @@
 import { describe, expect, it } from "vitest";
+import { createRoleService } from "../services/role.js";
 import {
   buildAwardsModel,
   buildLobbyModel,
   buildProfileModel,
   getTabBarItems
 } from "../view-models/workspace.js";
+
+describe("mini program role service", () => {
+  it("loads the current session and switches between creator and merchant", async () => {
+    const api = {
+      getSession: async () => ({
+        user: { id: "user-1" },
+        activeRole: "creator",
+        roles: ["creator", "merchant"]
+      }),
+      switchRole: async (role) => ({
+        user: { id: "user-1" },
+        activeRole: role,
+        roles: ["creator", "merchant"]
+      })
+    };
+
+    const service = createRoleService(api);
+
+    expect(await service.loadSession()).toMatchObject({ activeRole: "creator" });
+    expect(await service.switchRole("merchant")).toMatchObject({
+      activeRole: "merchant"
+    });
+  });
+});
 
 describe("creator community shell models", () => {
   it("returns the three-tab community shell", () => {

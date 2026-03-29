@@ -37,13 +37,11 @@ const getApiBaseUrl = () => {
 };
 
 const merchantHeader = () => ({
-  "content-type": "application/json",
-  "x-demo-user": "merchant-1"
+  "content-type": "application/json"
 });
 
 const creatorHeader = () => ({
-  "content-type": "application/json",
-  "x-demo-user": "creator-1"
+  "content-type": "application/json"
 });
 
 const getRewardText = (input) =>
@@ -130,8 +128,6 @@ export const createMerchantTaskDraft = async (input) => {
   store.taskMetaById[response.taskId] = meta;
   store.latestMerchantTask = meta;
   store.selectedTaskId = response.taskId;
-  store.wallet.merchant.escrow = meta.budgetSummary.lockedTotal;
-  store.wallet.merchant.refundPending = meta.budgetSummary.rankingTotal;
 
   return meta;
 };
@@ -158,6 +154,37 @@ export const publishMerchantTask = async (taskId) => {
   store.selectedTaskId = taskId;
 
   return publishedTask;
+};
+
+export const listMerchantTasks = async () => {
+  const items = await request({
+    url: `${getApiBaseUrl()}/merchant/tasks`,
+    method: "GET",
+    header: merchantHeader()
+  });
+
+  const store = getStore();
+
+  return items.map((task) => {
+    const meta = store.taskMetaById[task.id] || {};
+    return {
+      id: task.id,
+      merchantId: task.merchantId,
+      title: meta.title || getTaskTitle(task.id),
+      status: task.status,
+      rewardText: meta.rewardText || "基础奖+排名奖",
+      budgetSummary:
+        meta.budgetSummary ||
+        {
+          baseAmount: 0,
+          baseCount: 0,
+          rankingTotal: task.escrowLockedAmount,
+          lockedTotal: task.escrowLockedAmount
+        },
+      escrowLockedAmount: task.escrowLockedAmount,
+      submissionCount: task.submissionCount
+    };
+  });
 };
 
 export const listPublicTasks = async () => {
@@ -193,20 +220,37 @@ export const getSelectedTask = async () => {
     return null;
   }
 
-  const publicTasks = await listPublicTasks().catch(() => []);
+  const [publicTasks, merchantTasks] = await Promise.all([
+    listPublicTasks().catch(() => []),
+    listMerchantTasks().catch(() => [])
+  ]);
   const publicTask = publicTasks.find((task) => task.id === selectedTaskId);
+  const merchantTask = merchantTasks.find((task) => task.id === selectedTaskId);
   const meta = store.taskMetaById[selectedTaskId];
 
-  if (!publicTask && !meta) {
+  if (!publicTask && !merchantTask && !meta) {
     return null;
   }
 
   return {
     id: selectedTaskId,
-    title: meta?.title || publicTask?.title || getTaskTitle(selectedTaskId),
-    status: meta?.status || publicTask?.status || "draft",
-    rewardText: meta?.rewardText || publicTask?.rewardText || "基础奖+排名奖",
-    budgetSummary: meta?.budgetSummary || null
+    title:
+      merchantTask?.title ||
+      meta?.title ||
+      publicTask?.title ||
+      getTaskTitle(selectedTaskId),
+    status:
+      merchantTask?.status ||
+      meta?.status ||
+      publicTask?.status ||
+      "draft",
+    rewardText:
+      merchantTask?.rewardText ||
+      meta?.rewardText ||
+      publicTask?.rewardText ||
+      "基础奖+排名奖",
+    budgetSummary: merchantTask?.budgetSummary || meta?.budgetSummary || null,
+    submissionCount: merchantTask?.submissionCount || 0
   };
 };
 
@@ -216,7 +260,86 @@ export const setSelectedTaskId = (taskId) => {
   return store.selectedTaskId;
 };
 
-export const getLatestMerchantTask = () => {
+export const getSelectedTaskId = () => {
   const store = getStore();
-  return store.latestMerchantTask;
+  return store.selectedTaskId;
+};
+
+export const getLatestMerchantTask = async () => {
+  const store = getStore();
+  const tasks = await listMerchantTasks().catch(() => []);
+
+  if (store.selectedTaskId) {
+    const selectedTask = tasks.find((task) => task.id === store.selectedTaskId);
+
+    if (selectedTask) {
+      store.latestMerchantTask = selectedTask;
+      return selectedTask;
+    }
+  }
+
+  const latestTask = tasks.at(-1) || store.latestMerchantTask;
+
+  if (latestTask?.id) {
+    store.latestMerchantTask = latestTask;
+    store.selectedTaskId = latestTask.id;
+  }
+
+  return latestTask || null;
+};
+
+export const getMerchantTaskDetail = async (taskId) => {
+  const task = await request({
+    url: `${getApiBaseUrl()}/merchant/tasks/${taskId}`,
+    method: "GET",
+    header: merchantHeader()
+  });
+  const store = getStore();
+  const meta = store.taskMetaById[task.id] || {};
+
+  const detail = {
+    id: task.id,
+    merchantId: task.merchantId,
+    title: meta.title || getTaskTitle(task.id),
+    status: task.status,
+    rewardText:
+      meta.rewardText ||
+      (task.rewardTags.length ? task.rewardTags.join("/") : "基础奖+排名奖"),
+    budgetSummary:
+      meta.budgetSummary ||
+      {
+        baseAmount: 0,
+        baseCount: 0,
+        rankingTotal: task.escrowLockedAmount,
+        lockedTotal: task.escrowLockedAmount
+      },
+    escrowLockedAmount: task.escrowLockedAmount,
+    submissionCount: task.submissionCount,
+    rewardTags: task.rewardTags
+  };
+
+  store.taskMetaById[task.id] = {
+    ...meta,
+    ...detail
+  };
+
+  return detail;
+};
+
+export const getCreatorTaskDetail = async (taskId) => {
+  const task = await request({
+    url: `${getApiBaseUrl()}/creator/tasks/${taskId}`,
+    method: "GET",
+    header: creatorHeader()
+  });
+  const store = getStore();
+  const meta = store.taskMetaById[task.id] || {};
+  const detail = mergeCreatorTaskDetail(task, meta);
+
+  store.taskMetaById[task.id] = {
+    ...meta,
+    ...detail
+  };
+
+  return detail;
 };

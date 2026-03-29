@@ -14,7 +14,7 @@ Page({
 
   async onShow() {
     const task = await getSelectedTask();
-    const submissions = task ? listTaskSubmissions(task.id) : [];
+    const submissions = task ? await listTaskSubmissions(task.id) : [];
 
     this.setData({
       task,
@@ -42,10 +42,9 @@ Page({
     try {
       if (action === "approve") {
         await reviewTaskSubmission(this.data.task.id, submissionId);
+        const submissions = await listTaskSubmissions(this.data.task.id);
         this.setData({
-          [`cards[${index}].statusText`]: "已通过",
-          [`cards[${index}].rewardTag`]: "基础奖已冻结",
-          [`cards[${index}].canApprove`]: false,
+          cards: submissions.map(mapReviewCard),
           feedback: "已审核通过并冻结基础奖",
           error: ""
         });
@@ -54,8 +53,9 @@ Page({
 
       if (action === "tip") {
         await tipTaskSubmission(this.data.task.id, submissionId);
+        const submissions = await listTaskSubmissions(this.data.task.id);
         this.setData({
-          [`cards[${index}].rewardTag`]: "基础奖/打赏已冻结",
+          cards: submissions.map(mapReviewCard),
           feedback: "已追加打赏",
           error: ""
         });
@@ -63,8 +63,9 @@ Page({
       }
 
       await addRankingReward(this.data.task.id, submissionId);
+      const submissions = await listTaskSubmissions(this.data.task.id);
       this.setData({
-        [`cards[${index}].rewardTag`]: "基础奖/排名奖已冻结",
+        cards: submissions.map(mapReviewCard),
         feedback: "已发放排名奖",
         error: ""
       });

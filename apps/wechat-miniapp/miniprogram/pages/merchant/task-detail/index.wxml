@@ -8,9 +8,15 @@
     <view class="list-card__title">{{task.title}}</view>
     <view class="list-card__meta">状态：{{task.status}}</view>
     <view class="list-card__meta">奖励：{{task.rewardText}}</view>
+    <view class="list-card__meta">投稿数：{{task.submissionCount}}</view>
     <view class="pill">锁定预算 ¥{{task.budgetSummary.lockedTotal}}</view>
+    <view wx:if="{{task.rewardTags.length}}" class="list-card__meta">已发奖励：{{task.rewardTags.join("/")}}</view>
     <view class="native-button native-button--ghost" bind:tap="onOpenReview">前往审核</view>
     <view class="native-button" bind:tap="onOpenSettlement">前往结算</view>
+  </view>
+
+  <view wx:elif="{{error}}" class="page-section native-empty">
+    {{error}}
   </view>
 
   <view wx:else class="page-section native-empty">

@@ -7,13 +7,11 @@ const getApiBaseUrl = () => {
 };
 
 const merchantHeader = () => ({
-  "content-type": "application/json",
-  "x-demo-user": "merchant-1"
+  "content-type": "application/json"
 });
 
 const creatorHeader = () => ({
-  "content-type": "application/json",
-  "x-demo-user": "creator-1"
+  "content-type": "application/json"
 });
 
 const ensureSubmissionBucket = (taskId) => {
@@ -43,14 +41,94 @@ export const createCreatorSubmission = async (taskId, input) => {
   };
 
   bucket.unshift(submission);
-  store.wallet.creator.weeklyAdded += 1;
 
   return submission;
 };
 
-export const listTaskSubmissions = (taskId) => {
+export const listTaskSubmissions = async (taskId) => {
+  const items = await request({
+    url: `${getApiBaseUrl()}/merchant/tasks/${taskId}/submissions`,
+    method: "GET",
+    header: merchantHeader()
+  });
+
   const bucket = ensureSubmissionBucket(taskId);
+  bucket.splice(0, bucket.length, ...items.map((item) => ({
+    id: item.id,
+    taskId: item.taskId,
+    creatorId: item.creatorId,
+    status: item.status,
+    rewardTag:
+      item.rewardTags.length > 0
+        ? item.rewardTags.join("/")
+        : "待审核"
+  })));
+
   return bucket;
+};
+
+export const listCreatorSubmissions = async () => {
+  const items = await request({
+    url: `${getApiBaseUrl()}/creator/submissions`,
+    method: "GET",
+    header: creatorHeader()
+  });
+
+  return items.map((item) => ({
+    id: item.id,
+    taskId: item.taskId,
+    creatorId: item.creatorId,
+    assetUrl: item.assetUrl,
+    description: item.description,
+    status: item.status,
+    rewardTag:
+      item.rewardTags.length > 0
+        ? item.rewardTags.join("/")
+        : "待审核"
+  }));
+};
+
+export const listCreatorTaskSubmissions = async (taskId) => {
+  const items = await request({
+    url: `${getApiBaseUrl()}/creator/tasks/${taskId}/submissions`,
+    method: "GET",
+    header: creatorHeader()
+  });
+
+  return items.map((item) => ({
+    id: item.id,
+    taskId: item.taskId,
+    creatorId: item.creatorId,
+    assetUrl: item.assetUrl,
+    description: item.description,
+    status: item.status,
+    rewardTag:
+      item.rewardTags.length > 0
+        ? item.rewardTags.join("/")
+        : "待审核"
+  }));
+};
+
+export const getCreatorTaskSubmission = async (taskId, submissionId) => {
+  const submissions = await listCreatorTaskSubmissions(taskId);
+  return submissions.find((item) => item.id === submissionId) || null;
+};
+
+export const updateCreatorSubmission = async (submissionId, input) => {
+  return await request({
+    url: `${getApiBaseUrl()}/creator/submissions/${submissionId}`,
+    method: "PATCH",
+    data: input,
+    header: creatorHeader()
+  });
+};
+
+export const withdrawCreatorSubmission = async (submissionId) => {
+  return await request({
+    url: `${getApiBaseUrl()}/creator/submissions/${submissionId}/withdraw`,
+    method: "POST",
+    header: creatorHeader()
+  });
 };
 
 export const reviewTaskSubmission = async (taskId, submissionId, decision = "approved") => {
@@ -76,10 +154,6 @@ export const reviewTaskSubmission = async (taskId, submissionId, decision = "app
     };
   }
 
-  if (response.status === "approved") {
-    store.wallet.creator.frozen += 1;
-  }
-
   return response;
 };
 
@@ -100,9 +174,6 @@ export const tipTaskSubmission = async (taskId, submissionId) => {
       rewardTag: "基础奖/打赏已冻结"
     };
   }
-
-  store.wallet.creator.frozen += response.amount;
-  store.wallet.merchant.tipSpend += response.amount;
 
   return response;
 };
@@ -126,33 +197,13 @@ export const addRankingReward = async (taskId, submissionId) => {
     };
   }
 
-  store.wallet.creator.frozen += response.amount;
-  store.wallet.merchant.refundPending = Math.max(
-    store.wallet.merchant.refundPending - response.amount,
-    0
-  );
-
   return response;
 };
 
 export const settleMerchantTask = async (taskId) => {
-  const response = await request({
+  return await request({
     url: `${getApiBaseUrl()}/merchant/tasks/${taskId}/settle`,
     method: "POST",
     header: merchantHeader()
   });
-
-  const store = getStore();
-  store.wallet.creator.available += response.creatorAvailableDelta;
-  store.wallet.creator.frozen = Math.max(
-    store.wallet.creator.frozen - response.creatorAvailableDelta,
-    0
-  );
-  store.wallet.merchant.escrow = Math.max(
-    store.wallet.merchant.escrow - response.creatorAvailableDelta - response.merchantRefundDelta,
-    0
-  );
-  store.wallet.merchant.refundPending = 0;
-
-  return response;
 };

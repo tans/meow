@@ -4,9 +4,14 @@
     <view class="page-subtitle">{{summary}}</view>
   </view>
 
-  <view class="page-section list-card">
-    <view wx:for="{{highlights}}" wx:key="*this" class="list-card__row">
-      <view class="list-card__title">{{item}}</view>
+  <view wx:if="{{cards.length}}" class="page-section list-card">
+    <view wx:for="{{cards}}" wx:key="label" class="list-card__row">
+      <view class="list-card__title">{{item.label}}</view>
+      <view class="pill">{{item.value}}</view>
     </view>
+  </view>
+
+  <view wx:elif="{{error}}" class="page-section native-empty">
+    {{error}}
   </view>
 </view>

@@ -6,9 +6,41 @@ export const mapReviewCard = (submission) => ({
       ? "已通过"
       : submission.status === "rejected"
         ? "已驳回"
+        : submission.status === "withdrawn"
+          ? "已撤回"
         : "待审核",
-  rewardTag: submission.rewardTag || "待审核",
-  canApprove: submission.status === "submitted"
+  rewardTag:
+    submission.rewardTag ||
+    (submission.status === "withdrawn"
+      ? "已撤回"
+      : submission.status === "rejected"
+        ? "已驳回"
+        : "待审核"),
+  canApprove: submission.status === "submitted",
+  canTip: submission.status !== "withdrawn",
+  canRanking: submission.status !== "withdrawn"
+});
+
+export const mapCreatorSubmissionCard = (submission) => ({
+  submissionId: submission.id,
+  title: `投稿 ${submission.id}`,
+  statusText:
+    submission.status === "approved"
+      ? "已通过"
+      : submission.status === "rejected"
+        ? "已驳回"
+        : submission.status === "withdrawn"
+          ? "已撤回"
+        : "待审核",
+  rewardTag:
+    submission.rewardTag ||
+    (submission.status === "withdrawn"
+      ? "已撤回"
+      : submission.status === "rejected"
+        ? "已驳回"
+        : "待审核"),
+  canEdit: submission.status === "submitted",
+  canWithdraw: submission.status === "submitted"
 });
 
 export const buildSettlementSummary = (task, submissions) => ({

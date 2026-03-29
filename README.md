@@ -29,11 +29,15 @@ pnpm harness
 
 ```bash
 pnpm --filter @meow/api dev
+pnpm --filter @meow/web dev
 pnpm --filter @meow/admin dev
 pnpm --filter @meow/wechat-miniapp dev
 ```
 
 微信小程序使用原生工程目录 `apps/wechat-miniapp/miniprogram`，通过微信开发者工具打开，不走跨端框架。
+
+`apps/web` 与 `apps/wechat-miniapp` 共用同一套 `/auth/*`、`/creator/*`、`/merchant/*` 接口；
+`apps/admin` 使用 `/admin/*` 接口，登录账号必须具备 `operator` 角色。
 
 ## Smoke Check
 

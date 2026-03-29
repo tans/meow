@@ -1,20 +1,10 @@
 const createDefaultState = () => ({
+  session: null,
+  sessionCookie: "",
   selectedTaskId: "",
   latestMerchantTask: null,
   taskMetaById: {},
-  submissionsByTaskId: {},
-  wallet: {
-    merchant: {
-      escrow: 0,
-      refundPending: 0,
-      tipSpend: 0
-    },
-    creator: {
-      frozen: 0,
-      available: 0,
-      weeklyAdded: 0
-    }
-  }
+  submissionsByTaskId: {}
 });
 
 let fallbackState = createDefaultState();
@@ -34,4 +24,20 @@ export const getStore = () => {
 export const resetStore = () => {
   fallbackState = cloneState();
   return fallbackState;
+};
+
+export const getSessionState = () => getStore().session || null;
+
+export const setSessionState = (session) => {
+  const store = getStore();
+  store.session = session;
+  return store.session;
+};
+
+export const getSessionCookie = () => getStore().sessionCookie || "";
+
+export const setSessionCookie = (cookieHeader) => {
+  const store = getStore();
+  store.sessionCookie = cookieHeader || "";
+  return store.sessionCookie;
 };

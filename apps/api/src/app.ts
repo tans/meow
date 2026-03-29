@@ -1,3 +1,4 @@
+import { surfaceIds } from "@meow/contracts";
 import { Hono } from "hono";
 import { isAppError } from "./lib/errors.js";
 import { adminRoutes } from "./routes/admin.js";
@@ -15,7 +16,9 @@ app.onError((error, c) => {
   throw error;
 });
 
-app.get("/health", (c) => c.json({ ok: true, service: "meow-api" }));
+app.get("/health", (c) =>
+  c.json({ ok: true, service: "meow-api", surfaces: surfaceIds })
+);
 app.route("/auth", authRoutes);
 app.route("/admin", adminRoutes);
 app.route("/creator", creatorRoutes);
