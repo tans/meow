@@ -16,6 +16,8 @@ import { seedDemo } from "./seed.js";
 
 export interface CreateRepositoryOptions {
   seedDemo?: boolean;
+  enableWal?: boolean;
+  busyTimeoutMs?: number;
 }
 
 const ensureSchema = (db: DatabaseSync) => {
@@ -99,6 +101,19 @@ const ensureSchema = (db: DatabaseSync) => {
     CREATE INDEX IF NOT EXISTS idx_rewards_creator_id ON rewards(creator_id);
     CREATE INDEX IF NOT EXISTS idx_ledger_entries_task_id ON ledger_entries(task_id);
   `);
+};
+
+const configureRuntimePragmas = (
+  db: DatabaseSync,
+  filename: string,
+  options: CreateRepositoryOptions
+) => {
+  const busyTimeoutMs = options.busyTimeoutMs ?? 5000;
+  db.exec(`PRAGMA busy_timeout = ${busyTimeoutMs}`);
+
+  if (filename !== ":memory:" && options.enableWal !== false) {
+    db.exec("PRAGMA journal_mode = WAL");
+  }
 };
 
 const serializeRoles = (roles: Role[]) => JSON.stringify(roles);
@@ -248,8 +263,45 @@ export const createRepository = (
 ): DatabaseRepository => {
   const sqlite = new DatabaseSync(filename);
   ensureSchema(sqlite);
+  configureRuntimePragmas(sqlite, filename, options);
+  let transactionDepth = 0;
 
   const repository: DatabaseRepository = {
+    transaction(run) {
+      const depth = transactionDepth;
+      const savepoint = `meow_tx_${depth}`;
+      transactionDepth += 1;
+
+      if (depth === 0) {
+        sqlite.exec("BEGIN IMMEDIATE");
+      } else {
+        sqlite.exec(`SAVEPOINT ${savepoint}`);
+      }
+
+      try {
+        const result = run();
+
+        if (depth === 0) {
+          sqlite.exec("COMMIT");
+        } else {
+          sqlite.exec(`RELEASE SAVEPOINT ${savepoint}`);
+        }
+
+        return result;
+      } catch (error) {
+        if (depth === 0) {
+          sqlite.exec("ROLLBACK");
+        } else {
+          sqlite.exec(`ROLLBACK TO SAVEPOINT ${savepoint}`);
+          sqlite.exec(`RELEASE SAVEPOINT ${savepoint}`);
+        }
+
+        throw error;
+      } finally {
+        transactionDepth -= 1;
+      }
+    },
+
     saveUser(user) {
       sqlite
         .prepare(
@@ -616,35 +668,37 @@ export const createRepository = (
     },
 
     appendLedgerEntries(entries) {
-      const insert = sqlite.prepare(
-        `
-        INSERT INTO ledger_entries (
-          id, task_id, submission_id, account, amount, direction, note, anomaly_reason
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `
-      );
-      const records = entries.map((entry) => {
-        const record: LedgerEntryRecord = {
-          ...entry,
-          id: `ledger-${randomUUID()}`
-        };
-
-        insert.run(
-          record.id,
-          record.taskId,
-          record.submissionId ?? null,
-          record.account,
-          record.amount,
-          record.direction,
-          record.note,
-          record.anomalyReason ?? null
+      return repository.transaction(() => {
+        const insert = sqlite.prepare(
+          `
+          INSERT INTO ledger_entries (
+            id, task_id, submission_id, account, amount, direction, note, anomaly_reason
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `
         );
+        const records = entries.map((entry) => {
+          const record: LedgerEntryRecord = {
+            ...entry,
+            id: `ledger-${randomUUID()}`
+          };
 
-        return record;
+          insert.run(
+            record.id,
+            record.taskId,
+            record.submissionId ?? null,
+            record.account,
+            record.amount,
+            record.direction,
+            record.note,
+            record.anomalyReason ?? null
+          );
+
+          return record;
+        });
+
+        return records;
       });
-
-      return records;
     },
 
     markLedgerAnomaly(entryId, reason) {

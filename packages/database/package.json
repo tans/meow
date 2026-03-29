@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "@meow/domain-finance": "workspace:*",
-    "better-sqlite3": "^12.8.0",
     "drizzle-orm": "^0.43.1"
   },
   "devDependencies": {

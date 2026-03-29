@@ -85,6 +85,8 @@ export interface CreateOperatorActionInput
   extends Omit<OperatorActionRecord, "id"> {}
 
 export interface DatabaseRepository {
+  transaction<T>(run: () => T): T;
+
   saveUser(user: UserRecord): UserRecord;
   getUser(userId: string): UserRecord | undefined;
   findUserByIdentifier(identifier: string): UserRecord | undefined;
