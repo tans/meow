@@ -270,13 +270,13 @@ export const createRepository = (
     transaction(run) {
       const depth = transactionDepth;
       const savepoint = `meow_tx_${depth}`;
-      transactionDepth += 1;
 
       if (depth === 0) {
         sqlite.exec("BEGIN IMMEDIATE");
       } else {
         sqlite.exec(`SAVEPOINT ${savepoint}`);
       }
+      transactionDepth += 1;
 
       try {
         const result = run();

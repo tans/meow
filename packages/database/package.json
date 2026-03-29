@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "tsc -b tsconfig.json",
-    "test": "vitest run",
+    "test": "NODE_OPTIONS=--disable-warning=ExperimentalWarning vitest run",
     "typecheck": "tsc -b tsconfig.json",
     "lint": "tsc -p tsconfig.json --noEmit"
   },

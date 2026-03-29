@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { createTestDb } from "../test-db.js";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { createRepository } from "../sqlite.js";
 
 describe("task persistence repository", () => {
   it("persists task, submission, and reward records in sqlite", async () => {
@@ -45,5 +49,27 @@ describe("task persistence repository", () => {
       db.repository.findRewardBySubmissionAndType(submission.id, "base")
     ).toEqual(reward);
     expect(db.repository.listRewardsByTask(draft.id)).toEqual([reward]);
+  });
+
+  it("keeps transaction state sane after begin-immediate lock failures", () => {
+    const root = mkdtempSync(join(tmpdir(), "meow-db-"));
+    const dbPath = join(root, "locked.sqlite");
+    const holder = createRepository(dbPath, { busyTimeoutMs: 0 });
+    const contender = createRepository(dbPath, { busyTimeoutMs: 0 });
+
+    try {
+      holder.transaction(() => {
+        expect(() => contender.transaction(() => {})).toThrowError(
+          /database is locked/i
+        );
+        expect(() => contender.transaction(() => {})).toThrowError(
+          /database is locked/i
+        );
+      });
+    } finally {
+      holder.close();
+      contender.close();
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });
