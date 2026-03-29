@@ -1,20 +1,22 @@
 import { dashboardPreview } from "../lib/api.js";
 
 interface DashboardPageProps {
-  data?: typeof dashboardPreview;
+  snapshot?: typeof dashboardPreview;
 }
 
-export function DashboardPage({ data = dashboardPreview }: DashboardPageProps) {
+export function DashboardPage({
+  snapshot = dashboardPreview
+}: DashboardPageProps) {
   return (
     <section className="page-grid">
       <div className="hero-card">
         <p className="card-kicker">运营看板</p>
-        <h3>{data.title}</h3>
-        <p>{data.summary}</p>
+        <h3>{snapshot.title}</h3>
+        <p>{snapshot.summary}</p>
       </div>
 
       <div className="metric-grid">
-        {data.metrics.map((metric) => (
+        {snapshot.metrics.map((metric) => (
           <article key={metric.label} className="panel metric-card">
             <p className="card-kicker">{metric.label}</p>
             <strong>{metric.value}</strong>
@@ -25,7 +27,7 @@ export function DashboardPage({ data = dashboardPreview }: DashboardPageProps) {
 
       <div className="panel stack">
         <h3>运营提醒</h3>
-        {data.alerts.map((alert) => (
+        {snapshot.alerts.map((alert) => (
           <article key={alert.title} className="list-row">
             <div>
               <strong>{alert.title}</strong>

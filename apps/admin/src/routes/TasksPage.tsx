@@ -3,11 +3,13 @@ import { taskListPreview, type TaskSummary } from "../lib/api.js";
 interface TasksPageProps {
   tasks?: TaskSummary[];
   onOpenTask?: (taskId: string) => void;
+  onPause?: (taskId: string) => void;
 }
 
 export function TasksPage({
   tasks = taskListPreview,
-  onOpenTask = () => undefined
+  onOpenTask = () => undefined,
+  onPause = () => undefined
 }: TasksPageProps) {
   return (
     <section className="panel stack">
@@ -28,6 +30,13 @@ export function TasksPage({
             </div>
             <div className="task-actions">
               <span className={`status-pill ${task.status}`}>{task.status}</span>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => onPause(task.id)}
+              >
+                暂停任务
+              </button>
               <button type="button" className="ghost-button" onClick={() => onOpenTask(task.id)}>
                 查看详情
               </button>

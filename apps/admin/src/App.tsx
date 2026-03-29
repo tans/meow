@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { AdminLayout } from "./components/AdminLayout.js";
 import type { AdminNavId } from "./components/Sidebar.js";
 import {
+  fetchAdminSession,
+  fetchDashboardSnapshot,
+  fetchLedgerRows,
+  loginOperator,
+  pauseTask,
+  type AdminSession,
+  type DashboardSnapshot,
+  type LedgerRow,
   settingsPreview,
   taskDetailPreview,
   taskListPreview
 } from "./lib/api.js";
 import { DashboardPage } from "./routes/DashboardPage.js";
 import { LedgerPage } from "./routes/LedgerPage.js";
+import { LoginPage } from "./routes/LoginPage.js";
 import { TaskDetailPage } from "./routes/TaskDetailPage.js";
 import { TasksPage } from "./routes/TasksPage.js";
 import { UsersPage } from "./routes/UsersPage.js";
@@ -364,10 +373,92 @@ function SettingsPanel() {
 }
 
 export default function App() {
+  const [session, setSession] = useState<AdminSession | null>(null);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeView, setActiveView] = useState<AdminView>("dashboard");
   const [selectedTaskId, setSelectedTaskId] = useState(taskDetailPreview.id);
+  const [dashboard, setDashboard] = useState<DashboardSnapshot | null>(null);
+  const [ledgerRows, setLedgerRows] = useState<LedgerRow[]>([]);
+  const [taskRows, setTaskRows] = useState(taskListPreview);
 
   const meta = viewMeta[activeView];
+
+  const loadOperatorData = async () => {
+    const [nextDashboard, nextLedgerRows] = await Promise.all([
+      fetchDashboardSnapshot(),
+      fetchLedgerRows().catch(() => [])
+    ]);
+
+    startTransition(() => {
+      setDashboard(nextDashboard);
+      setLedgerRows(nextLedgerRows);
+    });
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const bootstrap = async () => {
+      try {
+        const nextSession = await fetchAdminSession();
+
+        if (cancelled || !nextSession) {
+          return;
+        }
+
+        await loadOperatorData();
+
+        if (!cancelled) {
+          startTransition(() => {
+            setSession(nextSession);
+          });
+        }
+      } finally {
+        if (!cancelled) {
+          setIsBootstrapping(false);
+        }
+      }
+    };
+
+    void bootstrap();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!session) {
+    return (
+      <>
+        <style>{appStyles}</style>
+        <LoginPage
+          loading={isBootstrapping || isSubmitting}
+          onSubmit={async (input) => {
+            setIsSubmitting(true);
+
+            try {
+              await loginOperator(input);
+              const nextSession = await fetchAdminSession();
+
+              if (!nextSession) {
+                throw new Error("operator session missing");
+              }
+
+              await loadOperatorData();
+
+              startTransition(() => {
+                setSession(nextSession);
+              });
+            } finally {
+              setIsBootstrapping(false);
+              setIsSubmitting(false);
+            }
+          }}
+        />
+      </>
+    );
+  }
 
   return (
     <>
@@ -378,14 +469,38 @@ export default function App() {
         title={meta.title}
         subtitle={meta.subtitle}
       >
-        {activeView === "dashboard" ? <DashboardPage /> : null}
+        {activeView === "dashboard" ? (
+          dashboard ? <DashboardPage snapshot={dashboard} /> : <p>加载中...</p>
+        ) : null}
         {activeView === "users" ? <UsersPage /> : null}
         {activeView === "tasks" ? (
           <TasksPage
-            tasks={taskListPreview}
+            tasks={taskRows}
             onOpenTask={(taskId) => {
               setSelectedTaskId(taskId);
               setActiveView("task-detail");
+            }}
+            onPause={async (taskId) => {
+              setIsSubmitting(true);
+
+              try {
+                await pauseTask(taskId, "manual moderation");
+                startTransition(() => {
+                  setTaskRows((current) =>
+                    current.map((task) =>
+                      task.id === taskId
+                        ? {
+                            ...task,
+                            status: "paused"
+                          }
+                        : task
+                    )
+                  );
+                });
+                await loadOperatorData();
+              } finally {
+                setIsSubmitting(false);
+              }
             }}
           />
         ) : null}
@@ -395,7 +510,9 @@ export default function App() {
             onBack={() => setActiveView("tasks")}
           />
         ) : null}
-        {activeView === "ledger" ? <LedgerPage /> : null}
+        {activeView === "ledger" ? (
+          <LedgerPage entries={ledgerRows.length > 0 ? ledgerRows : undefined} />
+        ) : null}
         {activeView === "settings" ? <SettingsPanel /> : null}
       </AdminLayout>
     </>

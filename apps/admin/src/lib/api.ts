@@ -25,7 +25,7 @@ export interface TaskSummary {
   id: string;
   title: string;
   merchant: string;
-  status: "published" | "reviewing" | "settled";
+  status: "published" | "reviewing" | "paused" | "settled";
   submissions: number;
   lockedBudget: string;
 }
@@ -57,6 +57,21 @@ export interface LedgerRow {
   action: string;
   amount: string;
   status: string;
+}
+
+export interface AdminSession {
+  userId: string;
+  activeRole: "operator";
+  roles: string[];
+}
+
+interface AdminLedgerLogResponse {
+  id: string;
+  action: string;
+  targetId: string;
+  targetType: string;
+  operatorId: string;
+  reason: string;
 }
 
 const adminResponsibilities =
@@ -211,3 +226,62 @@ export const settingsPreview = {
   responsibilities: adminResponsibilities,
   finance: financeConsoleResponsibilities
 };
+
+const parseJson = async (response: Response) => {
+  if (!response.ok) {
+    throw new Error(`request failed: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const loginOperator = async (input = {
+  identifier: "operator@example.com",
+  secret: "demo-pass",
+  client: "admin"
+}) =>
+  await parseJson(
+    await fetch("/auth/login", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    })
+  );
+
+export const fetchAdminSession = async () => {
+  const response = await fetch("/auth/session");
+
+  if (response.status === 401) {
+    return null;
+  }
+
+  const session = (await parseJson(response)) as AdminSession;
+
+  return session.activeRole === "operator" ? session : null;
+};
+
+export const fetchDashboardSnapshot = async (): Promise<DashboardSnapshot> =>
+  (await parseJson(await fetch("/admin/dashboard"))) as DashboardSnapshot;
+
+export const fetchLedgerRows = async (): Promise<LedgerRow[]> => {
+  const rows = (await parseJson(
+    await fetch("/admin/ledger")
+  )) as AdminLedgerLogResponse[];
+
+  return rows.map((row) => ({
+    id: row.id,
+    account: `${row.targetType}:${row.targetId}`,
+    action: row.action,
+    amount: row.operatorId,
+    status: row.reason
+  }));
+};
+
+export const pauseTask = async (taskId: string, reason: string) =>
+  await parseJson(
+    await fetch(`/admin/tasks/${taskId}/pause`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ reason })
+    })
+  );
