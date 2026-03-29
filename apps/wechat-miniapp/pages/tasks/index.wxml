@@ -1,22 +1,55 @@
-<view class="page-shell">
-  <view class="card">
-    <view class="page-title">{{title}}</view>
-    <view class="page-subtitle">{{subtitle}}</view>
+<view class="page-shell page-shell--warm">
+  <view class="community-hero">
+    <view class="community-hero__eyebrow">创作者社区</view>
+    <view class="community-hero__title">{{heroText}}</view>
+    <view class="community-hero__subtitle">{{heroSubtext}}</view>
   </view>
 
-  <view class="page-section list-card">
+  <scroll-view class="channel-strip" scroll-x enable-flex>
     <view
-      wx:for="{{entries}}"
-      wx:key="path"
-      class="list-card__row"
-      data-path="{{item.path}}"
-      bind:tap="onOpenEntry"
+      wx:for="{{channels}}"
+      wx:key="value"
+      class="channel-chip {{item.active ? 'channel-chip--active' : ''}}"
+      data-value="{{item.value}}"
+      bind:tap="onChannelTap"
     >
-      <view>
-        <view class="list-card__title">{{item.title}}</view>
-        <view class="list-card__meta">{{item.meta}}</view>
-      </view>
-      <view class="pill">进入</view>
+      {{item.label}}
     </view>
+  </scroll-view>
+
+  <view wx:if="{{cards.length}}" class="task-card-list">
+    <view
+      wx:for="{{cards}}"
+      wx:key="id"
+      class="task-card"
+      data-task-id="{{item.id}}"
+      bind:tap="onCardTap"
+    >
+      <view class="task-card__cover {{item.coverClassName}}">
+        <view class="task-card__tag">{{item.highlightTag}}</view>
+        <view class="task-card__status">{{item.statusText}}</view>
+      </view>
+
+      <view class="task-card__body">
+        <view class="task-card__title">{{item.title}}</view>
+        <view class="task-card__summary">{{item.summary}}</view>
+        <view class="task-card__brand">{{item.brandName}} · {{item.category}}</view>
+        <view class="task-card__reward">{{item.rewardText}}</view>
+        <view class="task-card__meta">{{item.metaText}}</view>
+
+        <view class="task-card__actions">
+          <view class="task-card__secondary">{{item.secondaryActionText}}</view>
+          <view class="task-card__primary">{{item.primaryActionText}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:elif="{{error}}" class="native-empty">
+    {{error}}
+  </view>
+
+  <view wx:else class="native-empty">
+    新的品牌合作正在路上
   </view>
 </view>

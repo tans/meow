@@ -1,6 +1,36 @@
 import { request } from "./http.js";
 import { getStore } from "./store.js";
 
+const communityTaskMetaById = {
+  "task-1": {
+    brandName: "奈雪",
+    category: "探店",
+    summary: "到店拍摄 15 秒短视频，突出新品和门店氛围",
+    participantCount: 126,
+    deadlineText: "距截止 3 天",
+    highlightTag: "平台精选",
+    coverTheme: "peach"
+  },
+  "task-2": {
+    brandName: "PMPM",
+    category: "美妆",
+    summary: "记录精华上脸质感，突出真实肤感变化",
+    participantCount: 84,
+    deadlineText: "距截止 1 天",
+    highlightTag: "奖金高",
+    coverTheme: "rose"
+  },
+  "task-3": {
+    brandName: "木墨",
+    category: "家居",
+    summary: "用图文笔记呈现收纳前后对比",
+    participantCount: 40,
+    deadlineText: "同城可约拍",
+    highlightTag: "同城",
+    coverTheme: "mint"
+  }
+};
+
 const getApiBaseUrl = () => {
   const app = getApp();
   return app.globalData.apiBaseUrl;
@@ -20,6 +50,27 @@ const getRewardText = (input) =>
   `基础奖 ${input.baseAmount} x ${input.baseCount} + 排名奖 ${input.rankingTotal}`;
 
 const getTaskTitle = (taskId) => `原生任务 ${taskId}`;
+
+const getCommunityMeta = (taskId) =>
+  communityTaskMetaById[taskId] || {
+    brandName: "品牌合作",
+    category: "推荐",
+    summary: "查看任务详情和奖励规则",
+    participantCount: 0,
+    deadlineText: "长期征稿",
+    highlightTag: "新发布",
+    coverTheme: "sand"
+  };
+
+export const mergeCreatorTaskDetail = (task, meta = {}) => ({
+  id: task.id,
+  merchantId: task.merchantId,
+  title: meta.title || getTaskTitle(task.id),
+  status: task.status,
+  rewardText: meta.rewardText || "基础奖+排名奖",
+  creatorSubmissionCount: task.creatorSubmissionCount || 0,
+  canSubmit: task.status === "published"
+});
 
 export const createMerchantTaskDraft = async (input) => {
   const response = await request({
@@ -87,12 +138,15 @@ export const listPublicTasks = async () => {
 
   return items.map((task) => {
     const meta = store.taskMetaById[task.id] || {};
+    const communityMeta = getCommunityMeta(task.id);
+
     return {
       id: task.id,
       merchantId: task.merchantId,
       title: meta.title || getTaskTitle(task.id),
       status: task.status,
-      rewardText: meta.rewardText || "基础奖+排名奖"
+      rewardText: meta.rewardText || "基础奖+排名奖",
+      ...communityMeta
     };
   });
 };
