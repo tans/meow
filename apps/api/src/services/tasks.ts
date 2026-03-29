@@ -1,4 +1,8 @@
-import type { PublishTaskResponse } from "@meow/contracts";
+import type {
+  MerchantTaskDetail,
+  MerchantTaskListItem,
+  PublishTaskResponse
+} from "@meow/contracts";
 import { db } from "../lib/db.js";
 import { AppError } from "../lib/errors.js";
 import { lockMerchantEscrow } from "./ledger.js";
@@ -8,8 +12,8 @@ export interface CreateTaskDraftResponse {
   status: "draft";
 }
 
-export const createTaskDraft = (merchantId: string): CreateTaskDraftResponse => {
-  const task = db.createTaskDraft(merchantId);
+export const createTaskDraft = (merchantUserId: string): CreateTaskDraftResponse => {
+  const task = db.createTaskDraft(merchantUserId);
 
   return {
     taskId: task.id,
@@ -18,7 +22,7 @@ export const createTaskDraft = (merchantId: string): CreateTaskDraftResponse => 
 };
 
 export const publishTask = (
-  merchantId: string,
+  merchantUserId: string,
   taskId: string
 ): PublishTaskResponse => {
   const task = db.getTask(taskId);
@@ -27,7 +31,7 @@ export const publishTask = (
     throw new AppError(404, "task not found");
   }
 
-  if (task.merchantId !== merchantId) {
+  if (task.merchantId !== merchantUserId) {
     throw new AppError(403, "merchant does not own task");
   }
 
@@ -42,8 +46,50 @@ export const publishTask = (
 
   return {
     id: taskId,
-    merchantId,
+    merchantId: merchantUserId,
     status: "published",
     ledgerEffect: ledgerResult.ledgerEffect
+  };
+};
+
+export const listMerchantTasks = (
+  merchantUserId: string
+): MerchantTaskListItem[] =>
+  db
+    .listTasks()
+    .filter((task) => task.merchantId === merchantUserId)
+    .map((task) => ({
+      id: task.id,
+      merchantId: task.merchantId,
+      status: task.status,
+      escrowLockedAmount: task.escrowLockedAmount,
+      submissionCount: db.listSubmissionsByTask(task.id).length
+    }));
+
+export const getMerchantTaskDetail = (
+  merchantUserId: string,
+  taskId: string
+): MerchantTaskDetail => {
+  const task = db.getTask(taskId);
+
+  if (!task) {
+    throw new AppError(404, "task not found");
+  }
+
+  if (task.merchantId !== merchantUserId) {
+    throw new AppError(403, "merchant does not own task");
+  }
+
+  const rewardTags = [
+    ...new Set(db.listRewardsByTask(taskId).map((reward) => reward.type))
+  ];
+
+  return {
+    id: task.id,
+    merchantId: task.merchantId,
+    status: task.status,
+    escrowLockedAmount: task.escrowLockedAmount,
+    submissionCount: db.listSubmissionsByTask(task.id).length,
+    rewardTags
   };
 };

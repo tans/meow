@@ -1,16 +1,33 @@
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { AppError } from "../lib/errors.js";
-import { requireMerchant } from "../lib/session.js";
+import { requireSession } from "../lib/session.js";
 import {
   createRankingReward,
   createTipReward,
   reviewSubmission
 } from "../services/rewards.js";
 import { settleTask } from "../services/settlement.js";
-import { createTaskDraft, publishTask } from "../services/tasks.js";
+import { listMerchantTaskSubmissions } from "../services/submissions.js";
+import {
+  createTaskDraft,
+  getMerchantTaskDetail,
+  listMerchantTasks,
+  publishTask
+} from "../services/tasks.js";
+import { getMerchantWalletSnapshot } from "../services/wallet.js";
 
 export const merchantRoutes = new Hono();
+
+const requireMerchantSession = (c: Context) => {
+  const session = requireSession(c);
+
+  if (session.activeRole !== "merchant") {
+    throw new AppError(403, "merchant access denied");
+  }
+
+  return session;
+};
 
 const readMerchantJson = async (c: Context): Promise<Record<string, unknown>> => {
   const contentType = c.req.header("content-type");
@@ -33,22 +50,46 @@ const readMerchantJson = async (c: Context): Promise<Record<string, unknown>> =>
 };
 
 merchantRoutes.post("/tasks", (c) => {
-  const session = requireMerchant(c);
-  const response = createTaskDraft(session.merchantId);
+  const session = requireMerchantSession(c);
+  const response = createTaskDraft(session.userId);
 
   return c.json(response, 201);
 });
 
+merchantRoutes.get("/tasks", (c) => {
+  const session = requireMerchantSession(c);
+
+  return c.json(listMerchantTasks(session.userId));
+});
+
+merchantRoutes.get("/tasks/:taskId", (c) => {
+  const session = requireMerchantSession(c);
+
+  return c.json(getMerchantTaskDetail(session.userId, c.req.param("taskId")));
+});
+
 merchantRoutes.post("/tasks/:taskId/publish", (c) => {
-  const session = requireMerchant(c);
+  const session = requireMerchantSession(c);
   const taskId = c.req.param("taskId");
-  const response = publishTask(session.merchantId, taskId);
+  const response = publishTask(session.userId, taskId);
 
   return c.json(response);
 });
 
+merchantRoutes.get("/tasks/:taskId/submissions", (c) => {
+  const session = requireMerchantSession(c);
+
+  return c.json(listMerchantTaskSubmissions(session.userId, c.req.param("taskId")));
+});
+
+merchantRoutes.get("/wallet", (c) => {
+  const session = requireMerchantSession(c);
+
+  return c.json(getMerchantWalletSnapshot(session.userId));
+});
+
 merchantRoutes.post("/submissions/:submissionId/review", async (c) => {
-  const session = requireMerchant(c);
+  const session = requireMerchantSession(c);
   const body = await readMerchantJson(c);
   const decision = body.decision;
 
@@ -62,7 +103,7 @@ merchantRoutes.post("/submissions/:submissionId/review", async (c) => {
 
   return c.json(
     reviewSubmission(
-      session.merchantId,
+      session.userId,
       c.req.param("submissionId"),
       decision === "rejected" ? "rejected" : "approved"
     )
@@ -70,16 +111,13 @@ merchantRoutes.post("/submissions/:submissionId/review", async (c) => {
 });
 
 merchantRoutes.post("/submissions/:submissionId/tips", (c) => {
-  const session = requireMerchant(c);
+  const session = requireMerchantSession(c);
 
-  return c.json(
-    createTipReward(session.merchantId, c.req.param("submissionId")),
-    201
-  );
+  return c.json(createTipReward(session.userId, c.req.param("submissionId")), 201);
 });
 
 merchantRoutes.post("/tasks/:taskId/rewards/ranking", async (c) => {
-  const session = requireMerchant(c);
+  const session = requireMerchantSession(c);
   const body = await readMerchantJson(c);
   const submissionId = body.submissionId;
 
@@ -92,7 +130,7 @@ merchantRoutes.post("/tasks/:taskId/rewards/ranking", async (c) => {
 
   return c.json(
     createRankingReward(
-      session.merchantId,
+      session.userId,
       c.req.param("taskId"),
       typeof submissionId === "string" ? submissionId : undefined
     ),
@@ -101,7 +139,7 @@ merchantRoutes.post("/tasks/:taskId/rewards/ranking", async (c) => {
 });
 
 merchantRoutes.post("/tasks/:taskId/settle", (c) => {
-  const session = requireMerchant(c);
+  const session = requireMerchantSession(c);
 
-  return c.json(settleTask(session.merchantId, c.req.param("taskId")));
+  return c.json(settleTask(session.userId, c.req.param("taskId")));
 });

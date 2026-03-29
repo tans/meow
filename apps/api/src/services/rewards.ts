@@ -8,38 +8,49 @@ import { db } from "../lib/db.js";
 import { AppError } from "../lib/errors.js";
 import { freezeTipReward } from "./ledger.js";
 
-const getMerchantOwnedTask = (merchantId: string, taskId: string) => {
+const getMerchantOwnedTask = (merchantUserId: string, taskId: string) => {
   const task = db.getTask(taskId);
 
   if (!task) {
     throw new AppError(404, "task not found");
   }
 
-  if (task.merchantId !== merchantId) {
+  if (task.merchantId !== merchantUserId) {
     throw new AppError(403, "merchant does not own task");
   }
 
   return task;
 };
 
-const getMerchantOwnedSubmission = (merchantId: string, submissionId: string) => {
+const getMerchantOwnedSubmission = (merchantUserId: string, submissionId: string) => {
   const submission = db.getSubmission(submissionId);
 
   if (!submission) {
     throw new AppError(404, "submission not found");
   }
 
-  const task = getMerchantOwnedTask(merchantId, submission.taskId);
+  const task = getMerchantOwnedTask(merchantUserId, submission.taskId);
 
   return { submission, task };
 };
 
+const assertMerchantMutableSubmission = (
+  submission: ReturnType<typeof db.getSubmission> extends infer T
+    ? Exclude<T, undefined>
+    : never
+) => {
+  if (submission.status === "withdrawn") {
+    throw new AppError(403, "submission is withdrawn");
+  }
+};
+
 export const reviewSubmission = (
-  merchantId: string,
+  merchantUserId: string,
   submissionId: string,
   decision: "approved" | "rejected"
 ): ReviewSubmissionResponse => {
-  const { submission } = getMerchantOwnedSubmission(merchantId, submissionId);
+  const { submission } = getMerchantOwnedSubmission(merchantUserId, submissionId);
+  assertMerchantMutableSubmission(submission);
 
   const nextStatus = decision === "approved" ? "approved" : "rejected";
   db.saveSubmission({
@@ -88,10 +99,11 @@ export const reviewSubmission = (
 };
 
 export const createTipReward = (
-  merchantId: string,
+  merchantUserId: string,
   submissionId: string
 ): CreateTipResponse => {
-  const { submission } = getMerchantOwnedSubmission(merchantId, submissionId);
+  const { submission } = getMerchantOwnedSubmission(merchantUserId, submissionId);
+  assertMerchantMutableSubmission(submission);
   const reward = db.createReward({
     taskId: submission.taskId,
     submissionId: submission.id,
@@ -115,11 +127,11 @@ export const createTipReward = (
 };
 
 export const createRankingReward = (
-  merchantId: string,
+  merchantUserId: string,
   taskId: string,
   submissionId?: string
 ): CreateRankingRewardResponse => {
-  getMerchantOwnedTask(merchantId, taskId);
+  getMerchantOwnedTask(merchantUserId, taskId);
 
   const rankedSubmission =
     (submissionId ? db.getSubmission(submissionId) : undefined) ??
@@ -130,6 +142,8 @@ export const createRankingReward = (
   if (!rankedSubmission || rankedSubmission.taskId !== taskId) {
     throw new AppError(404, "approved submission not found");
   }
+
+  assertMerchantMutableSubmission(rankedSubmission);
 
   if (rankedSubmission.status !== "approved") {
     throw new AppError(403, "submission is not approved");

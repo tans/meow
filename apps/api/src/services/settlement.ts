@@ -11,7 +11,7 @@ const sumAmounts = (amounts: number[]) =>
   amounts.reduce((total, amount) => total + amount, 0);
 
 export const settleTask = (
-  merchantId: string,
+  merchantUserId: string,
   taskId: string
 ): SettleTaskResponse => {
   const task = db.getTask(taskId);
@@ -20,7 +20,7 @@ export const settleTask = (
     throw new AppError(404, "task not found");
   }
 
-  if (task.merchantId !== merchantId) {
+  if (task.merchantId !== merchantUserId) {
     throw new AppError(403, "merchant does not own task");
   }
 
