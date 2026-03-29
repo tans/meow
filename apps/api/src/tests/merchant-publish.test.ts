@@ -3,6 +3,13 @@ import { app } from "../app.js";
 
 const originalDemoAuth = process.env.MEOW_DEMO_AUTH;
 
+const toCookieHeader = (setCookieHeader: string): string =>
+  setCookieHeader
+    .split(/,(?=[^;]+=[^;]+)/)
+    .map((cookie) => cookie.split(";")[0]?.trim() ?? "")
+    .filter((cookie) => cookie.length > 0)
+    .join("; ");
+
 const loginMerchant = async (): Promise<string> => {
   process.env.MEOW_DEMO_AUTH = "true";
 
@@ -17,8 +24,11 @@ const loginMerchant = async (): Promise<string> => {
   });
 
   expect(response.status).toBe(200);
+  const setCookieHeader = response.headers.get("set-cookie") ?? "";
+  const cookieHeader = toCookieHeader(setCookieHeader);
+  expect(cookieHeader).toContain("meow_session=");
 
-  return response.headers.get("set-cookie") ?? "";
+  return cookieHeader;
 };
 
 describe("merchant publish flow", () => {

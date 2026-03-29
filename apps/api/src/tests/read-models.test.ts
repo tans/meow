@@ -3,6 +3,13 @@ import { app } from "../app.js";
 
 const originalDemoAuth = process.env.MEOW_DEMO_AUTH;
 
+const toCookieHeader = (setCookieHeader: string): string =>
+  setCookieHeader
+    .split(/,(?=[^;]+=[^;]+)/)
+    .map((cookie) => cookie.split(";")[0]?.trim() ?? "")
+    .filter((cookie) => cookie.length > 0)
+    .join("; ");
+
 const loginAs = async (
   identifier: "merchant@example.com" | "creator@example.com"
 ): Promise<string> => {
@@ -19,8 +26,11 @@ const loginAs = async (
   });
 
   expect(response.status).toBe(200);
+  const setCookieHeader = response.headers.get("set-cookie") ?? "";
+  const cookieHeader = toCookieHeader(setCookieHeader);
+  expect(cookieHeader).toContain("meow_session=");
 
-  return response.headers.get("set-cookie") ?? "";
+  return cookieHeader;
 };
 
 describe("api read models for native miniapp", () => {
@@ -154,6 +164,15 @@ describe("api read models for native miniapp", () => {
     });
 
     expect(tipResponse.status).toBe(201);
+    const secondTipResponse = await app.request(
+      `/merchant/submissions/${submission.id}/tips`,
+      {
+        method: "POST",
+        headers: { cookie: merchantCookie }
+      }
+    );
+
+    expect(secondTipResponse.status).toBe(201);
 
     const rankingResponse = await app.request("/merchant/tasks/task-1/rewards/ranking", {
       method: "POST",
@@ -192,7 +211,7 @@ describe("api read models for native miniapp", () => {
       merchantId: "merchant-1",
       escrowAmount: 3,
       refundableAmount: 1,
-      tipSpentAmount: 1,
+      tipSpentAmount: 2,
       publishedTaskCount: 1
     });
 
@@ -216,7 +235,7 @@ describe("api read models for native miniapp", () => {
     expect(creatorWalletBeforeSettlement.status).toBe(200);
     await expect(creatorWalletBeforeSettlement.json()).resolves.toMatchObject({
       creatorId: "creator-1",
-      frozenAmount: 3,
+      frozenAmount: 4,
       availableAmount: 0,
       submissionCount: 1
     });
@@ -236,7 +255,7 @@ describe("api read models for native miniapp", () => {
     await expect(creatorWalletAfterSettlement.json()).resolves.toMatchObject({
       creatorId: "creator-1",
       frozenAmount: 0,
-      availableAmount: 3,
+      availableAmount: 4,
       submissionCount: 1
     });
 
@@ -249,7 +268,7 @@ describe("api read models for native miniapp", () => {
       merchantId: "merchant-1",
       escrowAmount: 0,
       refundableAmount: 0,
-      tipSpentAmount: 1,
+      tipSpentAmount: 2,
       publishedTaskCount: 1
     });
   });

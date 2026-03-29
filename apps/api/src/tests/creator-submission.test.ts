@@ -4,6 +4,13 @@ import { db } from "../lib/db.js";
 
 const originalDemoAuth = process.env.MEOW_DEMO_AUTH;
 
+const toCookieHeader = (setCookieHeader: string): string =>
+  setCookieHeader
+    .split(/,(?=[^;]+=[^;]+)/)
+    .map((cookie) => cookie.split(";")[0]?.trim() ?? "")
+    .filter((cookie) => cookie.length > 0)
+    .join("; ");
+
 const loginAs = async (
   identifier: "merchant@example.com" | "creator@example.com"
 ): Promise<string> => {
@@ -20,8 +27,11 @@ const loginAs = async (
   });
 
   expect(response.status).toBe(200);
+  const setCookieHeader = response.headers.get("set-cookie") ?? "";
+  const cookieHeader = toCookieHeader(setCookieHeader);
+  expect(cookieHeader).toContain("meow_session=");
 
-  return response.headers.get("set-cookie") ?? "";
+  return cookieHeader;
 };
 
 describe("creator submission flow", () => {

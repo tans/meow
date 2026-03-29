@@ -99,15 +99,21 @@ const mapSubmissionReadModel = (
   submission: ReturnType<typeof db.getSubmission> extends infer T
     ? Exclude<T, undefined>
     : never
-): SubmissionReadModelItem => ({
-  id: submission.id,
-  taskId: submission.taskId,
-  creatorId: submission.creatorId,
-  status: submission.status,
-  rewardTags: db
-    .listRewardsBySubmission(submission.id)
-    .map((reward) => reward.type)
-});
+): SubmissionReadModelItem => {
+  const rewardTags = [
+    ...new Set(
+      db.listRewardsBySubmission(submission.id).map((reward) => reward.type)
+    )
+  ];
+
+  return {
+    id: submission.id,
+    taskId: submission.taskId,
+    creatorId: submission.creatorId,
+    status: submission.status,
+    rewardTags
+  };
+};
 
 const mapCreatorSubmissionItem = (
   submission: ReturnType<typeof db.getSubmission> extends infer T
