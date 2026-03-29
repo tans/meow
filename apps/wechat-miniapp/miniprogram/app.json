@@ -1,9 +1,9 @@
 {
   "pages": [
-    "pages/workspace/index",
     "pages/tasks/index",
-    "pages/wallet/index",
+    "pages/workspace/index",
     "pages/profile/index",
+    "pages/wallet/index",
     "pages/merchant/task-create/index",
     "pages/merchant/task-detail/index",
     "pages/merchant/review/index",
@@ -15,27 +15,23 @@
   ],
   "window": {
     "navigationBarTitleText": "创意喵",
-    "navigationBarBackgroundColor": "#f6fbff",
+    "navigationBarBackgroundColor": "#fff9f4",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#f1f6fb"
+    "backgroundColor": "#fff6ee"
   },
   "tabBar": {
-    "color": "#6a7b91",
-    "selectedColor": "#2b7de9",
-    "backgroundColor": "#ffffff",
+    "color": "#7d6c61",
+    "selectedColor": "#ff6f3c",
+    "backgroundColor": "#fffdf9",
     "borderStyle": "black",
     "list": [
       {
-        "pagePath": "pages/workspace/index",
-        "text": "工作台"
-      },
-      {
         "pagePath": "pages/tasks/index",
-        "text": "任务"
+        "text": "悬赏大厅"
       },
       {
-        "pagePath": "pages/wallet/index",
-        "text": "收益"
+        "pagePath": "pages/workspace/index",
+        "text": "获奖作品"
       },
       {
         "pagePath": "pages/profile/index",

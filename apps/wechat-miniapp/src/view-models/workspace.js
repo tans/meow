@@ -1,6 +1,9 @@
 export {
+  buildAwardsModel,
+  buildLobbyModel,
   buildProfileModel,
   buildTaskListModel,
+  buildWalletEntryModel,
   buildWalletModel,
   buildWorkspaceModel,
   getTabBarItems
