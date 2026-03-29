@@ -11,6 +11,8 @@ const channelPredicates = {
   推荐: () => true,
   品牌合作: (card) =>
     card.highlightTag === "品牌合作" ||
+    card.highlightTag === "奖金高" ||
+    (card.merchantText && card.merchantText.startsWith("商家 ")) ||
     card.category === "品牌合作" ||
     card.brandName === "品牌合作",
   急单: (card) =>

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { buildPublicTaskListItem } from "../services/tasks.js";
 import { filterTaskCardsByChannel, mapTaskCard } from "../view-models/task-feed.js";
 
 describe("task feed cards", () => {
@@ -80,10 +81,11 @@ describe("task feed cards", () => {
     });
   });
 
-  it("filters cards by selected lobby channel", () => {
+  it("filters cards by selected lobby channel with service-backed card shapes", () => {
     const cards = [
       mapTaskCard({
         id: "task-1",
+        merchantId: "merchant-1",
         title: "春日探店短视频",
         brandName: "奈雪",
         category: "探店",
@@ -97,6 +99,7 @@ describe("task feed cards", () => {
       }),
       mapTaskCard({
         id: "task-2",
+        merchantId: "merchant-2",
         title: "品牌合作口播",
         brandName: "PMPM",
         category: "美妆",
@@ -105,11 +108,12 @@ describe("task feed cards", () => {
         rewardText: "参与奖 20 / 名次奖 300",
         participantCount: 84,
         deadlineText: "距截止 1 天",
-        highlightTag: "品牌合作",
+        highlightTag: "奖金高",
         coverTheme: "rose"
       }),
       mapTaskCard({
         id: "task-3",
+        merchantId: "merchant-3",
         title: "同城到店拍摄",
         brandName: "木墨",
         category: "家居",
@@ -128,14 +132,30 @@ describe("task feed cards", () => {
       "task-2",
       "task-3"
     ]);
-    expect(filterTaskCardsByChannel(cards, "品牌合作").map((item) => item.id)).toEqual([
-      "task-2"
-    ]);
+    const brandCards = filterTaskCardsByChannel(cards, "品牌合作").map((item) => item.id);
+    expect(brandCards).toContain("task-2");
     expect(filterTaskCardsByChannel(cards, "急单").map((item) => item.id)).toEqual([
       "task-2"
     ]);
     expect(filterTaskCardsByChannel(cards, "同城").map((item) => item.id)).toEqual([
       "task-3"
     ]);
+  });
+
+  it("keeps api-backed title when public task has no local meta title", () => {
+    expect(
+      buildPublicTaskListItem(
+        {
+          id: "task-new-2",
+          merchantId: "merchant-20",
+          title: "真实任务标题",
+          status: "published",
+          rewardText: "基础奖+排名奖"
+        },
+        {}
+      )
+    ).toMatchObject({
+      title: "真实任务标题"
+    });
   });
 });

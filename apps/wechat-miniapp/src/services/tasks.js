@@ -62,6 +62,20 @@ const getCommunityMeta = (taskId) =>
     coverTheme: "sand"
   };
 
+export const buildPublicTaskListItem = (task, meta = {}) => {
+  const communityMeta = getCommunityMeta(task.id);
+  const lobbyTask = {
+    ...task,
+    ...communityMeta
+  };
+
+  return {
+    ...lobbyTask,
+    title: meta.title || lobbyTask.title || getTaskTitle(task.id),
+    rewardText: meta.rewardText || lobbyTask.rewardText || "基础奖+排名奖"
+  };
+};
+
 export const mergeCreatorTaskDetail = (task, meta = {}) => ({
   id: task.id,
   merchantId: task.merchantId,
@@ -136,19 +150,7 @@ export const listPublicTasks = async () => {
 
   const store = getStore();
 
-  return items.map((task) => {
-    const meta = store.taskMetaById[task.id] || {};
-    const communityMeta = getCommunityMeta(task.id);
-
-    return {
-      id: task.id,
-      merchantId: task.merchantId,
-      title: meta.title || getTaskTitle(task.id),
-      status: task.status,
-      rewardText: meta.rewardText || "基础奖+排名奖",
-      ...communityMeta
-    };
-  });
+  return items.map((task) => buildPublicTaskListItem(task, store.taskMetaById[task.id] || {}));
 };
 
 export const getSelectedTask = async () => {
