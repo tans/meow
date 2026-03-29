@@ -1,0 +1,42 @@
+{
+  "pages": [
+    "pages/tasks/index",
+    "pages/workspace/index",
+    "pages/profile/index",
+    "pages/wallet/index",
+    "pages/merchant/task-create/index",
+    "pages/merchant/task-detail/index",
+    "pages/merchant/review/index",
+    "pages/merchant/settlement/index",
+    "pages/creator/task-feed/index",
+    "pages/creator/task-detail/index",
+    "pages/creator/submission-edit/index",
+    "pages/creator/earnings/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "创意喵",
+    "navigationBarBackgroundColor": "#fff9f4",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#fff6ee"
+  },
+  "tabBar": {
+    "color": "#7d6c61",
+    "selectedColor": "#ff6f3c",
+    "backgroundColor": "#fffdf9",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/tasks/index",
+        "text": "悬赏大厅"
+      },
+      {
+        "pagePath": "pages/workspace/index",
+        "text": "获奖作品"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
+    ]
+  }
+}

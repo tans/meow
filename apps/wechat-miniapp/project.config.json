@@ -1,5 +1,5 @@
 {
-  "miniprogramRoot": "miniprogram",
+  "miniprogramRoot": ".",
   "setting": {
     "es6": true,
     "postcss": true,
