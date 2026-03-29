@@ -1,5 +1,5 @@
-<view class="page-shell">
-  <view class="card">
+<view class="page-shell page-shell--warm">
+  <view class="card card--soft">
     <view class="page-title">{{title}}</view>
     <view class="page-subtitle">{{summary}}</view>
   </view>
@@ -11,7 +11,7 @@
     </view>
   </view>
 
-  <view wx:elif="{{error}}" class="page-section native-empty">
+  <view wx:elif="{{error}}" class="native-empty">
     {{error}}
   </view>
 </view>

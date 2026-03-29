@@ -124,16 +124,32 @@ describe("task feed cards", () => {
         deadlineText: "同城可约拍",
         highlightTag: "同城",
         coverTheme: "mint"
+      }),
+      mapTaskCard({
+        id: "task-4",
+        merchantId: "merchant-4",
+        title: "普通商家任务",
+        brandName: "随便品牌",
+        category: "穿搭",
+        summary: "普通商稿",
+        status: "published",
+        rewardText: "参与奖 10 / 名次奖 100",
+        participantCount: 12,
+        deadlineText: "距截止 6 天",
+        highlightTag: "新发布",
+        coverTheme: "peach"
       })
     ];
 
     expect(filterTaskCardsByChannel(cards, "推荐").map((item) => item.id)).toEqual([
       "task-1",
       "task-2",
-      "task-3"
+      "task-3",
+      "task-4"
     ]);
-    const brandCards = filterTaskCardsByChannel(cards, "品牌合作").map((item) => item.id);
-    expect(brandCards).toContain("task-2");
+    expect(filterTaskCardsByChannel(cards, "品牌合作").map((item) => item.id)).toEqual([
+      "task-2"
+    ]);
     expect(filterTaskCardsByChannel(cards, "急单").map((item) => item.id)).toEqual([
       "task-2"
     ]);
@@ -156,6 +172,36 @@ describe("task feed cards", () => {
       )
     ).toMatchObject({
       title: "真实任务标题"
+    });
+  });
+
+  it("keeps backend lobby fields for unknown task ids", () => {
+    expect(
+      buildPublicTaskListItem(
+        {
+          id: "task-new-3",
+          merchantId: "merchant-88",
+          title: "后端返回任务",
+          status: "published",
+          rewardText: "基础奖+排名奖",
+          brandName: "后端品牌",
+          category: "美妆",
+          summary: "后端摘要",
+          participantCount: 55,
+          deadlineText: "距截止 5 天",
+          highlightTag: "官方推荐",
+          coverTheme: "rose"
+        },
+        {}
+      )
+    ).toMatchObject({
+      brandName: "后端品牌",
+      category: "美妆",
+      summary: "后端摘要",
+      participantCount: 55,
+      deadlineText: "距截止 5 天",
+      highlightTag: "官方推荐",
+      coverTheme: "rose"
     });
   });
 });

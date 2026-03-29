@@ -5,38 +5,48 @@ Page({
   data: {
     currentRole: "creator",
     title: "",
-    subtitle: "",
-    roleCards: []
+    creatorName: "",
+    creatorBio: "",
+    creatorTags: [],
+    creatorStatus: "",
+    stats: [],
+    quickLinks: [],
+    merchantEntry: null
   },
 
   onShow() {
+    this.loadPage();
+  },
+
+  onQuickLinkTap(event) {
+    const { path } = event.currentTarget.dataset;
+
+    if (!path) {
+      return;
+    }
+
+    wx.navigateTo({ url: path });
+  },
+
+  onMerchantEntryTap() {
+    setAppRole("merchant");
+    wx.navigateTo({ url: "/pages/merchant/task-create/index" });
+  },
+
+  loadPage() {
     const role = getAppRole();
     const model = buildProfileModel(role);
 
     this.setData({
       currentRole: role,
       title: model.title,
-      subtitle: model.subtitle,
-      roleCards: model.roleCards
+      creatorName: model.creatorName,
+      creatorBio: model.creatorBio,
+      creatorTags: model.creatorTags,
+      creatorStatus: model.creatorStatus,
+      stats: model.stats,
+      quickLinks: model.quickLinks,
+      merchantEntry: model.merchantEntry
     });
-  },
-
-  onRoleTap(event) {
-    const { role } = event.currentTarget.dataset;
-
-    if (!role || role === this.data.currentRole) {
-      return;
-    }
-
-    setAppRole(role);
-    const model = buildProfileModel(role);
-
-    this.setData({
-      currentRole: role,
-      "roleCards[0].active": model.roleCards[0].active,
-      "roleCards[1].active": model.roleCards[1].active
-    });
-
-    wx.switchTab({ url: "/pages/workspace/index" });
   }
 });

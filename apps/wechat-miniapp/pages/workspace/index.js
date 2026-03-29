@@ -1,25 +1,43 @@
-import { getAppRole } from "../../src/services/role.js";
-import { buildWorkspaceModel } from "../../src/view-models/workspace.js";
+import { buildAwardsModel } from "../../src/view-models/workspace.js";
 
 Page({
   data: {
-    role: "creator",
     title: "",
-    subtitle: "",
-    primaryAction: "",
-    stats: []
+    featuredTitle: "",
+    featuredDescription: "",
+    periods: [],
+    categories: [],
+    featuredCards: [],
+    activePeriod: "本周",
+    activeCategory: "全部"
   },
 
   onShow() {
-    const role = getAppRole();
-    const model = buildWorkspaceModel(role);
+    this.loadPage(this.data.activePeriod, this.data.activeCategory);
+  },
+
+  onPeriodTap(event) {
+    const { value } = event.currentTarget.dataset;
+    this.loadPage(value || "本周", this.data.activeCategory);
+  },
+
+  onCategoryTap(event) {
+    const { value } = event.currentTarget.dataset;
+    this.loadPage(this.data.activePeriod, value || "全部");
+  },
+
+  loadPage(activePeriod, activeCategory) {
+    const model = buildAwardsModel(activePeriod, activeCategory);
 
     this.setData({
-      role,
       title: model.title,
-      subtitle: model.subtitle,
-      primaryAction: model.primaryAction,
-      stats: model.stats
+      featuredTitle: model.featuredTitle,
+      featuredDescription: model.featuredDescription,
+      periods: model.periods,
+      categories: model.categories,
+      featuredCards: model.featuredCards,
+      activePeriod,
+      activeCategory
     });
   }
 });

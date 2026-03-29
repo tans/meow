@@ -1,19 +1,45 @@
-<view class="page-shell">
-  <view class="card">
-    <view class="pill">{{role}}</view>
-    <view class="page-title">{{title}}</view>
-    <view class="page-subtitle">{{subtitle}}</view>
-    <view class="page-section">
-      <view class="pill">{{primaryAction}}</view>
-    </view>
+<view class="page-shell page-shell--warm">
+  <view class="feature-banner">
+    <view class="feature-banner__title">{{featuredTitle}}</view>
+    <view class="feature-banner__subtitle">{{featuredDescription}}</view>
   </view>
 
-  <view class="page-section list-card">
-    <view wx:for="{{stats}}" wx:key="label" class="list-card__row">
-      <view>
-        <view class="list-card__title">{{item.label}}</view>
+  <scroll-view class="filter-strip" scroll-x enable-flex>
+    <view
+      wx:for="{{periods}}"
+      wx:key="value"
+      class="filter-chip {{item.active ? 'filter-chip--active' : ''}}"
+      data-value="{{item.value}}"
+      bind:tap="onPeriodTap"
+    >
+      {{item.label}}
+    </view>
+  </scroll-view>
+
+  <scroll-view class="filter-strip filter-strip--secondary" scroll-x enable-flex>
+    <view
+      wx:for="{{categories}}"
+      wx:key="value"
+      class="filter-chip filter-chip--light {{item.active ? 'filter-chip--active-light' : ''}}"
+      data-value="{{item.value}}"
+      bind:tap="onCategoryTap"
+    >
+      {{item.label}}
+    </view>
+  </scroll-view>
+
+  <view class="award-card-list">
+    <view wx:for="{{featuredCards}}" wx:key="id" class="award-card">
+      <view class="award-card__cover">
+        <view class="award-card__badge">{{item.badge}}</view>
       </view>
-      <view class="pill">{{item.value}}</view>
+      <view class="award-card__body">
+        <view class="award-card__title">{{item.title}}</view>
+        <view class="award-card__creator">{{item.creatorName}}</view>
+        <view class="award-card__task">{{item.taskName}}</view>
+        <view class="award-card__result">{{item.resultText}}</view>
+        <view class="award-card__action">{{item.actionText}}</view>
+      </view>
     </view>
   </view>
 </view>

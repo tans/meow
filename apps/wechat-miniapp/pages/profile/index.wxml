@@ -1,22 +1,43 @@
-<view class="page-shell">
-  <view class="card">
-    <view class="page-title">{{title}}</view>
-    <view class="page-subtitle">{{subtitle}}</view>
+<view class="page-shell page-shell--warm">
+  <view class="profile-hero">
+    <view class="profile-hero__name">{{creatorName}}</view>
+    <view class="profile-hero__bio">{{creatorBio}}</view>
+    <view class="profile-hero__status">{{creatorStatus}}</view>
+
+    <view class="profile-hero__tags">
+      <view wx:for="{{creatorTags}}" wx:key="*this" class="profile-tag">
+        {{item}}
+      </view>
+    </view>
   </view>
 
-  <view class="page-section list-card">
+  <view class="stats-card">
     <view
-      wx:for="{{roleCards}}"
-      wx:key="role"
-      class="list-card__row"
-      data-role="{{item.role}}"
-      bind:tap="onRoleTap"
+      wx:for="{{stats}}"
+      wx:key="label"
+      class="stats-card__item"
     >
-      <view>
-        <view class="list-card__title">{{item.title}}</view>
-        <view class="list-card__meta">{{item.description}}</view>
-      </view>
-      <view class="pill">{{item.active ? "当前身份" : "切换"}}</view>
+      <view class="stats-card__value">{{item.value}}</view>
+      <view class="stats-card__label">{{item.label}}</view>
     </view>
+  </view>
+
+  <view class="quick-link-list">
+    <view
+      wx:for="{{quickLinks}}"
+      wx:key="title"
+      class="quick-link"
+      data-path="{{item.path}}"
+      bind:tap="onQuickLinkTap"
+    >
+      <view class="quick-link__title">{{item.title}}</view>
+      <view class="quick-link__arrow">查看</view>
+    </view>
+  </view>
+
+  <view wx:if="{{merchantEntry}}" class="merchant-card" bind:tap="onMerchantEntryTap">
+    <view class="merchant-card__title">{{merchantEntry.title}}</view>
+    <view class="merchant-card__desc">{{merchantEntry.description}}</view>
+    <view class="merchant-card__action">{{merchantEntry.actionText}}</view>
   </view>
 </view>

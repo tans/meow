@@ -51,28 +51,47 @@ const getRewardText = (input) =>
 
 const getTaskTitle = (taskId) => `原生任务 ${taskId}`;
 
-const getCommunityMeta = (taskId) =>
-  communityTaskMetaById[taskId] || {
-    brandName: "品牌合作",
-    category: "推荐",
-    summary: "查看任务详情和奖励规则",
-    participantCount: 0,
-    deadlineText: "长期征稿",
-    highlightTag: "新发布",
-    coverTheme: "sand"
-  };
+const fallbackThemes = ["sand", "peach", "rose", "mint"];
 
-export const buildPublicTaskListItem = (task, meta = {}) => {
-  const communityMeta = getCommunityMeta(task.id);
-  const lobbyTask = {
-    ...task,
-    ...communityMeta
-  };
+const pickFallbackTheme = (task) => {
+  if (task.coverTheme) {
+    return task.coverTheme;
+  }
+
+  const seed = `${task.id || ""}${task.title || ""}`;
+  let sum = 0;
+
+  for (let index = 0; index < seed.length; index += 1) {
+    sum += seed.charCodeAt(index);
+  }
+
+  return fallbackThemes[sum % fallbackThemes.length];
+};
+
+export const mergePublicTaskForLobby = (task, meta = {}) => {
+  const presetMeta = communityTaskMetaById[task.id];
+
+  if (presetMeta) {
+    return {
+      ...task,
+      ...presetMeta
+    };
+  }
+
+  const title = meta.title || task.title || getTaskTitle(task.id);
+  const participantCount =
+    task.participantCount ?? task.creatorSubmissionCount ?? task.submissionCount ?? 0;
+  const isOpen = task.status === "published";
 
   return {
-    ...lobbyTask,
-    title: meta.title || lobbyTask.title || getTaskTitle(task.id),
-    rewardText: meta.rewardText || lobbyTask.rewardText || "基础奖+排名奖"
+    ...task,
+    brandName: task.brandName || (task.merchantId ? `商家 ${task.merchantId}` : "品牌合作"),
+    category: task.category || "推荐",
+    summary: task.summary || `${title} 进行征稿，查看任务详情和奖励规则`,
+    participantCount,
+    deadlineText: task.deadlineText || (isOpen ? "长期征稿" : "已截止"),
+    highlightTag: task.highlightTag || (isOpen ? "新发布" : "已截止"),
+    coverTheme: pickFallbackTheme(task)
   };
 };
 
@@ -151,6 +170,19 @@ export const listPublicTasks = async () => {
   const store = getStore();
 
   return items.map((task) => buildPublicTaskListItem(task, store.taskMetaById[task.id] || {}));
+};
+
+export const buildPublicTaskListItem = (task, meta = {}) => {
+  const lobbyTask = mergePublicTaskForLobby(task, meta);
+
+  return {
+    ...lobbyTask,
+    id: lobbyTask.id,
+    merchantId: lobbyTask.merchantId,
+    title: meta.title || lobbyTask.title || getTaskTitle(task.id),
+    status: lobbyTask.status,
+    rewardText: meta.rewardText || lobbyTask.rewardText || "基础奖+排名奖"
+  };
 };
 
 export const getSelectedTask = async () => {
