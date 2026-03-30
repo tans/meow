@@ -12,6 +12,8 @@
 - `packages/contracts`: 三端契约、页面入口、权限面与流程映射。
 - `docs`: 架构说明、迭代规划和 harness 约束说明。
 
+部署说明见 [docs/deployment.md](/Users/ke/code/meow/docs/deployment.md)。
+
 ## Quick Start
 
 ```bash
