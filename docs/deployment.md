@@ -7,19 +7,22 @@
 - `apps/admin`: 运营后台 Web 端
 - `apps/wechat-miniapp`: 微信小程序原生工程
 
-当前版本最稳妥的部署方式是：
+当前版本推荐的部署方式是：
 
 - `apps/api` 作为唯一后端进程独立运行
 - `apps/web` 和 `apps/admin` 构建为静态资源
 - 用同一个域名反向代理 API 路径到 `apps/api`
+- API 进程使用 `pm2` 托管
+- 构建和启动统一使用 `bun`
 - 微信小程序单独在微信开发者工具中上传发布，并指向线上 API 域名
 
 ## 1. 部署前提
 
 ### 1.1 运行环境
 
+- Bun `1.x`
 - Node.js `22.x`
-- `pnpm 10.x`
+- PM2 `5.x`
 - Linux/macOS 服务器一台
 - 一个可写目录用于 SQLite 数据文件
 - 一个 HTTPS 域名
@@ -28,6 +31,8 @@
 
 - 根目录 [package.json](/Users/ke/code/meow/package.json) 要求 Node `>=22.0.0`
 - 根目录 [.nvmrc](/Users/ke/code/meow/.nvmrc) 固定为 `22`
+
+部署文档虽然改为 Bun + PM2，但这里仍保留 Node 22 作为兼容前提，因为当前构建链里的部分工具和运行时代码仍按 Node 语义组织。
 
 ### 1.2 当前部署约束
 
@@ -72,10 +77,10 @@ API 当前实际使用的环境变量如下：
 
 ## 3. 推荐目录结构
 
-单机部署时建议使用类似目录：
+单机部署时建议使用以下默认目录：
 
 ```text
-/srv/meow/
+/data/meow/
   current/
   shared/
     data/meow.sqlite
@@ -87,27 +92,47 @@ API 当前实际使用的环境变量如下：
 
 ## 4. 构建步骤
 
+### 4.1 安装 Bun 与 PM2
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+bun add -g pm2
+```
+
+如果你用非交互 shell，记得把 Bun 加入环境变量：
+
+```bash
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+```
+
+### 4.2 安装依赖与构建
+
 在服务器或构建机执行：
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm build
+bun install
+bun x turbo run build
 ```
 
-如果需要在上线前跑完整校验，执行：
+如果需要在上线前做最小化的 Bun 构建校验，执行：
 
 ```bash
-pnpm smoke
+bun x turbo run build
 ```
 
-当前 `smoke` 会串行执行：
+如果你还要跑仓库现有的完整回归，需要注意：
 
-- database 测试
-- API 测试
-- web 构建
-- admin 构建
-- 小程序 JS 检查
-- harness 回归
+- 根目录 `smoke` 和部分 package script 仍然是 `pnpm` 包装
+- 这不影响 Bun 作为部署机的构建和运行时
+- 但如果你的规范要求“校验脚本也必须完全 Bun-only”，就不要直接调用仓库现有 `pnpm smoke`
+
+因此，当前文档把部署标准定义为：
+
+- 构建：`bun`
+- 运行：`bun`
+- 进程托管：`pm2`
+- 仓库内置回归脚本：暂时仍保留 `pnpm` 风格，后续如要彻底统一，再单独改脚本层
 
 ## 5. API 部署
 
@@ -117,42 +142,64 @@ pnpm smoke
 
 ```bash
 PORT=3001 \
-MEOW_DB_PATH=/srv/meow/shared/data/meow.sqlite \
+MEOW_DB_PATH=/data/meow/shared/data/meow.sqlite \
 MEOW_COOKIE_SECURE=true \
 MEOW_DEMO_AUTH=true \
 MEOW_DEMO_SEED=true \
-node apps/api/dist/index.js
+bun apps/api/dist/index.js
 ```
 
 说明：
 
-- 当前仓库还没有单独的 `start` 脚本，直接执行编译产物即可
+- 当前仓库还没有单独的 `start` 脚本，直接用 Bun 执行编译产物即可
 - 如果不是演示环境，后续应该关闭 `MEOW_DEMO_AUTH`，并接真实认证
 - `MEOW_DEMO_SEED=true` 建议只在首次初始化或演示环境使用
 
-### 5.2 systemd 示例
+### 5.2 PM2 启动方式
 
-```ini
-[Unit]
-Description=Meow API
-After=network.target
+推荐把 PM2 配置文件放在：
 
-[Service]
-Type=simple
-WorkingDirectory=/srv/meow/current
-Environment=PORT=3001
-Environment=MEOW_DB_PATH=/srv/meow/shared/data/meow.sqlite
-Environment=MEOW_COOKIE_SECURE=true
-Environment=MEOW_DEMO_AUTH=true
-Environment=MEOW_DEMO_SEED=true
-ExecStart=/usr/bin/node /srv/meow/current/apps/api/dist/index.js
-Restart=always
-RestartSec=3
-User=www-data
-Group=www-data
+- `/data/meow/current/ecosystem.config.cjs`
 
-[Install]
-WantedBy=multi-user.target
+示例：
+
+```js
+module.exports = {
+  apps: [
+    {
+      name: "meow-api",
+      cwd: "/data/meow/current",
+      script: "apps/api/dist/index.js",
+      interpreter: "bun",
+      instances: 1,
+      exec_mode: "fork",
+      autorestart: true,
+      watch: false,
+      env: {
+        PORT: "3001",
+        MEOW_DB_PATH: "/data/meow/shared/data/meow.sqlite",
+        MEOW_COOKIE_SECURE: "true",
+        MEOW_DEMO_AUTH: "true",
+        MEOW_DEMO_SEED: "true"
+      }
+    }
+  ]
+};
+```
+
+启动：
+
+```bash
+cd /data/meow/current
+pm2 start ecosystem.config.cjs
+pm2 save
+```
+
+查看状态：
+
+```bash
+pm2 status
+pm2 logs meow-api
 ```
 
 ## 6. Web 与 Admin 部署
@@ -185,7 +232,7 @@ server {
     listen 443 ssl http2;
     server_name meow.example.com;
 
-    root /srv/meow/current/apps/web/dist;
+    root /data/meow/current/apps/web/dist;
     index index.html;
 
     location / {
@@ -193,7 +240,7 @@ server {
     }
 
     location /operator/ {
-        alias /srv/meow/current/apps/admin/dist/;
+        alias /data/meow/current/apps/admin/dist/;
         try_files $uri $uri/ /operator/index.html;
     }
 
@@ -215,6 +262,17 @@ server {
 - 跨域请求与凭证
 
 当前代码尚未内建这一套配置，默认不建议这么部署。
+
+### 6.4 部署顺序
+
+推荐部署顺序：
+
+1. `cd /data/meow/current`
+2. `bun install`
+3. `bun x turbo run build`
+4. 更新 Nginx 静态目录与反向代理
+5. `pm2 restart meow-api || pm2 start ecosystem.config.cjs`
+6. 验证 `/health`
 
 ## 7. 微信小程序部署
 
@@ -248,7 +306,7 @@ apiBaseUrl: "https://meow.example.com"
 3. 执行一次本地检查：
 
 ```bash
-pnpm --filter @meow/wechat-miniapp typecheck
+bun apps/wechat-miniapp/scripts/check-js.mjs
 ```
 
 4. 在微信开发者工具中预览、上传
@@ -330,15 +388,15 @@ GET /health
 SQLite 回滚最简单的方案是发布前复制一份：
 
 ```bash
-cp /srv/meow/shared/data/meow.sqlite /srv/meow/shared/data/meow.sqlite.bak
+cp /data/meow/shared/data/meow.sqlite /data/meow/shared/data/meow.sqlite.bak
 ```
 
 如果新版本异常：
 
-1. 停掉 API 进程
+1. `pm2 stop meow-api`
 2. 回退代码
 3. 恢复 SQLite 备份
-4. 重启 API
+4. `pm2 restart meow-api`
 
 ## 11. 当前限制
 
@@ -348,6 +406,7 @@ cp /srv/meow/shared/data/meow.sqlite /srv/meow/shared/data/meow.sqlite.bak
 - Web/Admin 没有独立的运行时 API Base URL 配置
 - 小程序 API 地址仍需手工改代码
 - SQLite 适合 MVP 和中低并发，不适合多实例横向扩展
+- 根目录脚本仍是 `pnpm` 风格，部署文档因此改为直接用 Bun 执行底层工具，而不是复用所有 package script
 
 如果下一步要进入正式生产环境，建议优先补：
 
