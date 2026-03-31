@@ -8,7 +8,7 @@ interface RoleSwitchProps {
 
 const roleLabel: Record<WebRole, string> = {
   creator: "创作者",
-  merchant: "商家"
+  merchant: "需求方"
 };
 
 export function RoleSwitch({

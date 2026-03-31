@@ -8,7 +8,8 @@ const apiMocks = vi.hoisted(() => ({
   listCreatorTasks: vi.fn(async () => []),
   listMerchantTasks: vi.fn(async () => []),
   login: vi.fn(),
-  switchRole: vi.fn()
+  switchRole: vi.fn(),
+  uploadMerchantTaskAssets: vi.fn()
 }));
 
 vi.mock("../lib/api.js", () => apiMocks);
@@ -76,10 +77,10 @@ describe("App shell contract", () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "切换到商家" }));
+    fireEvent.click(screen.getByRole("button", { name: "切换到需求方" }));
 
     expect(apiMocks.switchRole).toHaveBeenCalledWith("merchant");
-    expect(await screen.findByRole("heading", { name: "发布任务" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "发布需求" })).toBeTruthy();
   });
 
   it("shows loading feedback while switching role and hides the switch control", async () => {
@@ -107,9 +108,9 @@ describe("App shell contract", () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "切换到商家" }));
+    fireEvent.click(screen.getByRole("button", { name: "切换到需求方" }));
 
-    expect(screen.queryByRole("button", { name: "切换到商家" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "切换到需求方" })).toBeNull();
     expect(screen.getByText("正在同步角色视图...")).toBeTruthy();
 
     deferred.resolve({
@@ -119,7 +120,7 @@ describe("App shell contract", () => {
       roles: ["creator", "merchant"]
     });
 
-    expect(await screen.findByRole("heading", { name: "发布任务" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "发布需求" })).toBeTruthy();
   });
 
   it("shows authenticated error feedback when role switching fails", async () => {
@@ -140,11 +141,11 @@ describe("App shell contract", () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "切换到商家" }));
+    fireEvent.click(screen.getByRole("button", { name: "切换到需求方" }));
 
     expect(
       await screen.findByText("角色切换失败，请稍后重试。")
     ).toBeTruthy();
-    expect(screen.getByRole("button", { name: "切换到商家" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "切换到需求方" })).toBeTruthy();
   });
 });

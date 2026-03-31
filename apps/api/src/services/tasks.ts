@@ -1,4 +1,5 @@
 import type {
+  CreateMerchantTaskDraftInput,
   MerchantTaskDetail,
   MerchantTaskListItem,
   PublishTaskResponse
@@ -12,8 +13,11 @@ export interface CreateTaskDraftResponse {
   status: "draft";
 }
 
-export const createTaskDraft = (merchantUserId: string): CreateTaskDraftResponse => {
-  const task = db.createTaskDraft(merchantUserId);
+export const createTaskDraft = (
+  merchantUserId: string,
+  input: CreateMerchantTaskDraftInput
+): CreateTaskDraftResponse => {
+  const task = db.createTaskDraft(merchantUserId, input);
 
   return {
     taskId: task.id,
@@ -61,9 +65,11 @@ export const listMerchantTasks = (
     .map((task) => ({
       id: task.id,
       merchantId: task.merchantId,
+      title: task.title,
       status: task.status,
       escrowLockedAmount: task.escrowLockedAmount,
-      submissionCount: db.listSubmissionsByTask(task.id).length
+      submissionCount: db.listSubmissionsByTask(task.id).length,
+      assetAttachments: task.assetAttachments
     }));
 
 export const getMerchantTaskDetail = (
@@ -87,9 +93,11 @@ export const getMerchantTaskDetail = (
   return {
     id: task.id,
     merchantId: task.merchantId,
+    title: task.title,
     status: task.status,
     escrowLockedAmount: task.escrowLockedAmount,
     submissionCount: db.listSubmissionsByTask(task.id).length,
-    rewardTags
+    rewardTags,
+    assetAttachments: task.assetAttachments
   };
 };

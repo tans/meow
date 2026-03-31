@@ -1,6 +1,21 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { app } from "../app.js";
 
+interface CreateTaskDraftResponse {
+  taskId: string;
+  status: "draft";
+}
+
+interface UploadMerchantTaskAssetsResponse {
+  attachments: Array<{
+    id: string;
+    kind: "image" | "video";
+    url: string;
+    fileName: string;
+    mimeType: string;
+  }>;
+}
+
 const originalDemoAuth = process.env.MEOW_DEMO_AUTH;
 
 const toCookieHeader = (setCookieHeader: string): string =>
@@ -54,6 +69,82 @@ describe("merchant publish flow", () => {
       merchantId: "merchant-1",
       status: "published",
       ledgerEffect: "merchant_escrow_locked"
+    });
+  });
+
+  it("persists uploaded attachments and task title in task detail", async () => {
+    const merchantCookie = await loginMerchant();
+    const formData = new FormData();
+    formData.append(
+      "files",
+      new File(["fake-image"], "brief.png", { type: "image/png" })
+    );
+    formData.append(
+      "files",
+      new File(["fake-video"], "brief.mp4", { type: "video/mp4" })
+    );
+
+    const uploadResponse = await app.request("/merchant/uploads", {
+      method: "POST",
+      headers: { cookie: merchantCookie },
+      body: formData
+    });
+
+    expect(uploadResponse.status).toBe(201);
+    const uploaded = (await uploadResponse.json()) as UploadMerchantTaskAssetsResponse;
+    expect(uploaded).toMatchObject({
+      attachments: [
+        expect.objectContaining({
+          kind: "image",
+          fileName: "brief.png"
+        }),
+        expect.objectContaining({
+          kind: "video",
+          fileName: "brief.mp4"
+        })
+      ]
+    });
+
+    const createResponse = await app.request("/merchant/tasks", {
+      method: "POST",
+      headers: {
+        cookie: merchantCookie,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        title: "夏日探店需求",
+        assetAttachments: uploaded.attachments
+      })
+    });
+
+    expect(createResponse.status).toBe(201);
+    const draft = (await createResponse.json()) as CreateTaskDraftResponse;
+
+    const publishResponse = await app.request(`/merchant/tasks/${draft.taskId}/publish`, {
+      method: "POST",
+      headers: { cookie: merchantCookie }
+    });
+
+    expect(publishResponse.status).toBe(200);
+
+    const detailResponse = await app.request(`/merchant/tasks/${draft.taskId}`, {
+      headers: { cookie: merchantCookie }
+    });
+
+    expect(detailResponse.status).toBe(200);
+    await expect(detailResponse.json()).resolves.toMatchObject({
+      id: draft.taskId,
+      title: "夏日探店需求",
+      assetAttachments: [
+        expect.objectContaining({
+          kind: "image",
+          fileName: "brief.png"
+        }),
+        expect.objectContaining({
+          kind: "video",
+          fileName: "brief.mp4"
+        })
+      ]
     });
   });
 });

@@ -3,6 +3,7 @@ import type {
   CreatorTaskDetail,
   CreatorTaskFeedItem,
   CreatorWalletSnapshot,
+  MerchantTaskAttachment,
   MerchantTaskDetail,
   MerchantTaskListItem,
   SubmissionReadModelItem
@@ -104,6 +105,7 @@ export interface MerchantTaskCreateFormModel {
   baseAmount: number;
   baseCount: number;
   rankingTotal: number;
+  assetAttachments: MerchantTaskAttachment[];
 }
 
 export interface MerchantTaskLocalMetaModel {
@@ -120,6 +122,7 @@ export interface MerchantTaskDetailModel {
   submissionCount: number;
   lockedBudgetText: string;
   rewardTags: string[];
+  assetAttachments: MerchantTaskAttachment[];
 }
 
 export interface MerchantReviewCardModel {
@@ -209,7 +212,7 @@ const resolveTaskTitle = (taskId: string): string =>
   taskTitleById[taskId] ?? `原生任务 ${taskId}`;
 
 const resolveMerchantLabel = (merchantId: string): string =>
-  merchantLabelById[merchantId] ?? `商家 ${merchantId}`;
+  merchantLabelById[merchantId] ?? `需求方 ${merchantId}`;
 
 const statusTextBySubmissionStatus: Record<CreatorSubmissionItem["status"], string> = {
   submitted: "待审核",
@@ -315,13 +318,12 @@ export const buildProfileModel = (): ProfilePageModel => ({
   quickLinks: [
     { title: "我的投稿", path: "/creator/task-feed" },
     { title: "收益明细", path: "/wallet" },
-    { title: "草稿箱", path: "/creator/submission-edit" },
     { title: "合作记录", path: "/creator/earnings" }
   ],
   merchantEntry: {
-    title: "商家合作",
-    description: "需要发布品牌合作任务时，从这里进入商家侧管理",
-    actionText: "进入商家侧"
+    title: "发布需求",
+    description: "需要发起品牌合作需求时，从这里进入需求侧管理",
+    actionText: "进入需求侧"
   }
 });
 
@@ -331,7 +333,7 @@ export const mapMerchantTasks = (
 ): MerchantTaskCardModel[] =>
   tasks.map((task) => ({
     id: task.id,
-    title: taskMetaById[task.id]?.title ?? resolveTaskTitle(task.id),
+    title: task.title || taskMetaById[task.id]?.title || resolveTaskTitle(task.id),
     submissionCount: task.submissionCount,
     statusText: taskStatusText[task.status]
   }));
@@ -367,7 +369,7 @@ export const mapMerchantTaskDetail = (
   taskMetaById: Record<string, MerchantTaskLocalMetaModel> = {}
 ): MerchantTaskDetailModel => ({
   id: task.id,
-  title: taskMetaById[task.id]?.title ?? resolveTaskTitle(task.id),
+  title: task.title || taskMetaById[task.id]?.title || resolveTaskTitle(task.id),
   statusText: taskStatusText[task.status],
   rewardText:
     taskMetaById[task.id]?.rewardText ??
@@ -375,7 +377,8 @@ export const mapMerchantTaskDetail = (
   submissionCount: task.submissionCount,
   lockedBudgetText:
     taskMetaById[task.id]?.lockedBudgetText ?? `¥${task.escrowLockedAmount}`,
-  rewardTags: task.rewardTags
+  rewardTags: task.rewardTags,
+  assetAttachments: task.assetAttachments ?? []
 });
 
 export const mapMerchantReviewCard = (

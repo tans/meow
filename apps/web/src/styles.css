@@ -562,6 +562,51 @@ button:disabled {
   align-items: center;
 }
 
+.attachment-list,
+.attachment-gallery {
+  display: grid;
+  gap: 12px;
+}
+
+.attachment-item,
+.attachment-preview {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(84, 137, 214, 0.14);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(245, 249, 255, 0.96), #ffffff);
+}
+
+.attachment-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.attachment-item__meta {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.attachment-preview__image,
+.attachment-preview__video {
+  width: 100%;
+  display: block;
+  border-radius: 16px;
+  border: 1px solid rgba(84, 137, 214, 0.12);
+  background: #dceaff;
+  object-fit: cover;
+}
+
+.attachment-preview__image {
+  aspect-ratio: 4 / 3;
+}
+
+.attachment-preview__video {
+  min-height: 220px;
+}
+
 .quick-link-card {
   grid-template-columns: 1fr auto;
   align-items: center;

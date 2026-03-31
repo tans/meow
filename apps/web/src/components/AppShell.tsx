@@ -8,7 +8,7 @@ import type { WebRole, WebSession } from "../lib/session.js";
 import { RoleSwitch } from "./RoleSwitch.js";
 
 const creatorNavItems = ["悬赏大厅", "获奖作品", "我的"];
-const merchantNavItems = ["任务管理", "发布任务", "稿件审核", "我的"];
+const merchantNavItems = ["需求管理", "发布需求", "稿件审核", "我的"];
 
 interface AppShellProps {
   session: WebSession;
@@ -38,12 +38,12 @@ export function AppShell({
             <div>
               <p className="shell-kicker">{session.user.displayName}</p>
               <h1 className="shell-title">
-                {session.activeRole === "creator" ? "创作者工作台" : "商家工作台"}
+                {session.activeRole === "creator" ? "创作者工作台" : "需求方工作台"}
               </h1>
               <p className="shell-subtitle">
                 {session.activeRole === "creator"
                   ? "任务发现、投稿管理和收益回看集中在同一个浏览器工作台。"
-                  : "把发布任务、审稿推进和结算节奏压缩到更高密度的桌面界面。"}
+                  : "把发布需求、审稿推进和结算节奏压缩到同一条移动链路。"}
               </p>
             </div>
             <RoleSwitch

@@ -8,6 +8,7 @@ import type {
   RewardRecord,
   SessionRecord,
   SubmissionRecord,
+  TaskAssetAttachmentRecord,
   TaskRecord,
   UserRecord
 } from "./repository.js";
@@ -44,8 +45,10 @@ const ensureSchema = (db: DatabaseSync) => {
     CREATE TABLE IF NOT EXISTS tasks (
       id TEXT PRIMARY KEY,
       merchant_id TEXT NOT NULL,
+      title TEXT NOT NULL DEFAULT '',
       status TEXT NOT NULL,
-      escrow_locked_amount INTEGER NOT NULL
+      escrow_locked_amount INTEGER NOT NULL,
+      asset_attachments_json TEXT NOT NULL DEFAULT '[]'
     );
 
     CREATE TABLE IF NOT EXISTS submissions (
@@ -101,6 +104,21 @@ const ensureSchema = (db: DatabaseSync) => {
     CREATE INDEX IF NOT EXISTS idx_rewards_creator_id ON rewards(creator_id);
     CREATE INDEX IF NOT EXISTS idx_ledger_entries_task_id ON ledger_entries(task_id);
   `);
+
+  const taskColumns = db
+    .prepare("PRAGMA table_info(tasks)")
+    .all() as Array<{ name: string }>;
+  const taskColumnNames = new Set(taskColumns.map((column) => column.name));
+
+  if (!taskColumnNames.has("title")) {
+    db.exec("ALTER TABLE tasks ADD COLUMN title TEXT NOT NULL DEFAULT ''");
+  }
+
+  if (!taskColumnNames.has("asset_attachments_json")) {
+    db.exec(
+      "ALTER TABLE tasks ADD COLUMN asset_attachments_json TEXT NOT NULL DEFAULT '[]'"
+    );
+  }
 };
 
 const configureRuntimePragmas = (
@@ -149,8 +167,10 @@ interface SessionRow {
 interface TaskRow {
   id: string;
   merchant_id: string;
+  title: string;
   status: TaskRecord["status"];
   escrow_locked_amount: number;
+  asset_attachments_json: string;
 }
 
 interface SubmissionRow {
@@ -208,11 +228,48 @@ const toSessionRecord = (row: SessionRow): SessionRecord => ({
   client: row.client
 });
 
+const parseTaskAttachments = (
+  value: string | null | undefined
+): TaskAssetAttachmentRecord[] => {
+  if (!value) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter((item): item is TaskAssetAttachmentRecord => {
+      if (!item || typeof item !== "object") {
+        return false;
+      }
+
+      const candidate = item as Record<string, unknown>;
+      return (
+        typeof candidate.id === "string" &&
+        (candidate.kind === "image" || candidate.kind === "video") &&
+        typeof candidate.url === "string" &&
+        typeof candidate.fileName === "string" &&
+        typeof candidate.mimeType === "string"
+      );
+    });
+  } catch {
+    return [];
+  }
+};
+
+const serializeTaskAttachments = (attachments: TaskAssetAttachmentRecord[]): string =>
+  JSON.stringify(attachments);
+
 const toTaskRecord = (row: TaskRow): TaskRecord => ({
   id: row.id,
   merchantId: row.merchant_id,
+  title: row.title,
   status: row.status,
-  escrowLockedAmount: row.escrow_locked_amount
+  escrowLockedAmount: row.escrow_locked_amount,
+  assetAttachments: parseTaskAttachments(row.asset_attachments_json)
 });
 
 const toSubmissionRecord = (row: SubmissionRow): SubmissionRecord => ({
@@ -411,26 +468,32 @@ export const createRepository = (
       return updated;
     },
 
-    createTaskDraft(merchantId) {
+    createTaskDraft(merchantId, input) {
       const record: TaskRecord = {
         id: `task-${randomUUID()}`,
         merchantId,
+        title: input?.title?.trim() || "未命名需求",
         status: "draft",
-        escrowLockedAmount: 0
+        escrowLockedAmount: 0,
+        assetAttachments: input?.assetAttachments ?? []
       };
 
       sqlite
         .prepare(
           `
-          INSERT INTO tasks (id, merchant_id, status, escrow_locked_amount)
-          VALUES (?, ?, ?, ?)
+          INSERT INTO tasks (
+            id, merchant_id, title, status, escrow_locked_amount, asset_attachments_json
+          )
+          VALUES (?, ?, ?, ?, ?, ?)
           `
         )
         .run(
           record.id,
           record.merchantId,
+          record.title,
           record.status,
-          record.escrowLockedAmount
+          record.escrowLockedAmount,
+          serializeTaskAttachments(record.assetAttachments)
         );
 
       return record;
@@ -439,7 +502,11 @@ export const createRepository = (
     getTask(taskId) {
       const row = sqlite
         .prepare(
-          "SELECT id, merchant_id, status, escrow_locked_amount FROM tasks WHERE id = ?"
+          `
+          SELECT id, merchant_id, title, status, escrow_locked_amount, asset_attachments_json
+          FROM tasks
+          WHERE id = ?
+          `
         )
         .get(taskId) as unknown as TaskRow | undefined;
 
@@ -448,7 +515,12 @@ export const createRepository = (
 
     listTasks() {
       const rows = sqlite
-        .prepare("SELECT id, merchant_id, status, escrow_locked_amount FROM tasks")
+        .prepare(
+          `
+          SELECT id, merchant_id, title, status, escrow_locked_amount, asset_attachments_json
+          FROM tasks
+          `
+        )
         .all() as unknown as TaskRow[];
 
       return rows.map(toTaskRecord);
@@ -458,15 +530,26 @@ export const createRepository = (
       sqlite
         .prepare(
           `
-          INSERT INTO tasks (id, merchant_id, status, escrow_locked_amount)
-          VALUES (?, ?, ?, ?)
+          INSERT INTO tasks (
+            id, merchant_id, title, status, escrow_locked_amount, asset_attachments_json
+          )
+          VALUES (?, ?, ?, ?, ?, ?)
           ON CONFLICT(id) DO UPDATE SET
             merchant_id = excluded.merchant_id,
+            title = excluded.title,
             status = excluded.status,
-            escrow_locked_amount = excluded.escrow_locked_amount
+            escrow_locked_amount = excluded.escrow_locked_amount,
+            asset_attachments_json = excluded.asset_attachments_json
           `
         )
-        .run(task.id, task.merchantId, task.status, task.escrowLockedAmount);
+        .run(
+          task.id,
+          task.merchantId,
+          task.title,
+          task.status,
+          task.escrowLockedAmount,
+          serializeTaskAttachments(task.assetAttachments)
+        );
 
       return repository.getTask(task.id)!;
     },

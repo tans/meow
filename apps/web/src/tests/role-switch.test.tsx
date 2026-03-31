@@ -14,7 +14,7 @@ describe("role switch", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "切换到商家" }));
+    fireEvent.click(screen.getByRole("button", { name: "切换到需求方" }));
     expect(onSwitch).toHaveBeenCalledWith("merchant");
   });
 });

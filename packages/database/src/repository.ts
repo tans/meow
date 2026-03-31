@@ -29,8 +29,18 @@ export interface SessionRecord {
 export interface TaskRecord {
   id: string;
   merchantId: string;
+  title: string;
   status: TaskStatus;
   escrowLockedAmount: number;
+  assetAttachments: TaskAssetAttachmentRecord[];
+}
+
+export interface TaskAssetAttachmentRecord {
+  id: string;
+  kind: "image" | "video";
+  url: string;
+  fileName: string;
+  mimeType: string;
 }
 
 export interface SubmissionRecord {
@@ -97,7 +107,13 @@ export interface DatabaseRepository {
   findSession(sessionId: string): SessionRecord | undefined;
   switchSessionRole(sessionId: string, role: Role): SessionRecord;
 
-  createTaskDraft(merchantId: string): TaskRecord;
+  createTaskDraft(
+    merchantId: string,
+    input?: {
+      title?: string;
+      assetAttachments?: TaskAssetAttachmentRecord[];
+    }
+  ): TaskRecord;
   getTask(taskId: string): TaskRecord | undefined;
   listTasks(): TaskRecord[];
   saveTask(task: TaskRecord): TaskRecord;

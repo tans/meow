@@ -43,7 +43,7 @@ describe("creator home page", () => {
       />
     );
 
-    expect(screen.getByText("任务管理")).toBeTruthy();
+    expect(screen.getByText("需求管理")).toBeTruthy();
     expect(screen.getByText("审核中")).toBeTruthy();
     expect(screen.getByText("18 件投稿")).toBeTruthy();
     expect(screen.getByRole("button", { name: "查看详情" })).toBeTruthy();
@@ -59,7 +59,8 @@ describe("creator home page", () => {
           rewardText: "基础奖 1 x 2 + 排名奖 1",
           submissionCount: 18,
           lockedBudgetText: "¥3",
-          rewardTags: ["base", "tip"]
+          rewardTags: ["base", "tip"],
+          assetAttachments: []
         }}
       />
     );

@@ -10,7 +10,18 @@ describe("task persistence repository", () => {
     const db = await createTestDb();
     const seeded = await db.seedDemo();
 
-    const draft = db.repository.createTaskDraft(seeded.merchant.id);
+    const draft = db.repository.createTaskDraft(seeded.merchant.id, {
+      title: "任务持久化测试",
+      assetAttachments: [
+        {
+          id: "asset-1",
+          kind: "image",
+          url: "/merchant/uploads/asset-1.png",
+          fileName: "asset-1.png",
+          mimeType: "image/png"
+        }
+      ]
+    });
     expect(draft.status).toBe("draft");
 
     db.repository.saveTask({
@@ -22,8 +33,14 @@ describe("task persistence repository", () => {
     const publishedTask = db.repository.getTask(draft.id);
     expect(publishedTask).toMatchObject({
       id: draft.id,
+      title: "任务持久化测试",
       status: "published",
-      escrowLockedAmount: 3
+      escrowLockedAmount: 3,
+      assetAttachments: [
+        expect.objectContaining({
+          fileName: "asset-1.png"
+        })
+      ]
     });
 
     const submission = db.repository.saveSubmission({

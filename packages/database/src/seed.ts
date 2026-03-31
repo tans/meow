@@ -36,8 +36,10 @@ export interface SeedDemoResult {
   task: {
     id: string;
     merchantId: string;
+    title: string;
     status: TaskRecord["status"];
     escrowLockedAmount: number;
+    assetAttachments: TaskRecord["assetAttachments"];
   };
   ledgerAccounts: Array<{ type: (typeof ledgerAccounts)[number] }>;
 }
@@ -71,8 +73,10 @@ export function seedDemo(repository: DatabaseRepository): SeedDemoResult {
     repository.saveTask({
       id: seedTaskId,
       merchantId: demoUsers.merchant.id,
+      title: "春季短视频征稿",
       status: "draft",
-      escrowLockedAmount: 0
+      escrowLockedAmount: 0,
+      assetAttachments: []
     });
 
   return {

@@ -61,8 +61,10 @@ export const sessions = sqliteTable("sessions", {
 export const tasks = sqliteTable("tasks", {
   id: text("id").primaryKey(),
   merchantId: text("merchant_id").notNull(),
+  title: text("title").notNull(),
   status: text("status").$type<TaskStatus>().notNull(),
-  escrowLockedAmount: integer("escrow_locked_amount").notNull()
+  escrowLockedAmount: integer("escrow_locked_amount").notNull(),
+  assetAttachmentsJson: text("asset_attachments_json").notNull()
 });
 
 export const submissions = sqliteTable("submissions", {

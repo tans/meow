@@ -14,8 +14,8 @@ export function MerchantTasksPage({
     <section className="content-section">
       <div className="section-header">
         <div>
-          <p className="section-title">任务管理</p>
-          <p className="section-copy">原生商家页：查看任务列表与投稿进度。</p>
+          <p className="section-title">需求管理</p>
+          <p className="section-copy">查看已发布需求和当前投稿进度。</p>
         </div>
       </div>
       {tasks.length > 0 ? (
@@ -40,7 +40,7 @@ export function MerchantTasksPage({
           ))}
         </div>
       ) : (
-        <p className="empty-state">暂无任务，先创建第一条悬赏。</p>
+        <p className="empty-state">暂无需求，先创建第一条合作需求。</p>
       )}
     </section>
   );

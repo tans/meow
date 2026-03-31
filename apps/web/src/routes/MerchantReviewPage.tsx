@@ -29,7 +29,7 @@ export function MerchantReviewPage({
       <div className="section-header">
         <div>
           <p className="section-title">稿件审核</p>
-          <p className="section-copy">原生商家页：审核稿件、通过后冻结基础奖。</p>
+          <p className="section-copy">审核合作稿件，通过后冻结基础奖励。</p>
         </div>
       </div>
       {task ? (

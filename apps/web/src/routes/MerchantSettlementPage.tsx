@@ -19,8 +19,8 @@ export function MerchantSettlementPage({
     <section className="content-section">
       <div className="section-header">
         <div>
-          <p className="section-title">任务结算</p>
-          <p className="section-copy">原生商家页：释放奖励并退回未使用预算。</p>
+          <p className="section-title">需求结算</p>
+          <p className="section-copy">释放奖励并退回未使用预算。</p>
         </div>
       </div>
       {settlement ? (

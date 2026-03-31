@@ -17,6 +17,7 @@ const apiMocks = vi.hoisted(() => ({
   createCreatorSubmission: vi.fn(),
   updateCreatorSubmission: vi.fn(),
   withdrawCreatorSubmission: vi.fn(),
+  uploadMerchantTaskAssets: vi.fn(),
   getCreatorWallet: vi.fn(async () => ({
     creatorId: "creator-1",
     frozenAmount: 0,
@@ -46,6 +47,7 @@ afterEach(() => {
   apiMocks.createCreatorSubmission.mockReset();
   apiMocks.updateCreatorSubmission.mockReset();
   apiMocks.withdrawCreatorSubmission.mockReset();
+  apiMocks.uploadMerchantTaskAssets.mockReset();
   apiMocks.getCreatorWallet.mockReset();
 });
 
@@ -55,55 +57,8 @@ describe("creator pages", () => {
 
     expect(screen.getByText("我的投稿")).toBeTruthy();
     expect(screen.getByText("收益明细")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "进入商家侧" })).toBeTruthy();
-  });
-
-  it("routes 草稿箱 quick link to submission editor with task id when available", async () => {
-    apiMocks.getCreatorTaskDetail.mockResolvedValue({
-      id: "task-1",
-      merchantId: "merchant-1",
-      status: "published",
-      creatorSubmissionCount: 0
-    });
-    apiMocks.listCreatorTaskSubmissions.mockResolvedValue([]);
-
-    render(
-      <MemoryRouter initialEntries={["/profile"]}>
-        <App
-          session={creatorSession}
-          initialTasks={[
-            {
-              id: "task-1",
-              title: "春季穿搭口播征稿",
-              brandName: "奈雪",
-              summary: "到店拍摄 15 秒短视频",
-              rewardText: "基础奖 1 x 2 + 排名奖 1",
-              metaText: "126 人参与 · 距截止 3 天",
-              highlightTag: "平台精选"
-            }
-          ]}
-        />
-      </MemoryRouter>
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: /草稿箱/ }));
-
-    await waitFor(() => {
-      expect(apiMocks.getCreatorTaskDetail).toHaveBeenCalledWith("task-1");
-    });
-  });
-
-  it("shows explicit error for 草稿箱 when no task is available", async () => {
-    render(
-      <MemoryRouter initialEntries={["/profile"]}>
-        <App session={creatorSession} initialTasks={[]} />
-      </MemoryRouter>
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: /草稿箱/ }));
-
-    expect(await screen.findByText("请先从任务池选择任务。")).toBeTruthy();
-    expect(apiMocks.getCreatorTaskDetail).not.toHaveBeenCalled();
+    expect(screen.queryByText("草稿箱")).toBeNull();
+    expect(screen.getByRole("button", { name: "进入需求侧" })).toBeTruthy();
   });
 
   it("renders task detail actions and my submissions", () => {

@@ -32,6 +32,7 @@ import {
   settleMerchantTask,
   switchRole,
   tipMerchantSubmission,
+  uploadMerchantTaskAssets,
   updateCreatorSubmission,
   withdrawCreatorSubmission
 } from "./lib/api.js";
@@ -625,8 +626,28 @@ function RoutedApp({
 
   const MerchantTaskCreateRoute = () => {
     const [publishing, setPublishing] = useState(false);
+    const [uploadingAssets, setUploadingAssets] = useState(false);
+    const [assetAttachments, setAssetAttachments] = useState<
+      MerchantTaskDetailModel["assetAttachments"]
+    >([]);
     const [publishStatus, setPublishStatus] = useState<string | undefined>();
     const [errorMessage, setErrorMessage] = useState<string | undefined>();
+
+    const handleUploadAssets = async (files: File[]) => {
+      setUploadingAssets(true);
+      setErrorMessage(undefined);
+
+      try {
+        const uploaded = await uploadMerchantTaskAssets(files);
+        setAssetAttachments((current) => [...current, ...uploaded]);
+        return uploaded;
+      } catch {
+        setErrorMessage("素材上传失败，请稍后重试。");
+        return [];
+      } finally {
+        setUploadingAssets(false);
+      }
+    };
 
     const handlePublish = async (form: MerchantTaskCreateFormModel) => {
       setPublishing(true);
@@ -638,7 +659,13 @@ function RoutedApp({
         merchantTaskMetaById;
 
       try {
-        const draft = await createMerchantTaskDraft();
+        const draft = await createMerchantTaskDraft({
+          title: form.title,
+          baseAmount: form.baseAmount,
+          baseCount: form.baseCount,
+          rankingTotal: form.rankingTotal,
+          assetAttachments: form.assetAttachments
+        });
         const published = await publishMerchantTask(draft.taskId);
         const taskMeta = buildMerchantTaskMetaFromForm(form);
         publishedTaskId = published.id;
@@ -663,10 +690,11 @@ function RoutedApp({
           return [nextCard, ...current];
         });
         setPublishStatus(
-          `任务 ${published.id} 已发布，已锁定预算 ${
+          `需求 ${published.id} 已发布，已锁定预算 ${
             form.baseAmount * form.baseCount + form.rankingTotal
           }`
         );
+        setAssetAttachments([]);
         navigate(`/merchant/task-detail/${published.id}`);
       } catch {
         setErrorMessage("发布失败，请确认 API 已启动");
@@ -692,8 +720,16 @@ function RoutedApp({
     return (
       <MerchantTaskCreatePage
         publishing={publishing}
+        uploadingAssets={uploadingAssets}
+        assetAttachments={assetAttachments}
         publishStatus={publishStatus}
         errorMessage={errorMessage}
+        onUploadAssets={handleUploadAssets}
+        onRemoveAsset={(assetId) => {
+          setAssetAttachments((current) =>
+            current.filter((item) => item.id !== assetId)
+          );
+        }}
         onPublish={(form) => {
           void handlePublish(form);
         }}
@@ -1130,7 +1166,7 @@ function RoutedApp({
           <MobileShell
             header={
               <TopBar
-                title="任务管理"
+                title="需求管理"
                 onBack={() => navigate(-1)}
                 actions={headerActions}
               />
@@ -1146,7 +1182,7 @@ function RoutedApp({
           <MobileShell
             header={
               <TopBar
-                title="发布任务"
+                title="发布需求"
                 onBack={() => navigate(-1)}
                 actions={headerActions}
               />
@@ -1162,7 +1198,7 @@ function RoutedApp({
           <MobileShell
             header={
               <TopBar
-                title="任务详情"
+                title="需求详情"
                 onBack={() => navigate(-1)}
                 actions={headerActions}
               />
@@ -1178,7 +1214,7 @@ function RoutedApp({
           <MobileShell
             header={
               <TopBar
-                title="任务详情"
+                title="需求详情"
                 onBack={() => navigate(-1)}
                 actions={headerActions}
               />

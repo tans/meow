@@ -5,6 +5,7 @@ import App, { type WebSession } from "../App.js";
 import { MerchantReviewPage } from "../routes/MerchantReviewPage.js";
 import { MerchantSettlementPage } from "../routes/MerchantSettlementPage.js";
 import { MerchantTaskCreatePage } from "../routes/MerchantTaskCreatePage.js";
+import type { MerchantTaskAttachment } from "@meow/contracts";
 
 const apiMocks = vi.hoisted(() => ({
   getSession: vi.fn(),
@@ -24,6 +25,7 @@ const apiMocks = vi.hoisted(() => ({
     availableAmount: 0,
     submissionCount: 0
   })),
+  uploadMerchantTaskAssets: vi.fn(),
   createMerchantTaskDraft: vi.fn(),
   publishMerchantTask: vi.fn(),
   getMerchantTaskDetail: vi.fn(),
@@ -67,6 +69,7 @@ afterEach(() => {
   apiMocks.updateCreatorSubmission.mockReset();
   apiMocks.withdrawCreatorSubmission.mockReset();
   apiMocks.getCreatorWallet.mockReset();
+  apiMocks.uploadMerchantTaskAssets.mockReset();
   apiMocks.createMerchantTaskDraft.mockReset();
   apiMocks.publishMerchantTask.mockReset();
   apiMocks.getMerchantTaskDetail.mockReset();
@@ -78,15 +81,25 @@ afterEach(() => {
 });
 
 describe("merchant pages", () => {
-  it("updates the budget summary while editing the create form", () => {
-    render(<MerchantTaskCreatePage onPublish={vi.fn()} publishing={false} />);
+  it("updates the budget summary while editing the demand form", () => {
+    render(
+      <MerchantTaskCreatePage
+        onPublish={vi.fn()}
+        onUploadAssets={vi.fn(async () => [])}
+        onRemoveAsset={vi.fn()}
+        publishing={false}
+        uploadingAssets={false}
+        assetAttachments={[]}
+      />
+    );
 
     fireEvent.change(screen.getByLabelText("基础奖金额"), {
       target: { value: "3" }
     });
 
     expect(screen.getByText("需锁定预算 ¥7")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "创建并发布任务" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "创建并发布需求" })).toBeTruthy();
+    expect(screen.getByText("发布需求")).toBeTruthy();
   });
 
   it("renders approve, tip, and ranking actions for review cards", () => {
@@ -146,11 +159,13 @@ describe("merchant pages", () => {
     });
     apiMocks.getMerchantTaskDetail.mockResolvedValue({
       id: "task-1",
+      title: "夏日探店需求",
       merchantId: "merchant-1",
       status: "published",
       escrowLockedAmount: 3,
       submissionCount: 0,
-      rewardTags: []
+      rewardTags: [],
+      assetAttachments: []
     });
 
     render(
@@ -159,17 +174,39 @@ describe("merchant pages", () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "创建并发布任务" }));
+    fireEvent.click(screen.getByRole("button", { name: "创建并发布需求" }));
 
     await waitFor(() => {
-      expect(apiMocks.createMerchantTaskDraft).toHaveBeenCalled();
+      expect(apiMocks.createMerchantTaskDraft).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "春季短视频征稿",
+          assetAttachments: []
+        })
+      );
       expect(apiMocks.publishMerchantTask).toHaveBeenCalledWith("task-1");
     });
 
     expect(await screen.findByRole("button", { name: "前往审核" })).toBeTruthy();
   });
 
-  it("keeps local merchant form values in detail after publish", async () => {
+  it("uploads attachments before publish and shows them in detail after publish", async () => {
+    const uploadedAttachments: MerchantTaskAttachment[] = [
+      {
+        id: "asset-1",
+        kind: "image",
+        url: "/merchant/uploads/asset-1.png",
+        fileName: "brief-1.png",
+        mimeType: "image/png"
+      },
+      {
+        id: "asset-2",
+        kind: "video",
+        url: "/merchant/uploads/asset-2.mp4",
+        fileName: "brief-2.mp4",
+        mimeType: "video/mp4"
+      }
+    ];
+    apiMocks.uploadMerchantTaskAssets.mockResolvedValue(uploadedAttachments);
     apiMocks.createMerchantTaskDraft.mockResolvedValue({
       taskId: "task-1",
       status: "draft"
@@ -183,19 +220,23 @@ describe("merchant pages", () => {
     apiMocks.listMerchantTasks.mockResolvedValue([
       {
         id: "task-1",
+        title: "夏日探店需求",
         merchantId: "merchant-1",
         status: "published",
         escrowLockedAmount: 3,
-        submissionCount: 0
+        submissionCount: 0,
+        assetAttachments: uploadedAttachments
       }
     ] as never);
     apiMocks.getMerchantTaskDetail.mockResolvedValue({
       id: "task-1",
+      title: "夏日探店需求",
       merchantId: "merchant-1",
       status: "published",
       escrowLockedAmount: 3,
       submissionCount: 0,
-      rewardTags: []
+      rewardTags: [],
+      assetAttachments: uploadedAttachments
     });
 
     render(
@@ -205,17 +246,41 @@ describe("merchant pages", () => {
     );
 
     fireEvent.change(screen.getByLabelText("任务标题"), {
-      target: { value: "夏日探店征稿" }
+      target: { value: "夏日探店需求" }
     });
     fireEvent.change(screen.getByLabelText("基础奖金额"), {
       target: { value: "3" }
     });
+    fireEvent.change(screen.getByLabelText("需求素材上传"), {
+      target: {
+        files: [
+          new File(["image"], "brief-1.png", { type: "image/png" }),
+          new File(["video"], "brief-2.mp4", { type: "video/mp4" })
+        ]
+      }
+    });
 
-    fireEvent.click(screen.getByRole("button", { name: "创建并发布任务" }));
+    await waitFor(() => {
+      expect(apiMocks.uploadMerchantTaskAssets).toHaveBeenCalledTimes(1);
+    });
 
-    expect(await screen.findByText("夏日探店征稿")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "创建并发布需求" }));
+
+    await waitFor(() => {
+      expect(apiMocks.createMerchantTaskDraft).toHaveBeenCalledWith({
+        title: "夏日探店需求",
+        baseAmount: 3,
+        baseCount: 2,
+        rankingTotal: 1,
+        assetAttachments: uploadedAttachments
+      });
+    });
+
+    expect(await screen.findByText("夏日探店需求")).toBeTruthy();
     expect(screen.getByText("奖励：基础奖 3 x 2 + 排名奖 1")).toBeTruthy();
     expect(screen.getByText("锁定预算 ¥7")).toBeTruthy();
+    expect(screen.getByText("brief-1.png")).toBeTruthy();
+    expect(screen.getByText("brief-2.mp4")).toBeTruthy();
   });
 
   it("keeps publish success when post-publish refresh fails", async () => {
@@ -245,7 +310,7 @@ describe("merchant pages", () => {
       </MemoryRouter>
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "创建并发布任务" }));
+    fireEvent.click(screen.getByRole("button", { name: "创建并发布需求" }));
 
     expect(await screen.findByRole("button", { name: "前往审核" })).toBeTruthy();
     expect(screen.queryByText("发布失败，请确认 API 已启动")).toBeNull();

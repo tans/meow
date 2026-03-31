@@ -22,14 +22,14 @@ export function LoginPage({
     <section className="login-screen">
       <div className="login-panel">
         <div className="login-aside">
-          <p className="login-kicker">Creator x Merchant</p>
+          <p className="login-kicker">Creator x Demand</p>
           <h1 className="login-title">登录创意喵</h1>
           <p className="login-lead">
             先完成 Web 登录，然后按小程序同样的任务链路完成浏览、投稿、发单和切换角色。
           </p>
           <div className="login-badges">
             <span className="login-badge">同一套 session</span>
-            <span className="login-badge">创作者 / 商家并行</span>
+            <span className="login-badge">创作者 / 需求方并行</span>
             <span className="login-badge">后台独立治理</span>
           </div>
         </div>
@@ -37,7 +37,7 @@ export function LoginPage({
           <div className="login-form-header">
             <p className="section-kicker">Demo Access</p>
             <h2>进入 Web 版创意喵</h2>
-            <p>默认填入混合账号，登录后直接进入移动布局，并可切换创作者与商家视图。</p>
+            <p>默认填入混合账号，登录后直接进入移动布局，并可切换创作者与需求方视图。</p>
           </div>
           <form
             className="login-form"

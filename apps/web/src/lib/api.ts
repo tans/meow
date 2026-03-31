@@ -1,5 +1,6 @@
 import type {
   AuthSessionPayload,
+  CreateMerchantTaskDraftInput,
   CreateRankingRewardResponse,
   CreateTipResponse,
   CreatorSubmissionItem,
@@ -9,12 +10,14 @@ import type {
   CreateSubmissionInput,
   CreateSubmissionResponse,
   LoginResponse,
+  MerchantTaskAttachment,
   MerchantTaskDetail,
   MerchantTaskListItem,
   PublishTaskResponse,
   ReviewSubmissionResponse,
   SettleTaskResponse,
   SubmissionReadModelItem,
+  UploadMerchantTaskAssetsResponse,
   UpdateSubmissionResponse,
   WithdrawSubmissionResponse
 } from "@meow/contracts";
@@ -117,12 +120,37 @@ export const getCreatorWallet = async (): Promise<CreatorWalletSnapshot> =>
 export const listMerchantTasks = async (): Promise<MerchantTaskListItem[]> =>
   parseJson<MerchantTaskListItem[]>(await fetch("/merchant/tasks"));
 
-export const createMerchantTaskDraft = async (): Promise<{
+export const uploadMerchantTaskAssets = async (
+  files: File[]
+): Promise<MerchantTaskAttachment[]> => {
+  const formData = new FormData();
+
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  const response = await parseJson<UploadMerchantTaskAssetsResponse>(
+    await fetch("/merchant/uploads", {
+      method: "POST",
+      body: formData
+    })
+  );
+
+  return response.attachments;
+};
+
+export const createMerchantTaskDraft = async (
+  input: CreateMerchantTaskDraftInput
+): Promise<{
   taskId: string;
   status: "draft";
 }> =>
   parseJson<{ taskId: string; status: "draft" }>(
-    await fetch("/merchant/tasks", { method: "POST" })
+    await fetch("/merchant/tasks", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    })
   );
 
 export const publishMerchantTask = async (

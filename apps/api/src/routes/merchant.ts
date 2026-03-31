@@ -1,7 +1,12 @@
 import type { Context } from "hono";
+import type {
+  CreateMerchantTaskDraftInput,
+  MerchantTaskAttachment
+} from "@meow/contracts";
 import { Hono } from "hono";
 import { AppError } from "../lib/errors.js";
 import { requireSession } from "../lib/session.js";
+import { readMerchantUploadedAsset, saveMerchantTaskAssets } from "../lib/uploads.js";
 import {
   createRankingReward,
   createTipReward,
@@ -49,9 +54,73 @@ const readMerchantJson = async (c: Context): Promise<Record<string, unknown>> =>
   }
 };
 
-merchantRoutes.post("/tasks", (c) => {
+const parseMerchantTaskAttachments = (
+  value: unknown
+): MerchantTaskAttachment[] => {
+  if (value === undefined) {
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    throw new AppError(400, "invalid task attachments");
+  }
+
+  return value.map((item) => {
+    if (!item || typeof item !== "object") {
+      throw new AppError(400, "invalid task attachments");
+    }
+
+    const attachment = item as Record<string, unknown>;
+
+    if (
+      typeof attachment.id !== "string" ||
+      (attachment.kind !== "image" && attachment.kind !== "video") ||
+      typeof attachment.url !== "string" ||
+      typeof attachment.fileName !== "string" ||
+      typeof attachment.mimeType !== "string"
+    ) {
+      throw new AppError(400, "invalid task attachments");
+    }
+
+    return {
+      id: attachment.id,
+      kind: attachment.kind,
+      url: attachment.url,
+      fileName: attachment.fileName,
+      mimeType: attachment.mimeType
+    };
+  });
+};
+
+const parseCreateTaskInput = (
+  input: Record<string, unknown>
+): CreateMerchantTaskDraftInput => {
+  const title = input.title;
+  const baseAmount = input.baseAmount;
+  const baseCount = input.baseCount;
+  const rankingTotal = input.rankingTotal;
+  const normalizedBaseAmount =
+    typeof baseAmount === "number" && !Number.isNaN(baseAmount) ? baseAmount : 0;
+  const normalizedBaseCount =
+    typeof baseCount === "number" && !Number.isNaN(baseCount) ? baseCount : 0;
+  const normalizedRankingTotal =
+    typeof rankingTotal === "number" && !Number.isNaN(rankingTotal)
+      ? rankingTotal
+      : 0;
+
+  return {
+    title: typeof title === "string" && title.trim() ? title.trim() : "未命名需求",
+    baseAmount: normalizedBaseAmount,
+    baseCount: normalizedBaseCount,
+    rankingTotal: normalizedRankingTotal,
+    assetAttachments: parseMerchantTaskAttachments(input.assetAttachments)
+  };
+};
+
+merchantRoutes.post("/tasks", async (c) => {
   const session = requireMerchantSession(c);
-  const response = createTaskDraft(session.userId);
+  const body = parseCreateTaskInput(await readMerchantJson(c));
+  const response = createTaskDraft(session.userId, body);
 
   return c.json(response, 201);
 });
@@ -80,6 +149,29 @@ merchantRoutes.get("/tasks/:taskId/submissions", (c) => {
   const session = requireMerchantSession(c);
 
   return c.json(listMerchantTaskSubmissions(session.userId, c.req.param("taskId")));
+});
+
+merchantRoutes.post("/uploads", async (c) => {
+  requireMerchantSession(c);
+  const formData = await c.req.formData();
+  const files = formData
+    .getAll("files")
+    .filter((item): item is File => item instanceof File);
+  const attachments = await saveMerchantTaskAssets(files);
+
+  return c.json({ attachments }, 201);
+});
+
+merchantRoutes.get("/uploads/:storageName", async (c) => {
+  requireSession(c);
+  const asset = await readMerchantUploadedAsset(c.req.param("storageName"));
+
+  return new Response(asset.body, {
+    headers: {
+      "content-type": asset.mimeType,
+      "cache-control": "private, max-age=86400"
+    }
+  });
 });
 
 merchantRoutes.get("/wallet", (c) => {

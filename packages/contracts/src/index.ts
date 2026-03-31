@@ -45,6 +45,31 @@ export interface PublishTaskResponse {
   ledgerEffect: "merchant_escrow_locked";
 }
 
+export interface MerchantTaskAttachment {
+  id: string;
+  kind: "image" | "video";
+  url: string;
+  fileName: string;
+  mimeType: string;
+}
+
+export interface CreateMerchantTaskDraftInput {
+  title: string;
+  baseAmount?: number;
+  baseCount?: number;
+  rankingTotal?: number;
+  assetAttachments: MerchantTaskAttachment[];
+}
+
+export interface CreateMerchantTaskDraftResponse {
+  taskId: string;
+  status: "draft";
+}
+
+export interface UploadMerchantTaskAssetsResponse {
+  attachments: MerchantTaskAttachment[];
+}
+
 export interface CreatorTaskFeedItem {
   id: string;
   merchantId: string;
@@ -85,9 +110,11 @@ export interface WithdrawSubmissionResponse {
 export interface MerchantTaskListItem {
   id: string;
   merchantId: string;
+  title: string;
   status: "draft" | "published" | "paused" | "ended" | "settled" | "closed";
   escrowLockedAmount: number;
   submissionCount: number;
+  assetAttachments: MerchantTaskAttachment[];
 }
 
 export interface MerchantTaskDetail extends MerchantTaskListItem {
