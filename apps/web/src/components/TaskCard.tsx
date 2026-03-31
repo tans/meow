@@ -16,12 +16,12 @@ export function TaskCard({
   footer
 }: TaskCardProps) {
   return (
-    <article>
-      <p>{eyebrow}</p>
-      <h3>{title}</h3>
-      <p>{meta}</p>
-      <p>{detail}</p>
-      {footer ? <div>{footer}</div> : null}
+    <article className="task-card task-card--feed">
+      <p className="task-eyebrow">{eyebrow}</p>
+      <h3 className="task-title">{title}</h3>
+      <p className="task-meta">{meta}</p>
+      <p className="task-detail">{detail}</p>
+      {footer ? <div className="task-footer">{footer}</div> : null}
     </article>
   );
 }

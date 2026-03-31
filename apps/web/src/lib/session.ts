@@ -13,6 +13,14 @@ export interface WebSession {
   roles: WebRole[];
 }
 
+export const CREATOR_TAB_PATHS = ["/tasks", "/workspace", "/profile"] as const;
+
+export const isCreatorTabPath = (pathname: string): boolean =>
+  CREATOR_TAB_PATHS.includes(pathname as (typeof CREATOR_TAB_PATHS)[number]);
+
+export const defaultPathForRole = (role: WebRole): string =>
+  role === "merchant" ? "/merchant/task-create" : "/tasks";
+
 const isWebRole = (role: AppRole): role is WebRole =>
   role === "creator" || role === "merchant";
 

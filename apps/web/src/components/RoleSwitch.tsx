@@ -23,7 +23,11 @@ export function RoleSwitch({
   }
 
   return (
-    <button type="button" onClick={() => onSwitch(nextRole)}>
+    <button
+      className="secondary-button"
+      type="button"
+      onClick={() => onSwitch(nextRole)}
+    >
       {`切换到${roleLabel[nextRole]}`}
     </button>
   );

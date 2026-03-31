@@ -31,34 +31,53 @@ export function AppShell({
     session.activeRole === "creator" ? creatorNavItems : merchantNavItems;
 
   return (
-    <div>
-      <header>
-        <p>{session.user.displayName}</p>
-        <h1>
-          {session.activeRole === "creator" ? "创作者工作台" : "商家工作台"}
-        </h1>
-        <RoleSwitch
-          roles={session.roles}
-          activeRole={session.activeRole}
-          onSwitch={onSwitchRole}
-        />
-        {switchingRole ? <p>正在同步角色视图...</p> : null}
-        {statusMessage ? <p>{statusMessage}</p> : null}
-      </header>
-      <nav aria-label="User navigation">
-        <ul>
-          {navItems.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </nav>
-      <main>
+    <div className="app-shell">
+      <div className="shell-frame">
+        <header className="shell-header">
+          <div className="shell-header-top">
+            <div>
+              <p className="shell-kicker">{session.user.displayName}</p>
+              <h1 className="shell-title">
+                {session.activeRole === "creator" ? "创作者工作台" : "商家工作台"}
+              </h1>
+              <p className="shell-subtitle">
+                {session.activeRole === "creator"
+                  ? "任务发现、投稿管理和收益回看集中在同一个浏览器工作台。"
+                  : "把发布任务、审稿推进和结算节奏压缩到更高密度的桌面界面。"}
+              </p>
+            </div>
+            <RoleSwitch
+              roles={session.roles}
+              activeRole={session.activeRole}
+              onSwitch={onSwitchRole}
+            />
+          </div>
+          <div className="shell-meta">
+            <span className="meta-pill">{`当前身份 · ${session.activeRole}`}</span>
+            <span className="meta-pill">{`可切换身份 · ${session.roles.join(" / ")}`}</span>
+          </div>
+          {switchingRole ? (
+            <p className="status-message">正在同步角色视图...</p>
+          ) : null}
+          {statusMessage ? <p className="error-message">{statusMessage}</p> : null}
+        </header>
+        <nav className="shell-nav" aria-label="User navigation">
+          <ul className="shell-nav-list">
+            {navItems.map((item) => (
+              <li key={item} className="shell-nav-item">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <main className="shell-main">
         {session.activeRole === "creator" ? (
           <CreatorHomePage tasks={creatorTasks} />
         ) : (
           <MerchantTasksPage tasks={merchantTasks} />
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
