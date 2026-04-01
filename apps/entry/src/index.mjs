@@ -1,0 +1,164 @@
+import { createServer } from "node:http";
+import { spawn } from "node:child_process";
+import { Socket } from "node:net";
+import process from "node:process";
+
+const entryPort = Number(process.env.ENTRY_PORT ?? "26401");
+const apiPort = Number(process.env.API_PORT ?? "26411");
+const webPort = Number(process.env.WEB_PORT ?? "26412");
+const adminPort = Number(process.env.ADMIN_PORT ?? "26413");
+
+const processes = [];
+
+function spawnService(name, args, env = {}) {
+  const child = spawn("pnpm", args, {
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      ...env
+    }
+  });
+
+  child.on("exit", (code, signal) => {
+    if (code === 0 || signal === "SIGTERM") {
+      return;
+    }
+    console.error(`[entry] ${name} exited unexpectedly with code ${code} signal ${signal ?? "none"}`);
+    process.exitCode = code ?? 1;
+  });
+
+  processes.push(child);
+}
+
+spawnService("api", ["--filter", "@meow/api", "dev"], { PORT: String(apiPort) });
+spawnService("web", ["--filter", "@meow/web", "dev", "--", "--host", "127.0.0.1", "--port", String(webPort), "--strictPort"]);
+spawnService("admin", ["--filter", "@meow/admin", "dev", "--", "--host", "127.0.0.1", "--port", String(adminPort), "--strictPort"]);
+
+function route(pathname) {
+  if (pathname === "/") {
+    return {
+      targetPort: webPort,
+      targetPath: "/"
+    };
+  }
+
+  if (pathname.startsWith("/api")) {
+    const suffix = pathname.slice(4) || "/";
+    return {
+      targetPort: apiPort,
+      targetPath: suffix
+    };
+  }
+
+  if (pathname.startsWith("/web")) {
+    const suffix = pathname.slice(4) || "/";
+    return {
+      targetPort: webPort,
+      targetPath: suffix
+    };
+  }
+
+  if (pathname.startsWith("/admin")) {
+    const suffix = pathname.slice(6) || "/";
+    return {
+      targetPort: adminPort,
+      targetPath: suffix
+    };
+  }
+
+  return {
+    targetPort: webPort,
+    targetPath: pathname
+  };
+}
+
+function proxyHttp(req, res, targetPort, targetPath) {
+  const requestOptions = {
+    hostname: "127.0.0.1",
+    port: targetPort,
+    method: req.method,
+    path: `${targetPath}${new URL(req.url ?? "/", "http://localhost").search}`,
+    headers: req.headers
+  };
+
+  const proxyReq = fetch(`http://127.0.0.1:${targetPort}${requestOptions.path}`, {
+    method: req.method,
+    headers: req.headers,
+    body: req.method === "GET" || req.method === "HEAD" ? undefined : req,
+    duplex: "half"
+  });
+
+  proxyReq
+    .then(async (proxyRes) => {
+      res.writeHead(proxyRes.status, Object.fromEntries(proxyRes.headers.entries()));
+      if (proxyRes.body) {
+        for await (const chunk of proxyRes.body) {
+          res.write(chunk);
+        }
+      }
+      res.end();
+    })
+    .catch((error) => {
+      res.statusCode = 502;
+      res.end(`[entry] upstream ${targetPort} unavailable: ${String(error)}`);
+    });
+}
+
+function proxyUpgrade(req, socket, head, targetPort, targetPath) {
+  const upstream = new Socket();
+
+  upstream.connect(targetPort, "127.0.0.1", () => {
+    const rawHeaders = Object.entries(req.headers)
+      .flatMap(([key, value]) => {
+        if (Array.isArray(value)) {
+          return value.map((item) => `${key}: ${item}`);
+        }
+        if (value === undefined) {
+          return [];
+        }
+        return `${key}: ${value}`;
+      })
+      .join("\r\n");
+
+    const requestLine = `${req.method} ${targetPath}${new URL(req.url ?? "/", "http://localhost").search} HTTP/${req.httpVersion}`;
+    upstream.write(`${requestLine}\r\n${rawHeaders}\r\n\r\n`);
+
+    if (head.length > 0) {
+      upstream.write(head);
+    }
+
+    socket.pipe(upstream).pipe(socket);
+  });
+
+  upstream.on("error", () => {
+    socket.end();
+  });
+}
+
+const server = createServer((req, res) => {
+  const url = new URL(req.url ?? "/", "http://localhost");
+  const { targetPort, targetPath } = route(url.pathname);
+  proxyHttp(req, res, targetPort, targetPath);
+});
+
+server.on("upgrade", (req, socket, head) => {
+  const url = new URL(req.url ?? "/", "http://localhost");
+  const { targetPort, targetPath } = route(url.pathname);
+  proxyUpgrade(req, socket, head, targetPort, targetPath);
+});
+
+server.listen(entryPort, () => {
+  console.log(`[entry] listening on http://127.0.0.1:${entryPort}`);
+  console.log(`[entry] routes: /web -> ${webPort}, /api -> ${apiPort}, /admin -> ${adminPort}`);
+});
+
+function shutdown() {
+  server.close();
+  for (const child of processes) {
+    child.kill("SIGTERM");
+  }
+  process.exit(0);
+}
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
