@@ -41,6 +41,36 @@ export interface AdminLedgerLogRow {
   reason: string;
 }
 
+export interface AdminTaskListItem {
+  id: string;
+  title: string;
+  merchantId: string;
+  status: string;
+  submissionCount: number;
+  escrowLockedAmount: number;
+  updatedAt: string;
+}
+
+export interface AdminUserListItem {
+  id: string;
+  identifier: string;
+  displayName: string;
+  roles: string[];
+  state: string;
+}
+
+export interface AdminSettingsSnapshot {
+  allowTaskPublish: boolean;
+  enableTipReward: boolean;
+  dailyTaskRewardCap: number;
+}
+
+const adminSettingsState: AdminSettingsSnapshot = {
+  allowTaskPublish: true,
+  enableTipReward: true,
+  dailyTaskRewardCap: 100
+};
+
 const getTaskOrThrow = (taskId: string) => {
   const task = db.getTask(taskId);
 
@@ -202,3 +232,158 @@ export const listLedgerRows = (): AdminLedgerLogRow[] =>
     operatorId: action.operatorId,
     reason: action.reason
   }));
+
+const paginate = <T>(
+  items: T[],
+  page: number,
+  pageSize: number
+): { items: T[]; total: number; page: number; pageSize: number } => {
+  const safePage = Math.max(1, page);
+  const safePageSize = Math.max(1, pageSize);
+  const start = (safePage - 1) * safePageSize;
+  return {
+    items: items.slice(start, start + safePageSize),
+    total: items.length,
+    page: safePage,
+    pageSize: safePageSize
+  };
+};
+
+export const listAdminTasks = (input: {
+  page: number;
+  pageSize: number;
+  status?: string;
+  keyword?: string;
+}) => {
+  const submissionCounts = new Map<string, number>();
+  for (const task of db.listTasks()) {
+    submissionCounts.set(task.id, db.listSubmissionsByTask(task.id).length);
+  }
+
+  const keyword = input.keyword?.trim().toLowerCase();
+  const filtered = db
+    .listTasks()
+    .filter((task) => (input.status ? task.status === input.status : true))
+    .filter((task) =>
+      keyword
+        ? task.id.toLowerCase().includes(keyword) ||
+          task.title.toLowerCase().includes(keyword)
+        : true
+    )
+    .map<AdminTaskListItem>((task) => ({
+      id: task.id,
+      title: task.title,
+      merchantId: task.merchantId,
+      status: task.status,
+      submissionCount: submissionCounts.get(task.id) ?? 0,
+      escrowLockedAmount: task.escrowLockedAmount,
+      updatedAt: new Date().toISOString()
+    }));
+
+  const paged = paginate(filtered, input.page, input.pageSize);
+  return {
+    items: paged.items,
+    pagination: {
+      page: paged.page,
+      pageSize: paged.pageSize,
+      total: paged.total
+    }
+  };
+};
+
+export const getAdminTaskDetail = (taskId: string) => {
+  const task = getTaskOrThrow(taskId);
+  const submissions = db.listSubmissionsByTask(taskId);
+  const reviewActions = db
+    .listOperatorActions()
+    .filter(
+      (action) =>
+        action.targetType === "task" &&
+        action.targetId === taskId &&
+        (action.action === "pause-task" || action.action === "resume-task")
+    )
+    .slice(-10)
+    .reverse()
+    .map((action) => ({
+      action: action.action,
+      operatorId: action.operatorId,
+      reason: action.reason
+    }));
+
+  return {
+    id: task.id,
+    title: task.title,
+    merchantId: task.merchantId,
+    status: task.status,
+    escrowLockedAmount: task.escrowLockedAmount,
+    submissionStats: {
+      total: submissions.length,
+      approved: submissions.filter((item) => item.status === "approved").length,
+      pending: submissions.filter((item) => item.status === "submitted").length
+    },
+    governanceActions: reviewActions
+  };
+};
+
+export const listAdminUsers = (input: {
+  page: number;
+  pageSize: number;
+  state?: string;
+  role?: string;
+  keyword?: string;
+}) => {
+  const keyword = input.keyword?.trim().toLowerCase();
+  const filtered = db
+    .listUsers()
+    .filter((user) => (input.state ? user.state === input.state : true))
+    .filter((user) => (input.role ? user.roles.includes(input.role as never) : true))
+    .filter((user) =>
+      keyword
+        ? user.id.toLowerCase().includes(keyword) ||
+          user.identifier.toLowerCase().includes(keyword) ||
+          user.displayName.toLowerCase().includes(keyword)
+        : true
+    )
+    .map<AdminUserListItem>((user) => ({
+      id: user.id,
+      identifier: user.identifier,
+      displayName: user.displayName,
+      roles: [...user.roles],
+      state: user.state
+    }));
+
+  const paged = paginate(filtered, input.page, input.pageSize);
+  return {
+    items: paged.items,
+    pagination: {
+      page: paged.page,
+      pageSize: paged.pageSize,
+      total: paged.total
+    }
+  };
+};
+
+export const getAdminSettings = (): AdminSettingsSnapshot => ({ ...adminSettingsState });
+
+export const updateAdminSettings = (
+  input: Partial<AdminSettingsSnapshot> & { operatorId: string }
+): AdminSettingsSnapshot => {
+  if (
+    input.dailyTaskRewardCap !== undefined &&
+    (!Number.isFinite(input.dailyTaskRewardCap) || input.dailyTaskRewardCap < 0)
+  ) {
+    throw new AppError(400, "invalid admin input");
+  }
+
+  if (input.allowTaskPublish !== undefined) {
+    adminSettingsState.allowTaskPublish = input.allowTaskPublish;
+  }
+  if (input.enableTipReward !== undefined) {
+    adminSettingsState.enableTipReward = input.enableTipReward;
+  }
+  if (input.dailyTaskRewardCap !== undefined) {
+    adminSettingsState.dailyTaskRewardCap = input.dailyTaskRewardCap;
+  }
+
+  return { ...adminSettingsState };
+};
