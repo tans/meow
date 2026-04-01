@@ -38,6 +38,28 @@ pnpm --filter @meow/wechat-miniapp dev
 
 微信小程序使用原生工程目录 `apps/wechat-miniapp/miniprogram`，通过微信开发者工具打开，不走跨端框架。
 
+### 单端口 Entry 服务（默认 26401）
+
+如果你不想依赖 Nginx/Caddy 这类外部反向代理，可以直接启动仓库内置的 `entry` 服务：
+
+```bash
+pnpm entry
+```
+
+它会串联启动 3 个子服务并在一个端口暴露统一入口：
+
+- `/web/*` -> `@meow/web`
+- `/api/*` -> `@meow/api`（会去掉 `/api` 前缀再转发）
+- `/admin/*` -> `@meow/admin`
+
+默认端口与可选覆盖：
+
+- `ENTRY_PORT`（默认 `26401`）
+- `API_PORT`（默认 `26411`）
+- `WEB_PORT`（默认 `26412`）
+- `ADMIN_PORT`（默认 `26413`）
+
+
 `apps/web` 与 `apps/wechat-miniapp` 共用同一套 `/auth/*`、`/creator/*`、`/merchant/*` 接口；
 `apps/admin` 使用 `/admin/*` 接口，登录账号必须具备 `operator` 角色。
 
