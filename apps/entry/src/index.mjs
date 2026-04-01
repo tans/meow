@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import { spawn } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { Socket } from "node:net";
 import process from "node:process";
 
@@ -9,6 +10,31 @@ const webPort = Number(process.env.WEB_PORT ?? "26412");
 const adminPort = Number(process.env.ADMIN_PORT ?? "26413");
 
 const processes = [];
+
+function ensureWorkspaceDepsBuilt() {
+  const buildArgs = [
+    "turbo",
+    "run",
+    "build",
+    "--filter=@meow/contracts",
+    "--filter=@meow/database",
+    "--filter=@meow/domain-core",
+    "--filter=@meow/domain-finance",
+    "--filter=@meow/domain-risk",
+    "--filter=@meow/domain-task",
+    "--filter=@meow/domain-user"
+  ];
+
+  const result = spawnSync("pnpm", buildArgs, {
+    stdio: "inherit",
+    env: process.env
+  });
+
+  if (result.status !== 0) {
+    console.error(`[entry] dependency build failed with code ${result.status ?? "unknown"}`);
+    process.exit(result.status ?? 1);
+  }
+}
 
 function spawnService(name, args, env = {}) {
   const child = spawn("pnpm", args, {
@@ -30,9 +56,11 @@ function spawnService(name, args, env = {}) {
   processes.push(child);
 }
 
+ensureWorkspaceDepsBuilt();
+
 spawnService("api", ["--filter", "@meow/api", "dev"], { PORT: String(apiPort) });
-spawnService("web", ["--filter", "@meow/web", "dev", "--", "--host", "127.0.0.1", "--port", String(webPort), "--strictPort"]);
-spawnService("admin", ["--filter", "@meow/admin", "dev", "--", "--host", "127.0.0.1", "--port", String(adminPort), "--strictPort"]);
+spawnService("web", ["--filter", "@meow/web", "dev", "--host", "127.0.0.1", "--port", String(webPort), "--strictPort"]);
+spawnService("admin", ["--filter", "@meow/admin", "dev", "--host", "127.0.0.1", "--port", String(adminPort), "--strictPort"]);
 
 function route(pathname) {
   if (pathname === "/") {
