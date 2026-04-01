@@ -235,13 +235,15 @@ const parseJson = async (response: Response) => {
   return await response.json();
 };
 
+const apiFetch = (path: string, init?: RequestInit) => fetch(`/api${path}`, init);
+
 export const loginOperator = async (input = {
   identifier: "operator@example.com",
   secret: "demo-pass",
   client: "admin"
 }) =>
   await parseJson(
-    await fetch("/auth/login", {
+    await apiFetch("/auth/login", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(input)
@@ -249,7 +251,7 @@ export const loginOperator = async (input = {
   );
 
 export const fetchAdminSession = async () => {
-  const response = await fetch("/auth/session");
+  const response = await apiFetch("/auth/session");
 
   if (response.status === 401) {
     return null;
@@ -261,11 +263,11 @@ export const fetchAdminSession = async () => {
 };
 
 export const fetchDashboardSnapshot = async (): Promise<DashboardSnapshot> =>
-  (await parseJson(await fetch("/admin/dashboard"))) as DashboardSnapshot;
+  (await parseJson(await apiFetch("/admin/dashboard"))) as DashboardSnapshot;
 
 export const fetchLedgerRows = async (): Promise<LedgerRow[]> => {
   const rows = (await parseJson(
-    await fetch("/admin/ledger")
+    await apiFetch("/admin/ledger")
   )) as AdminLedgerLogResponse[];
 
   return rows.map((row) => ({
@@ -279,7 +281,7 @@ export const fetchLedgerRows = async (): Promise<LedgerRow[]> => {
 
 export const pauseTask = async (taskId: string, reason: string) =>
   await parseJson(
-    await fetch(`/admin/tasks/${taskId}/pause`, {
+    await apiFetch(`/admin/tasks/${taskId}/pause`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ reason })

@@ -31,13 +31,15 @@ const parseJson = async <T>(response: Response): Promise<T> => {
   return (await response.json()) as T;
 };
 
+const apiFetch = (path: string, init?: RequestInit) => fetch(`/api${path}`, init);
+
 export const login = async (input: {
   identifier: string;
   secret: string;
   client: "web";
 }): Promise<LoginResponse> =>
   parseJson<LoginResponse>(
-    await fetch("/auth/login", {
+    await apiFetch("/auth/login", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(input)
@@ -45,7 +47,7 @@ export const login = async (input: {
   );
 
 export const getSession = async (): Promise<AuthSessionPayload | null> => {
-  const response = await fetch("/auth/session");
+  const response = await apiFetch("/auth/session");
 
   if (response.status === 401) {
     return null;
@@ -56,7 +58,7 @@ export const getSession = async (): Promise<AuthSessionPayload | null> => {
 
 export const switchRole = async (role: WebRole): Promise<AuthSessionPayload> =>
   parseJson<AuthSessionPayload>(
-    await fetch("/auth/switch-role", {
+    await apiFetch("/auth/switch-role", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ role })
@@ -64,29 +66,29 @@ export const switchRole = async (role: WebRole): Promise<AuthSessionPayload> =>
   );
 
 export const listCreatorTasks = async (): Promise<CreatorTaskFeedItem[]> =>
-  parseJson<CreatorTaskFeedItem[]>(await fetch("/creator/tasks"));
+  parseJson<CreatorTaskFeedItem[]>(await apiFetch("/creator/tasks"));
 
 export const getCreatorTaskDetail = async (
   taskId: string
 ): Promise<CreatorTaskDetail> =>
-  parseJson<CreatorTaskDetail>(await fetch(`/creator/tasks/${taskId}`));
+  parseJson<CreatorTaskDetail>(await apiFetch(`/creator/tasks/${taskId}`));
 
 export const listCreatorTaskSubmissions = async (
   taskId: string
 ): Promise<CreatorSubmissionItem[]> =>
   parseJson<CreatorSubmissionItem[]>(
-    await fetch(`/creator/tasks/${taskId}/submissions`)
+    await apiFetch(`/creator/tasks/${taskId}/submissions`)
   );
 
 export const listCreatorSubmissions = async (): Promise<CreatorSubmissionItem[]> =>
-  parseJson<CreatorSubmissionItem[]>(await fetch("/creator/submissions"));
+  parseJson<CreatorSubmissionItem[]>(await apiFetch("/creator/submissions"));
 
 export const createCreatorSubmission = async (
   taskId: string,
   input: CreateSubmissionInput
 ): Promise<CreateSubmissionResponse> =>
   parseJson<CreateSubmissionResponse>(
-    await fetch(`/creator/tasks/${taskId}/submissions`, {
+    await apiFetch(`/creator/tasks/${taskId}/submissions`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(input)
@@ -98,7 +100,7 @@ export const updateCreatorSubmission = async (
   input: CreateSubmissionInput
 ): Promise<UpdateSubmissionResponse> =>
   parseJson<UpdateSubmissionResponse>(
-    await fetch(`/creator/submissions/${submissionId}`, {
+    await apiFetch(`/creator/submissions/${submissionId}`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(input)
@@ -109,16 +111,16 @@ export const withdrawCreatorSubmission = async (
   submissionId: string
 ): Promise<WithdrawSubmissionResponse> =>
   parseJson<WithdrawSubmissionResponse>(
-    await fetch(`/creator/submissions/${submissionId}/withdraw`, {
+    await apiFetch(`/creator/submissions/${submissionId}/withdraw`, {
       method: "POST"
     })
   );
 
 export const getCreatorWallet = async (): Promise<CreatorWalletSnapshot> =>
-  parseJson<CreatorWalletSnapshot>(await fetch("/creator/wallet"));
+  parseJson<CreatorWalletSnapshot>(await apiFetch("/creator/wallet"));
 
 export const listMerchantTasks = async (): Promise<MerchantTaskListItem[]> =>
-  parseJson<MerchantTaskListItem[]>(await fetch("/merchant/tasks"));
+  parseJson<MerchantTaskListItem[]>(await apiFetch("/merchant/tasks"));
 
 export const uploadMerchantTaskAssets = async (
   files: File[]
@@ -130,7 +132,7 @@ export const uploadMerchantTaskAssets = async (
   });
 
   const response = await parseJson<UploadMerchantTaskAssetsResponse>(
-    await fetch("/merchant/uploads", {
+    await apiFetch("/merchant/uploads", {
       method: "POST",
       body: formData
     })
@@ -146,7 +148,7 @@ export const createMerchantTaskDraft = async (
   status: "draft";
 }> =>
   parseJson<{ taskId: string; status: "draft" }>(
-    await fetch("/merchant/tasks", {
+    await apiFetch("/merchant/tasks", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(input)
@@ -157,19 +159,19 @@ export const publishMerchantTask = async (
   taskId: string
 ): Promise<PublishTaskResponse> =>
   parseJson<PublishTaskResponse>(
-    await fetch(`/merchant/tasks/${taskId}/publish`, { method: "POST" })
+    await apiFetch(`/merchant/tasks/${taskId}/publish`, { method: "POST" })
   );
 
 export const getMerchantTaskDetail = async (
   taskId: string
 ): Promise<MerchantTaskDetail> =>
-  parseJson<MerchantTaskDetail>(await fetch(`/merchant/tasks/${taskId}`));
+  parseJson<MerchantTaskDetail>(await apiFetch(`/merchant/tasks/${taskId}`));
 
 export const listMerchantTaskSubmissions = async (
   taskId: string
 ): Promise<SubmissionReadModelItem[]> =>
   parseJson<SubmissionReadModelItem[]>(
-    await fetch(`/merchant/tasks/${taskId}/submissions`)
+    await apiFetch(`/merchant/tasks/${taskId}/submissions`)
   );
 
 export const reviewMerchantSubmission = async (
@@ -177,7 +179,7 @@ export const reviewMerchantSubmission = async (
   decision: "approved" | "rejected" = "approved"
 ): Promise<ReviewSubmissionResponse> =>
   parseJson<ReviewSubmissionResponse>(
-    await fetch(`/merchant/submissions/${submissionId}/review`, {
+    await apiFetch(`/merchant/submissions/${submissionId}/review`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ decision })
@@ -188,7 +190,7 @@ export const tipMerchantSubmission = async (
   submissionId: string
 ): Promise<CreateTipResponse> =>
   parseJson<CreateTipResponse>(
-    await fetch(`/merchant/submissions/${submissionId}/tips`, { method: "POST" })
+    await apiFetch(`/merchant/submissions/${submissionId}/tips`, { method: "POST" })
   );
 
 export const addMerchantRankingReward = async (
@@ -196,7 +198,7 @@ export const addMerchantRankingReward = async (
   submissionId: string
 ): Promise<CreateRankingRewardResponse> =>
   parseJson<CreateRankingRewardResponse>(
-    await fetch(`/merchant/tasks/${taskId}/rewards/ranking`, {
+    await apiFetch(`/merchant/tasks/${taskId}/rewards/ranking`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ submissionId })
@@ -207,5 +209,5 @@ export const settleMerchantTask = async (
   taskId: string
 ): Promise<SettleTaskResponse> =>
   parseJson<SettleTaskResponse>(
-    await fetch(`/merchant/tasks/${taskId}/settle`, { method: "POST" })
+    await apiFetch(`/merchant/tasks/${taskId}/settle`, { method: "POST" })
   );
