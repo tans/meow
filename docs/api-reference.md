@@ -708,6 +708,11 @@ Web 与 Admin 当前都按同源方式访问相对路径：
 - `GET /admin/dashboard`
 - `GET /admin/ledger`
 - `POST /admin/tasks/:taskId/pause`
+- `GET /admin/tasks`
+- `GET /admin/tasks/:taskId`
+- `GET /admin/users`
+- `GET /admin/settings`
+- `PUT /admin/settings`
 
 ### 管理端已实现但前端未全面接入的治理接口
 
@@ -721,12 +726,12 @@ Web 与 Admin 当前都按同源方式访问相对路径：
 
 以下管理端页面目前仍主要使用前端预览数据，不存在正式 API：
 
-- 任务列表页完整查询接口
-- 用户列表查询接口
-- 单任务详情查询接口
-- 系统设置读取/写入接口
+- （已补齐）任务列表页查询接口：`GET /admin/tasks`
+- （已补齐）用户列表查询接口：`GET /admin/users`
+- （已补齐）单任务详情查询接口：`GET /admin/tasks/:taskId`
+- （已补齐）系统设置读写接口：`GET /admin/settings`、`PUT /admin/settings`
 
-如果后续要联调这些页面，需要先补服务端 read-model API。
+上述接口可用于 Admin MVP 真实联调。
 
 ### GET `/admin/dashboard`
 
@@ -815,6 +820,134 @@ Web 与 Admin 当前都按同源方式访问相对路径：
 - `403 operator access denied`
 - `403 task cannot be paused`
 - `404 task not found`
+
+### GET `/admin/tasks`
+
+用途：
+
+- 管理端任务列表查询
+
+查询参数（可选）：
+
+- `page`（默认 1）
+- `pageSize`（默认 20，最大 100）
+- `status`
+- `keyword`
+
+返回：
+
+```json
+{
+  "items": [
+    {
+      "id": "task-1",
+      "title": "春季短视频征稿",
+      "merchantId": "merchant-1",
+      "status": "published",
+      "submissionCount": 1,
+      "escrowLockedAmount": 3,
+      "updatedAt": "2026-04-01T00:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "pageSize": 20,
+    "total": 1
+  }
+}
+```
+
+### GET `/admin/tasks/:taskId`
+
+用途：
+
+- 管理端任务详情查询
+
+返回：
+
+```json
+{
+  "id": "task-1",
+  "title": "春季短视频征稿",
+  "merchantId": "merchant-1",
+  "status": "published",
+  "escrowLockedAmount": 3,
+  "submissionStats": {
+    "total": 1,
+    "approved": 0,
+    "pending": 1
+  },
+  "governanceActions": []
+}
+```
+
+### GET `/admin/users`
+
+用途：
+
+- 管理端用户列表查询
+
+查询参数（可选）：
+
+- `page`（默认 1）
+- `pageSize`（默认 20，最大 100）
+- `state`
+- `role`
+- `keyword`
+
+返回：
+
+```json
+{
+  "items": [
+    {
+      "id": "creator-1",
+      "identifier": "creator@example.com",
+      "displayName": "Demo Creator",
+      "roles": ["creator"],
+      "state": "active"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "pageSize": 20,
+    "total": 1
+  }
+}
+```
+
+### GET `/admin/settings`
+
+用途：
+
+- 获取管理端系统设置
+
+返回：
+
+```json
+{
+  "allowTaskPublish": true,
+  "enableTipReward": true,
+  "dailyTaskRewardCap": 100
+}
+```
+
+### PUT `/admin/settings`
+
+用途：
+
+- 更新管理端系统设置
+
+请求体（可部分更新）：
+
+```json
+{
+  "allowTaskPublish": false,
+  "dailyTaskRewardCap": 120
+}
+```
+
+返回结构同 `GET /admin/settings`。
 
 ### POST `/admin/tasks/:taskId/resume`
 
@@ -906,4 +1039,3 @@ Web 与 Admin 当前都按同源方式访问相对路径：
 - `POST /merchant/tasks` 已接收预算字段，但预算拆解尚未真正持久化
 - `GET /admin/ledger` 目前返回的是治理动作日志，不是完整资金流水
 - Admin 的任务列表、用户列表、任务详情、系统设置仍缺正式后端查询接口
-

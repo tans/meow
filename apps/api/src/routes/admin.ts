@@ -4,12 +4,17 @@ import { Hono } from "hono";
 import { AppError } from "../lib/errors.js";
 import { requireSession } from "../lib/session.js";
 import {
+  getAdminSettings,
+  getAdminTaskDetail,
   banUser,
+  listAdminTasks,
+  listAdminUsers,
   listDashboard,
   listLedgerRows,
   markLedgerAnomaly,
   pauseTask,
-  resumeTask
+  resumeTask,
+  updateAdminSettings
 } from "../services/admin.js";
 
 export const adminRoutes = new Hono<{
@@ -54,12 +59,94 @@ const parseReasonInput = (input: Record<string, unknown>): { reason: string } =>
   };
 };
 
+const parsePagination = (
+  c: Context
+): {
+  page: number;
+  pageSize: number;
+} => {
+  const pageRaw = c.req.query("page");
+  const pageSizeRaw = c.req.query("pageSize");
+  const page = pageRaw ? Number(pageRaw) : 1;
+  const pageSize = pageSizeRaw ? Number(pageSizeRaw) : 20;
+
+  if (
+    !Number.isInteger(page) ||
+    !Number.isInteger(pageSize) ||
+    page <= 0 ||
+    pageSize <= 0 ||
+    pageSize > 100
+  ) {
+    throw new AppError(400, "invalid admin input");
+  }
+
+  return { page, pageSize };
+};
+
 adminRoutes.use("*", async (c, next) => {
   c.set("session", requireOperatorSession(c));
   await next();
 });
 
 adminRoutes.get("/dashboard", (c) => c.json(listDashboard()));
+adminRoutes.get("/tasks", (c) => {
+  const { page, pageSize } = parsePagination(c);
+  const status = c.req.query("status");
+  const keyword = c.req.query("keyword");
+  return c.json(
+    listAdminTasks({
+      page,
+      pageSize,
+      status,
+      keyword
+    })
+  );
+});
+
+adminRoutes.get("/tasks/:taskId", (c) => c.json(getAdminTaskDetail(c.req.param("taskId"))));
+
+adminRoutes.get("/users", (c) => {
+  const { page, pageSize } = parsePagination(c);
+  const state = c.req.query("state");
+  const role = c.req.query("role");
+  const keyword = c.req.query("keyword");
+  return c.json(
+    listAdminUsers({
+      page,
+      pageSize,
+      state,
+      role,
+      keyword
+    })
+  );
+});
+
+adminRoutes.get("/settings", (c) => c.json(getAdminSettings()));
+
+adminRoutes.put("/settings", async (c) => {
+  const session = c.get("session");
+  const body = await readAdminJson(c);
+  const allowTaskPublish = body.allowTaskPublish;
+  const enableTipReward = body.enableTipReward;
+  const dailyTaskRewardCap = body.dailyTaskRewardCap;
+
+  if (
+    (allowTaskPublish !== undefined && typeof allowTaskPublish !== "boolean") ||
+    (enableTipReward !== undefined && typeof enableTipReward !== "boolean") ||
+    (dailyTaskRewardCap !== undefined && typeof dailyTaskRewardCap !== "number")
+  ) {
+    throw new AppError(400, "invalid admin input");
+  }
+
+  return c.json(
+    updateAdminSettings({
+      operatorId: session.userId,
+      allowTaskPublish,
+      enableTipReward,
+      dailyTaskRewardCap
+    })
+  );
+});
 
 adminRoutes.post("/tasks/:taskId/pause", async (c) => {
   const session = c.get("session");

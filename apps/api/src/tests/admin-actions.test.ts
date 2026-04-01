@@ -141,4 +141,76 @@ describe("admin governance routes", () => {
       ])
     );
   });
+
+  it("supports admin read APIs for tasks, users and settings", async () => {
+    enableDemoAuth();
+
+    const operatorCookie = await login({
+      identifier: "operator@example.com",
+      client: "admin"
+    });
+
+    const tasks = await app.request("/admin/tasks?page=1&pageSize=10&keyword=task", {
+      headers: { cookie: operatorCookie }
+    });
+    expect(tasks.status).toBe(200);
+    await expect(tasks.json()).resolves.toMatchObject({
+      items: expect.any(Array),
+      pagination: {
+        page: 1,
+        pageSize: 10,
+        total: expect.any(Number)
+      }
+    });
+
+    const taskDetail = await app.request("/admin/tasks/task-1", {
+      headers: { cookie: operatorCookie }
+    });
+    expect(taskDetail.status).toBe(200);
+    await expect(taskDetail.json()).resolves.toMatchObject({
+      id: "task-1",
+      submissionStats: expect.any(Object),
+      governanceActions: expect.any(Array)
+    });
+
+    const users = await app.request("/admin/users?page=1&pageSize=10&role=creator", {
+      headers: { cookie: operatorCookie }
+    });
+    expect(users.status).toBe(200);
+    await expect(users.json()).resolves.toMatchObject({
+      items: expect.any(Array),
+      pagination: {
+        page: 1,
+        pageSize: 10,
+        total: expect.any(Number)
+      }
+    });
+
+    const settings = await app.request("/admin/settings", {
+      headers: { cookie: operatorCookie }
+    });
+    expect(settings.status).toBe(200);
+    await expect(settings.json()).resolves.toMatchObject({
+      allowTaskPublish: expect.any(Boolean),
+      enableTipReward: expect.any(Boolean),
+      dailyTaskRewardCap: expect.any(Number)
+    });
+
+    const updatedSettings = await app.request("/admin/settings", {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+        cookie: operatorCookie
+      },
+      body: JSON.stringify({
+        allowTaskPublish: false,
+        dailyTaskRewardCap: 120
+      })
+    });
+    expect(updatedSettings.status).toBe(200);
+    await expect(updatedSettings.json()).resolves.toMatchObject({
+      allowTaskPublish: false,
+      dailyTaskRewardCap: 120
+    });
+  });
 });
