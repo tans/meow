@@ -1,10 +1,16 @@
-import { ledgerPreview, type LedgerRow } from "../lib/api.js";
+import type { LedgerRow } from "../lib/api.js";
 
 interface LedgerPageProps {
   entries?: LedgerRow[];
+  onMarkAnomaly?: (entryId: string) => void;
+  busyEntryId?: string | null;
 }
 
-export function LedgerPage({ entries = ledgerPreview }: LedgerPageProps) {
+export function LedgerPage({
+  entries = [],
+  onMarkAnomaly = () => undefined,
+  busyEntryId = null
+}: LedgerPageProps) {
   return (
     <section className="panel stack">
       <div className="section-heading">
@@ -13,6 +19,7 @@ export function LedgerPage({ entries = ledgerPreview }: LedgerPageProps) {
           <h3>账本流水与退款进度</h3>
         </div>
       </div>
+      {entries.length === 0 ? <p>暂无治理日志</p> : null}
       {entries.map((entry) => (
         <article key={entry.id} className="list-row">
           <div>
@@ -21,7 +28,17 @@ export function LedgerPage({ entries = ledgerPreview }: LedgerPageProps) {
               {entry.account} · {entry.status}
             </p>
           </div>
-          <span className="amount-pill">{entry.amount}</span>
+          <div className="task-actions">
+            <span className="amount-pill">{entry.amount}</span>
+            <button
+              type="button"
+              className="ghost-button"
+              disabled={busyEntryId === entry.id}
+              onClick={() => onMarkAnomaly(entry.id)}
+            >
+              标记异常
+            </button>
+          </div>
         </article>
       ))}
     </section>

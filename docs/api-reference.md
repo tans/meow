@@ -699,7 +699,7 @@ Web 与 Admin 当前都按同源方式访问相对路径：
 
 - 当前激活角色必须为 `operator`
 
-### 管理端当前实际调用
+### 管理端当前已接入的真实接口
 
 当前 Admin Web 已直接调用的后端接口：
 
@@ -708,30 +708,30 @@ Web 与 Admin 当前都按同源方式访问相对路径：
 - `GET /admin/dashboard`
 - `GET /admin/ledger`
 - `POST /admin/tasks/:taskId/pause`
+
+### 管理端后端已实现、但前端未全面接入的接口
+
+后端已经提供：
+
 - `GET /admin/tasks`
 - `GET /admin/tasks/:taskId`
 - `GET /admin/users`
 - `GET /admin/settings`
 - `PUT /admin/settings`
-
-### 管理端已实现但前端未全面接入的治理接口
-
-后端已经提供：
-
 - `POST /admin/tasks/:taskId/resume`
 - `POST /admin/users/:userId/ban`
 - `POST /admin/ledger/:entryId/mark-anomaly`
 
-### 管理端当前尚未服务化的页面数据
+### 管理端当前仍主要依赖预览数据的页面
 
-以下管理端页面目前仍主要使用前端预览数据，不存在正式 API：
+以下管理端页面已有正式后端 API，但前端页面仍主要使用 preview 数据，尚未完成真实联调：
 
 - （已补齐）任务列表页查询接口：`GET /admin/tasks`
 - （已补齐）用户列表查询接口：`GET /admin/users`
 - （已补齐）单任务详情查询接口：`GET /admin/tasks/:taskId`
 - （已补齐）系统设置读写接口：`GET /admin/settings`、`PUT /admin/settings`
 
-上述接口可用于 Admin MVP 真实联调。
+上述接口已经可用于 Admin MVP 真实联调，但当前 Admin 前端尚未全面切换。
 
 ### GET `/admin/dashboard`
 
@@ -1026,7 +1026,7 @@ Web 与 Admin 当前都按同源方式访问相对路径：
 
 ### 管理端
 
-当前管理端可稳定联调的最小闭环：
+当前管理端已经稳定接入的最小闭环：
 
 1. `POST /auth/login`
 2. `GET /auth/session`
@@ -1038,4 +1038,4 @@ Web 与 Admin 当前都按同源方式访问相对路径：
 
 - `POST /merchant/tasks` 已接收预算字段，但预算拆解尚未真正持久化
 - `GET /admin/ledger` 目前返回的是治理动作日志，不是完整资金流水
-- Admin 的任务列表、用户列表、任务详情、系统设置仍缺正式后端查询接口
+- Admin 的任务列表、用户列表、任务详情、系统设置页仍主要使用 preview 数据，前端未完成全面切换

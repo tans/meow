@@ -368,6 +368,8 @@ export const getAdminSettings = (): AdminSettingsSnapshot => ({ ...adminSettings
 export const updateAdminSettings = (
   input: Partial<AdminSettingsSnapshot> & { operatorId: string }
 ): AdminSettingsSnapshot => {
+  const previous = { ...adminSettingsState };
+
   if (
     input.dailyTaskRewardCap !== undefined &&
     (!Number.isFinite(input.dailyTaskRewardCap) || input.dailyTaskRewardCap < 0)
@@ -385,5 +387,18 @@ export const updateAdminSettings = (
     adminSettingsState.dailyTaskRewardCap = input.dailyTaskRewardCap;
   }
 
-  return { ...adminSettingsState };
+  const next = { ...adminSettingsState };
+
+  db.createOperatorAction({
+    operatorId: input.operatorId,
+    action: "update-settings",
+    targetType: "settings",
+    targetId: "global",
+    reason: JSON.stringify({
+      before: previous,
+      after: next
+    })
+  });
+
+  return next;
 };

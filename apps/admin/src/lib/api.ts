@@ -25,7 +25,7 @@ export interface TaskSummary {
   id: string;
   title: string;
   merchant: string;
-  status: "published" | "reviewing" | "paused" | "settled";
+  status: "draft" | "published" | "paused" | "ended" | "settled" | "closed";
   submissions: number;
   lockedBudget: string;
 }
@@ -33,22 +33,27 @@ export interface TaskSummary {
 export interface TaskDetail {
   id: string;
   title: string;
-  phase: string;
-  rewardSummary: Array<{ label: string; value: string }>;
-  submissions: Array<{
-    id: string;
-    creator: string;
-    status: "submitted" | "approved";
-    rewardTag: string;
+  merchantId: string;
+  status: "draft" | "published" | "paused" | "ended" | "settled" | "closed";
+  lockedBudget: string;
+  submissionStats: {
+    total: number;
+    approved: number;
+    pending: number;
+  };
+  governanceActions: Array<{
+    action: string;
+    operatorId: string;
+    reason: string;
   }>;
 }
 
 export interface UserSummary {
   id: string;
-  role: "merchant" | "creator" | "operator";
-  name: string;
-  health: string;
-  note: string;
+  identifier: string;
+  displayName: string;
+  roles: string[];
+  state: "active" | "banned";
 }
 
 export interface LedgerRow {
@@ -57,6 +62,12 @@ export interface LedgerRow {
   action: string;
   amount: string;
   status: string;
+}
+
+export interface AdminSettings {
+  allowTaskPublish: boolean;
+  enableTipReward: boolean;
+  dailyTaskRewardCap: number;
 }
 
 export interface AdminSession {
@@ -74,8 +85,46 @@ interface AdminLedgerLogResponse {
   reason: string;
 }
 
+interface AdminTaskListResponse {
+  items: Array<{
+    id: string;
+    title: string;
+    merchantId: string;
+    status: TaskSummary["status"];
+    submissionCount: number;
+    escrowLockedAmount: number;
+    updatedAt: string;
+  }>;
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+  };
+}
+
+interface AdminTaskDetailResponse {
+  id: string;
+  title: string;
+  merchantId: string;
+  status: TaskDetail["status"];
+  escrowLockedAmount: number;
+  submissionStats: TaskDetail["submissionStats"];
+  governanceActions: TaskDetail["governanceActions"];
+}
+
+interface AdminUsersResponse {
+  items: UserSummary[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+  };
+}
+
 const adminResponsibilities =
   workspaceManifest.apps.find((app) => app.id === "admin-shell")?.responsibilities ?? [];
+
+const formatMoney = (amount: number) => `¥${amount}`;
 
 export const dashboardPreview: DashboardSnapshot = {
   title: "系统总览",
@@ -116,123 +165,20 @@ export const dashboardPreview: DashboardSnapshot = {
   ]
 };
 
-export const taskListPreview: TaskSummary[] = [
-  {
-    id: "task-1",
-    title: "春季穿搭口播征稿",
-    merchant: "Demo Merchant",
-    status: "reviewing",
-    submissions: 18,
-    lockedBudget: "¥300"
-  },
-  {
-    id: "task-2",
-    title: "美食门店探店短视频",
-    merchant: "Demo Merchant",
-    status: "published",
-    submissions: 7,
-    lockedBudget: "¥480"
-  },
-  {
-    id: "task-3",
-    title: "家居布置图文任务",
-    merchant: "North Pier Studio",
-    status: "settled",
-    submissions: 26,
-    lockedBudget: "¥620"
-  }
-];
+const parseJson = async <T>(response: Response): Promise<T> => {
+  const json = await response
+    .json()
+    .catch(() => ({ error: `request failed: ${response.status}` }) as Record<string, unknown>);
 
-export const taskDetailPreview: TaskDetail = {
-  id: "task-1",
-  title: "春季穿搭口播征稿",
-  phase: "审核与结算准备中",
-  rewardSummary: [
-    { label: "基础奖预算", value: "¥100 / 已锁定" },
-    { label: "排名奖预算", value: "¥200 / 待分配" },
-    { label: "额外打赏", value: "¥20 / 单笔追加" }
-  ],
-  submissions: [
-    {
-      id: "submission-1",
-      creator: "Creator A",
-      status: "approved",
-      rewardTag: "基础奖 + 打赏"
-    },
-    {
-      id: "submission-2",
-      creator: "Creator B",
-      status: "approved",
-      rewardTag: "排名奖候选"
-    },
-    {
-      id: "submission-3",
-      creator: "Creator C",
-      status: "submitted",
-      rewardTag: "待审核"
-    }
-  ]
-};
-
-export const userListPreview: UserSummary[] = [
-  {
-    id: "merchant-1",
-    role: "merchant",
-    name: "Demo Merchant",
-    health: "活跃",
-    note: "近 7 日发布 4 个任务"
-  },
-  {
-    id: "creator-1",
-    role: "creator",
-    name: "Demo Creator",
-    health: "正常",
-    note: "冻结收益待结算"
-  },
-  {
-    id: "operator-1",
-    role: "operator",
-    name: "运营总控台",
-    health: "在线",
-    note: "负责轻审核与资金巡检"
-  }
-];
-
-export const ledgerPreview: LedgerRow[] = [
-  {
-    id: "ledger-1",
-    account: "merchant_escrow",
-    action: "任务发布托管",
-    amount: "+¥300",
-    status: "已入账"
-  },
-  {
-    id: "ledger-2",
-    account: "creator_frozen",
-    action: "审核通过冻结奖励",
-    amount: "+¥100",
-    status: "待结算"
-  },
-  {
-    id: "ledger-3",
-    account: "merchant_balance",
-    action: "未使用预算退款",
-    amount: "+¥60",
-    status: "已回退"
-  }
-];
-
-export const settingsPreview = {
-  responsibilities: adminResponsibilities,
-  finance: financeConsoleResponsibilities
-};
-
-const parseJson = async (response: Response) => {
   if (!response.ok) {
-    throw new Error(`request failed: ${response.status}`);
+    const message =
+      json && typeof json === "object" && typeof json.error === "string"
+        ? json.error
+        : `request failed: ${response.status}`;
+    throw new Error(message);
   }
 
-  return await response.json();
+  return json as T;
 };
 
 const apiFetch = (path: string, init?: RequestInit) => fetch(`/api${path}`, init);
@@ -257,18 +203,15 @@ export const fetchAdminSession = async () => {
     return null;
   }
 
-  const session = (await parseJson(response)) as AdminSession;
-
+  const session = await parseJson<AdminSession>(response);
   return session.activeRole === "operator" ? session : null;
 };
 
 export const fetchDashboardSnapshot = async (): Promise<DashboardSnapshot> =>
-  (await parseJson(await apiFetch("/admin/dashboard"))) as DashboardSnapshot;
+  await parseJson(await apiFetch("/admin/dashboard"));
 
 export const fetchLedgerRows = async (): Promise<LedgerRow[]> => {
-  const rows = (await parseJson(
-    await apiFetch("/admin/ledger")
-  )) as AdminLedgerLogResponse[];
+  const rows = await parseJson<AdminLedgerLogResponse[]>(await apiFetch("/admin/ledger"));
 
   return rows.map((row) => ({
     id: row.id,
@@ -279,9 +222,80 @@ export const fetchLedgerRows = async (): Promise<LedgerRow[]> => {
   }));
 };
 
+export const fetchAdminTasks = async (): Promise<TaskSummary[]> => {
+  const response = await parseJson<AdminTaskListResponse>(await apiFetch("/admin/tasks"));
+
+  return response.items.map((task) => ({
+    id: task.id,
+    title: task.title,
+    merchant: task.merchantId,
+    status: task.status,
+    submissions: task.submissionCount,
+    lockedBudget: formatMoney(task.escrowLockedAmount)
+  }));
+};
+
+export const fetchAdminTaskDetail = async (taskId: string): Promise<TaskDetail> => {
+  const task = await parseJson<AdminTaskDetailResponse>(await apiFetch(`/admin/tasks/${taskId}`));
+
+  return {
+    id: task.id,
+    title: task.title,
+    merchantId: task.merchantId,
+    status: task.status,
+    lockedBudget: formatMoney(task.escrowLockedAmount),
+    submissionStats: task.submissionStats,
+    governanceActions: task.governanceActions
+  };
+};
+
+export const fetchAdminUsers = async (): Promise<UserSummary[]> => {
+  const response = await parseJson<AdminUsersResponse>(await apiFetch("/admin/users"));
+  return response.items;
+};
+
+export const fetchAdminSettings = async (): Promise<AdminSettings> =>
+  await parseJson(await apiFetch("/admin/settings"));
+
+export const saveAdminSettings = async (input: AdminSettings): Promise<AdminSettings> =>
+  await parseJson(
+    await apiFetch("/admin/settings", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input)
+    })
+  );
+
 export const pauseTask = async (taskId: string, reason: string) =>
   await parseJson(
     await apiFetch(`/admin/tasks/${taskId}/pause`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ reason })
+    })
+  );
+
+export const resumeTask = async (taskId: string, reason: string) =>
+  await parseJson(
+    await apiFetch(`/admin/tasks/${taskId}/resume`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ reason })
+    })
+  );
+
+export const banUser = async (userId: string, reason: string) =>
+  await parseJson(
+    await apiFetch(`/admin/users/${userId}/ban`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ reason })
+    })
+  );
+
+export const markLedgerAnomaly = async (entryId: string, reason: string) =>
+  await parseJson(
+    await apiFetch(`/admin/ledger/${entryId}/mark-anomaly`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ reason })

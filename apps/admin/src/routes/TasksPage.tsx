@@ -1,15 +1,19 @@
-import { taskListPreview, type TaskSummary } from "../lib/api.js";
+import type { TaskSummary } from "../lib/api.js";
 
 interface TasksPageProps {
   tasks?: TaskSummary[];
   onOpenTask?: (taskId: string) => void;
   onPause?: (taskId: string) => void;
+  onResume?: (taskId: string) => void;
+  busyTaskId?: string | null;
 }
 
 export function TasksPage({
-  tasks = taskListPreview,
+  tasks = [],
   onOpenTask = () => undefined,
-  onPause = () => undefined
+  onPause = () => undefined,
+  onResume = () => undefined,
+  busyTaskId = null
 }: TasksPageProps) {
   return (
     <section className="panel stack">
@@ -20,6 +24,7 @@ export function TasksPage({
         </div>
       </div>
       <div className="task-table">
+        {tasks.length === 0 ? <p>暂无任务数据</p> : null}
         {tasks.map((task) => (
           <article key={task.id} className="task-row">
             <div>
@@ -33,9 +38,12 @@ export function TasksPage({
               <button
                 type="button"
                 className="ghost-button"
-                onClick={() => onPause(task.id)}
+                disabled={busyTaskId === task.id}
+                onClick={() =>
+                  task.status === "paused" ? onResume(task.id) : onPause(task.id)
+                }
               >
-                暂停任务
+                {task.status === "paused" ? "恢复任务" : "暂停任务"}
               </button>
               <button type="button" className="ghost-button" onClick={() => onOpenTask(task.id)}>
                 查看详情

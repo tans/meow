@@ -212,5 +212,20 @@ describe("admin governance routes", () => {
       allowTaskPublish: false,
       dailyTaskRewardCap: 120
     });
+
+    const ledger = await app.request("/admin/ledger", {
+      headers: { cookie: operatorCookie }
+    });
+    expect(ledger.status).toBe(200);
+    await expect(ledger.json()).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          action: "update-settings",
+          targetType: "settings",
+          targetId: "global",
+          operatorId: "operator-1"
+        })
+      ])
+    );
   });
 });

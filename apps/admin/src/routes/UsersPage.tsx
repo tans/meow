@@ -1,10 +1,16 @@
-import { userListPreview, type UserSummary } from "../lib/api.js";
+import type { UserSummary } from "../lib/api.js";
 
 interface UsersPageProps {
   users?: UserSummary[];
+  onBan?: (userId: string) => void;
+  busyUserId?: string | null;
 }
 
-export function UsersPage({ users = userListPreview }: UsersPageProps) {
+export function UsersPage({
+  users = [],
+  onBan = () => undefined,
+  busyUserId = null
+}: UsersPageProps) {
   return (
     <section className="panel stack">
       <div className="section-heading">
@@ -13,15 +19,30 @@ export function UsersPage({ users = userListPreview }: UsersPageProps) {
           <h3>商家 / 创作者 / 运营账号</h3>
         </div>
       </div>
+      {users.length === 0 ? <p>暂无用户数据</p> : null}
       {users.map((user) => (
         <article key={user.id} className="list-row">
           <div>
-            <strong>{user.name}</strong>
+            <strong>{user.displayName}</strong>
             <p>
-              {user.role} · {user.note}
+              {user.roles.join(" / ")} · {user.identifier}
             </p>
           </div>
-          <span className="status-pill reviewing">{user.health}</span>
+          <div className="task-actions">
+            <span className={`status-pill ${user.state === "active" ? "published" : "paused"}`}>
+              {user.state}
+            </span>
+            {user.state === "active" && !user.roles.includes("operator") ? (
+              <button
+                type="button"
+                className="ghost-button"
+                disabled={busyUserId === user.id}
+                onClick={() => onBan(user.id)}
+              >
+                封禁用户
+              </button>
+            ) : null}
+          </div>
         </article>
       ))}
     </section>

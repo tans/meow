@@ -9,9 +9,10 @@ export const operatorActionValues = [
   "resume-task",
   "ban-user",
   "unban-user",
-  "mark-ledger-anomaly"
+  "mark-ledger-anomaly",
+  "update-settings"
 ] as const;
-export const operatorTargetTypeValues = ["task", "user", "ledger"] as const;
+export const operatorTargetTypeValues = ["task", "user", "ledger", "settings"] as const;
 
 export const taskStatuses = [
   "draft",

@@ -2,17 +2,26 @@ import { startTransition, useEffect, useState } from "react";
 import { AdminLayout } from "./components/AdminLayout.js";
 import type { AdminNavId } from "./components/Sidebar.js";
 import {
+  banUser,
+  fetchAdminSettings,
   fetchAdminSession,
+  fetchAdminTaskDetail,
+  fetchAdminTasks,
+  fetchAdminUsers,
   fetchDashboardSnapshot,
   fetchLedgerRows,
   loginOperator,
+  markLedgerAnomaly,
   pauseTask,
+  resumeTask,
+  saveAdminSettings,
+  type AdminSettings,
   type AdminSession,
   type DashboardSnapshot,
   type LedgerRow,
-  settingsPreview,
-  taskDetailPreview,
-  taskListPreview
+  type TaskDetail,
+  type TaskSummary,
+  type UserSummary
 } from "./lib/api.js";
 import { DashboardPage } from "./routes/DashboardPage.js";
 import { LedgerPage } from "./routes/LedgerPage.js";
@@ -86,6 +95,10 @@ body {
 }
 
 button {
+  font: inherit;
+}
+
+input {
   font: inherit;
 }
 
@@ -277,6 +290,40 @@ button {
   gap: 12px;
 }
 
+.form-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.field-label {
+  display: grid;
+  gap: 8px;
+  color: var(--text);
+}
+
+.field-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(79, 142, 247, 0.2);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text);
+}
+
+.inline-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-banner {
+  padding: 14px 16px;
+  border: 1px solid rgba(200, 60, 60, 0.18);
+  border-radius: var(--radius-md);
+  background: rgba(255, 239, 239, 0.9);
+  color: #9f1d1d;
+}
+
 .ghost-button {
   border: 1px solid rgba(79, 142, 247, 0.2);
   background: white;
@@ -343,31 +390,82 @@ button {
 }
 `;
 
-function SettingsPanel() {
+function SettingsPanel({
+  settings,
+  loading,
+  saving,
+  onChange,
+  onSave
+}: {
+  settings: AdminSettings | null;
+  loading: boolean;
+  saving: boolean;
+  onChange: (patch: Partial<AdminSettings>) => void;
+  onSave: () => void | Promise<void>;
+}) {
+  if (loading || !settings) {
+    return (
+      <section className="panel stack">
+        <div className="section-heading">
+          <div>
+            <p className="card-kicker">系统设置</p>
+            <h3>加载中...</h3>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="panel stack">
       <div className="section-heading">
         <div>
           <p className="card-kicker">系统设置</p>
-          <h3>平台职责与资金规则</h3>
+          <h3>平台开关与奖励阈值</h3>
         </div>
       </div>
-      {settingsPreview.responsibilities.map((item) => (
-        <article key={item} className="list-row">
-          <div>
-            <strong>{item}</strong>
-            <p>来自 admin-shell 基础职责清单</p>
-          </div>
-        </article>
-      ))}
-      {settingsPreview.finance.map((item) => (
-        <article key={item} className="list-row">
-          <div>
-            <strong>{item}</strong>
-            <p>来自资金域职责定义</p>
-          </div>
-        </article>
-      ))}
+      <div className="form-grid">
+        <label className="field-label">
+          <span className="inline-toggle">
+            <input
+              aria-label="允许新任务发布"
+              type="checkbox"
+              checked={settings.allowTaskPublish}
+              onChange={(event) => onChange({ allowTaskPublish: event.currentTarget.checked })}
+            />
+            允许新任务发布
+          </span>
+        </label>
+        <label className="field-label">
+          <span className="inline-toggle">
+            <input
+              aria-label="开启打赏"
+              type="checkbox"
+              checked={settings.enableTipReward}
+              onChange={(event) => onChange({ enableTipReward: event.currentTarget.checked })}
+            />
+            开启打赏
+          </span>
+        </label>
+        <label className="field-label">
+          <span>每日任务奖励上限</span>
+          <input
+            aria-label="每日任务奖励上限"
+            className="field-input"
+            type="number"
+            min={0}
+            value={settings.dailyTaskRewardCap}
+            onChange={(event) =>
+              onChange({ dailyTaskRewardCap: Number(event.currentTarget.value) })
+            }
+          />
+        </label>
+      </div>
+      <div className="task-actions">
+        <button type="button" className="ghost-button" disabled={saving} onClick={onSave}>
+          {saving ? "保存中..." : "保存设置"}
+        </button>
+      </div>
     </section>
   );
 }
@@ -377,12 +475,24 @@ export default function App() {
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeView, setActiveView] = useState<AdminView>("dashboard");
-  const [selectedTaskId, setSelectedTaskId] = useState(taskDetailPreview.id);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [dashboard, setDashboard] = useState<DashboardSnapshot | null>(null);
   const [ledgerRows, setLedgerRows] = useState<LedgerRow[]>([]);
-  const [taskRows, setTaskRows] = useState(taskListPreview);
+  const [taskRows, setTaskRows] = useState<TaskSummary[]>([]);
+  const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null);
+  const [userRows, setUserRows] = useState<UserSummary[]>([]);
+  const [settings, setSettings] = useState<AdminSettings | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [busyTaskId, setBusyTaskId] = useState<string | null>(null);
+  const [busyUserId, setBusyUserId] = useState<string | null>(null);
+  const [busyEntryId, setBusyEntryId] = useState<string | null>(null);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [loadingView, setLoadingView] = useState<AdminView | null>(null);
 
   const meta = viewMeta[activeView];
+
+  const captureError = (error: unknown) =>
+    error instanceof Error ? error.message : "请求失败，请稍后重试";
 
   const loadOperatorData = async () => {
     const [nextDashboard, nextLedgerRows] = await Promise.all([
@@ -393,6 +503,84 @@ export default function App() {
     startTransition(() => {
       setDashboard(nextDashboard);
       setLedgerRows(nextLedgerRows);
+    });
+  };
+
+  const loadTasks = async () => {
+    setLoadingView("tasks");
+    try {
+      const nextTasks = await fetchAdminTasks();
+      startTransition(() => {
+        setTaskRows(nextTasks);
+      });
+    } finally {
+      setLoadingView((current) => (current === "tasks" ? null : current));
+    }
+  };
+
+  const loadTaskDetail = async (taskId: string) => {
+    setLoadingView("task-detail");
+    try {
+      const nextTaskDetail = await fetchAdminTaskDetail(taskId);
+      startTransition(() => {
+        setTaskDetail(nextTaskDetail);
+      });
+    } finally {
+      setLoadingView((current) => (current === "task-detail" ? null : current));
+    }
+  };
+
+  const loadUsers = async () => {
+    setLoadingView("users");
+    try {
+      const nextUsers = await fetchAdminUsers();
+      startTransition(() => {
+        setUserRows(nextUsers);
+      });
+    } finally {
+      setLoadingView((current) => (current === "users" ? null : current));
+    }
+  };
+
+  const loadSettings = async () => {
+    setLoadingView("settings");
+    try {
+      const nextSettings = await fetchAdminSettings();
+      startTransition(() => {
+        setSettings(nextSettings);
+      });
+    } finally {
+      setLoadingView((current) => (current === "settings" ? null : current));
+    }
+  };
+
+  const handleNavigate = (id: AdminNavId) => {
+    setErrorMessage(null);
+    setActiveView(id);
+
+    if (id === "dashboard" || id === "ledger") {
+      void loadOperatorData().catch((error) => {
+        setErrorMessage(captureError(error));
+      });
+      return;
+    }
+
+    if (id === "tasks") {
+      void loadTasks().catch((error) => {
+        setErrorMessage(captureError(error));
+      });
+      return;
+    }
+
+    if (id === "users") {
+      void loadUsers().catch((error) => {
+        setErrorMessage(captureError(error));
+      });
+      return;
+    }
+
+    void loadSettings().catch((error) => {
+      setErrorMessage(captureError(error));
     });
   };
 
@@ -450,6 +638,8 @@ export default function App() {
               startTransition(() => {
                 setSession(nextSession);
               });
+            } catch (error) {
+              setErrorMessage(captureError(error));
             } finally {
               setIsBootstrapping(false);
               setIsSubmitting(false);
@@ -465,55 +655,154 @@ export default function App() {
       <style>{appStyles}</style>
       <AdminLayout
         currentId={activeView === "task-detail" ? "tasks" : activeView}
-        onNavigate={(id) => setActiveView(id)}
+        onNavigate={handleNavigate}
         title={meta.title}
         subtitle={meta.subtitle}
       >
+        {errorMessage ? <p className="error-banner">{errorMessage}</p> : null}
         {activeView === "dashboard" ? (
           dashboard ? <DashboardPage snapshot={dashboard} /> : <p>加载中...</p>
         ) : null}
-        {activeView === "users" ? <UsersPage /> : null}
+        {activeView === "users" ? (
+          <UsersPage
+            users={userRows}
+            busyUserId={busyUserId}
+            onBan={async (userId) => {
+              setBusyUserId(userId);
+              setErrorMessage(null);
+
+              try {
+                await banUser(userId, "manual moderation");
+                await Promise.all([loadUsers(), loadOperatorData()]);
+              } catch (error) {
+                setErrorMessage(captureError(error));
+              } finally {
+                setBusyUserId(null);
+              }
+            }}
+          />
+        ) : null}
         {activeView === "tasks" ? (
           <TasksPage
             tasks={taskRows}
-            onOpenTask={(taskId) => {
+            busyTaskId={busyTaskId}
+            onOpenTask={async (taskId) => {
+              setErrorMessage(null);
               setSelectedTaskId(taskId);
+              setTaskDetail(null);
               setActiveView("task-detail");
+              try {
+                await loadTaskDetail(taskId);
+              } catch (error) {
+                setErrorMessage(captureError(error));
+              }
             }}
             onPause={async (taskId) => {
-              setIsSubmitting(true);
+              setBusyTaskId(taskId);
+              setErrorMessage(null);
 
               try {
                 await pauseTask(taskId, "manual moderation");
-                startTransition(() => {
-                  setTaskRows((current) =>
-                    current.map((task) =>
-                      task.id === taskId
-                        ? {
-                            ...task,
-                            status: "paused"
-                          }
-                        : task
-                    )
-                  );
-                });
-                await loadOperatorData();
+                await Promise.all([
+                  loadTasks(),
+                  selectedTaskId === taskId ? loadTaskDetail(taskId) : Promise.resolve(),
+                  loadOperatorData()
+                ]);
+              } catch (error) {
+                setErrorMessage(captureError(error));
               } finally {
-                setIsSubmitting(false);
+                setBusyTaskId(null);
+              }
+            }}
+            onResume={async (taskId) => {
+              setBusyTaskId(taskId);
+              setErrorMessage(null);
+
+              try {
+                await resumeTask(taskId, "issue cleared");
+                await Promise.all([
+                  loadTasks(),
+                  selectedTaskId === taskId ? loadTaskDetail(taskId) : Promise.resolve(),
+                  loadOperatorData()
+                ]);
+              } catch (error) {
+                setErrorMessage(captureError(error));
+              } finally {
+                setBusyTaskId(null);
               }
             }}
           />
         ) : null}
         {activeView === "task-detail" ? (
           <TaskDetailPage
-            task={{ ...taskDetailPreview, id: selectedTaskId }}
+            task={taskDetail}
+            loading={loadingView === "task-detail"}
+            busy={busyTaskId === selectedTaskId}
             onBack={() => setActiveView("tasks")}
+            onResume={async (taskId) => {
+              setBusyTaskId(taskId);
+              setErrorMessage(null);
+
+              try {
+                await resumeTask(taskId, "issue cleared");
+                await Promise.all([loadTaskDetail(taskId), loadTasks(), loadOperatorData()]);
+              } catch (error) {
+                setErrorMessage(captureError(error));
+              } finally {
+                setBusyTaskId(null);
+              }
+            }}
           />
         ) : null}
         {activeView === "ledger" ? (
-          <LedgerPage entries={ledgerRows.length > 0 ? ledgerRows : undefined} />
+          <LedgerPage
+            entries={ledgerRows}
+            busyEntryId={busyEntryId}
+            onMarkAnomaly={async (entryId) => {
+              setBusyEntryId(entryId);
+              setErrorMessage(null);
+
+              try {
+                await markLedgerAnomaly(entryId, "amount mismatch");
+                await loadOperatorData();
+              } catch (error) {
+                setErrorMessage(captureError(error));
+              } finally {
+                setBusyEntryId(null);
+              }
+            }}
+          />
         ) : null}
-        {activeView === "settings" ? <SettingsPanel /> : null}
+        {activeView === "settings" ? (
+          <SettingsPanel
+            settings={settings}
+            loading={loadingView === "settings"}
+            saving={isSavingSettings}
+            onChange={(patch) => {
+              setSettings((current) => (current ? { ...current, ...patch } : current));
+            }}
+            onSave={async () => {
+              if (!settings) {
+                return;
+              }
+
+              setIsSavingSettings(true);
+              setErrorMessage(null);
+
+              try {
+                const nextSettings = await saveAdminSettings(settings);
+                startTransition(() => {
+                  setSettings(nextSettings);
+                });
+                await loadOperatorData();
+              } catch (error) {
+                setErrorMessage(captureError(error));
+              } finally {
+                setIsSavingSettings(false);
+              }
+            }}
+          />
+        ) : null}
       </AdminLayout>
     </>
   );
