@@ -30,6 +30,24 @@ export interface TaskSummary {
   lockedBudget: string;
 }
 
+export interface PaginationMeta {
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  pagination: PaginationMeta;
+}
+
+export interface TaskQuery {
+  page?: number;
+  pageSize?: number;
+  status?: string;
+  keyword?: string;
+}
+
 export interface TaskDetail {
   id: string;
   title: string;
@@ -54,6 +72,14 @@ export interface UserSummary {
   displayName: string;
   roles: string[];
   state: "active" | "banned";
+}
+
+export interface UserQuery {
+  page?: number;
+  pageSize?: number;
+  state?: string;
+  role?: string;
+  keyword?: string;
 }
 
 export interface LedgerRow {
@@ -95,11 +121,7 @@ interface AdminTaskListResponse {
     escrowLockedAmount: number;
     updatedAt: string;
   }>;
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-  };
+  pagination: PaginationMeta;
 }
 
 interface AdminTaskDetailResponse {
@@ -114,11 +136,7 @@ interface AdminTaskDetailResponse {
 
 interface AdminUsersResponse {
   items: UserSummary[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-  };
+  pagination: PaginationMeta;
 }
 
 const adminResponsibilities =
@@ -183,6 +201,26 @@ const parseJson = async <T>(response: Response): Promise<T> => {
 
 const apiFetch = (path: string, init?: RequestInit) => fetch(`/api${path}`, init);
 
+const buildQuery = (input: Record<string, string | number | undefined>) => {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(input)) {
+    if (value === undefined) {
+      continue;
+    }
+
+    const text = typeof value === "number" ? `${value}` : value.trim();
+    if (text === "") {
+      continue;
+    }
+
+    params.set(key, text);
+  }
+
+  const query = params.toString();
+  return query ? `?${query}` : "";
+};
+
 export const loginOperator = async (input = {
   identifier: "operator@example.com",
   secret: "demo-pass",
@@ -222,17 +260,31 @@ export const fetchLedgerRows = async (): Promise<LedgerRow[]> => {
   }));
 };
 
-export const fetchAdminTasks = async (): Promise<TaskSummary[]> => {
-  const response = await parseJson<AdminTaskListResponse>(await apiFetch("/admin/tasks"));
+export const fetchAdminTasks = async (
+  input: TaskQuery = {}
+): Promise<PaginatedResult<TaskSummary>> => {
+  const response = await parseJson<AdminTaskListResponse>(
+    await apiFetch(
+      `/admin/tasks${buildQuery({
+        page: input.page ?? 1,
+        pageSize: input.pageSize ?? 20,
+        status: input.status,
+        keyword: input.keyword
+      })}`
+    )
+  );
 
-  return response.items.map((task) => ({
-    id: task.id,
-    title: task.title,
-    merchant: task.merchantId,
-    status: task.status,
-    submissions: task.submissionCount,
-    lockedBudget: formatMoney(task.escrowLockedAmount)
-  }));
+  return {
+    items: response.items.map((task) => ({
+      id: task.id,
+      title: task.title,
+      merchant: task.merchantId,
+      status: task.status,
+      submissions: task.submissionCount,
+      lockedBudget: formatMoney(task.escrowLockedAmount)
+    })),
+    pagination: response.pagination
+  };
 };
 
 export const fetchAdminTaskDetail = async (taskId: string): Promise<TaskDetail> => {
@@ -249,9 +301,25 @@ export const fetchAdminTaskDetail = async (taskId: string): Promise<TaskDetail> 
   };
 };
 
-export const fetchAdminUsers = async (): Promise<UserSummary[]> => {
-  const response = await parseJson<AdminUsersResponse>(await apiFetch("/admin/users"));
-  return response.items;
+export const fetchAdminUsers = async (
+  input: UserQuery = {}
+): Promise<PaginatedResult<UserSummary>> => {
+  const response = await parseJson<AdminUsersResponse>(
+    await apiFetch(
+      `/admin/users${buildQuery({
+        page: input.page ?? 1,
+        pageSize: input.pageSize ?? 20,
+        state: input.state,
+        role: input.role,
+        keyword: input.keyword
+      })}`
+    )
+  );
+
+  return {
+    items: response.items,
+    pagination: response.pagination
+  };
 };
 
 export const fetchAdminSettings = async (): Promise<AdminSettings> =>

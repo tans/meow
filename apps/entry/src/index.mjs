@@ -87,10 +87,9 @@ function route(pathname) {
   }
 
   if (pathname.startsWith("/admin")) {
-    const suffix = pathname.slice(6) || "/";
     return {
       targetPort: adminPort,
-      targetPath: suffix
+      targetPath: pathname
     };
   }
 

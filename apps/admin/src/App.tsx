@@ -19,8 +19,11 @@ import {
   type AdminSession,
   type DashboardSnapshot,
   type LedgerRow,
+  type PaginationMeta,
+  type TaskQuery,
   type TaskDetail,
   type TaskSummary,
+  type UserQuery,
   type UserSummary
 } from "./lib/api.js";
 import { DashboardPage } from "./routes/DashboardPage.js";
@@ -295,6 +298,18 @@ input {
   gap: 14px;
 }
 
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+
+.filter-actions {
+  display: flex;
+  align-items: end;
+}
+
 .field-label {
   display: grid;
   gap: 8px;
@@ -322,6 +337,19 @@ input {
   border-radius: var(--radius-md);
   background: rgba(255, 239, 239, 0.9);
   color: #9f1d1d;
+}
+
+.result-meta,
+.pagination-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.result-meta {
+  justify-content: space-between;
+  color: var(--muted);
 }
 
 .ghost-button {
@@ -389,6 +417,34 @@ input {
   }
 }
 `;
+
+const defaultPagination: PaginationMeta = {
+  page: 1,
+  pageSize: 20,
+  total: 0
+};
+
+const defaultTaskFilters: Required<Pick<TaskQuery, "page" | "pageSize">> & {
+  status: string;
+  keyword: string;
+} = {
+  page: 1,
+  pageSize: 20,
+  status: "",
+  keyword: ""
+};
+
+const defaultUserFilters: Required<Pick<UserQuery, "page" | "pageSize">> & {
+  state: string;
+  role: string;
+  keyword: string;
+} = {
+  page: 1,
+  pageSize: 20,
+  state: "",
+  role: "",
+  keyword: ""
+};
 
 function SettingsPanel({
   settings,
@@ -479,8 +535,14 @@ export default function App() {
   const [dashboard, setDashboard] = useState<DashboardSnapshot | null>(null);
   const [ledgerRows, setLedgerRows] = useState<LedgerRow[]>([]);
   const [taskRows, setTaskRows] = useState<TaskSummary[]>([]);
+  const [taskFilters, setTaskFilters] = useState(defaultTaskFilters);
+  const [taskDraftFilters, setTaskDraftFilters] = useState(defaultTaskFilters);
+  const [taskPagination, setTaskPagination] = useState<PaginationMeta>(defaultPagination);
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null);
   const [userRows, setUserRows] = useState<UserSummary[]>([]);
+  const [userFilters, setUserFilters] = useState(defaultUserFilters);
+  const [userDraftFilters, setUserDraftFilters] = useState(defaultUserFilters);
+  const [userPagination, setUserPagination] = useState<PaginationMeta>(defaultPagination);
   const [settings, setSettings] = useState<AdminSettings | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [busyTaskId, setBusyTaskId] = useState<string | null>(null);
@@ -506,12 +568,21 @@ export default function App() {
     });
   };
 
-  const loadTasks = async () => {
+  const loadTasks = async (query: typeof taskFilters = taskFilters) => {
     setLoadingView("tasks");
     try {
-      const nextTasks = await fetchAdminTasks();
+      const nextTasks = await fetchAdminTasks(query);
       startTransition(() => {
-        setTaskRows(nextTasks);
+        setTaskRows(nextTasks.items);
+        setTaskPagination(nextTasks.pagination);
+        const syncedFilters = {
+          ...defaultTaskFilters,
+          ...query,
+          page: nextTasks.pagination.page,
+          pageSize: nextTasks.pagination.pageSize
+        };
+        setTaskFilters(syncedFilters);
+        setTaskDraftFilters(syncedFilters);
       });
     } finally {
       setLoadingView((current) => (current === "tasks" ? null : current));
@@ -530,12 +601,21 @@ export default function App() {
     }
   };
 
-  const loadUsers = async () => {
+  const loadUsers = async (query: typeof userFilters = userFilters) => {
     setLoadingView("users");
     try {
-      const nextUsers = await fetchAdminUsers();
+      const nextUsers = await fetchAdminUsers(query);
       startTransition(() => {
-        setUserRows(nextUsers);
+        setUserRows(nextUsers.items);
+        setUserPagination(nextUsers.pagination);
+        const syncedFilters = {
+          ...defaultUserFilters,
+          ...query,
+          page: nextUsers.pagination.page,
+          pageSize: nextUsers.pagination.pageSize
+        };
+        setUserFilters(syncedFilters);
+        setUserDraftFilters(syncedFilters);
       });
     } finally {
       setLoadingView((current) => (current === "users" ? null : current));
@@ -666,6 +746,18 @@ export default function App() {
         {activeView === "users" ? (
           <UsersPage
             users={userRows}
+            filters={userDraftFilters}
+            pagination={userPagination}
+            loading={loadingView === "users"}
+            onFiltersChange={(patch) =>
+              setUserDraftFilters((current) => ({
+                ...current,
+                ...patch,
+                page: patch.page ?? 1
+              }))
+            }
+            onApplyFilters={() => loadUsers({ ...userDraftFilters, page: 1 })}
+            onPageChange={(page) => loadUsers({ ...userFilters, page })}
             busyUserId={busyUserId}
             onBan={async (userId) => {
               setBusyUserId(userId);
@@ -673,7 +765,7 @@ export default function App() {
 
               try {
                 await banUser(userId, "manual moderation");
-                await Promise.all([loadUsers(), loadOperatorData()]);
+                await Promise.all([loadUsers(userFilters), loadOperatorData()]);
               } catch (error) {
                 setErrorMessage(captureError(error));
               } finally {
@@ -685,6 +777,18 @@ export default function App() {
         {activeView === "tasks" ? (
           <TasksPage
             tasks={taskRows}
+            filters={taskDraftFilters}
+            pagination={taskPagination}
+            loading={loadingView === "tasks"}
+            onFiltersChange={(patch) =>
+              setTaskDraftFilters((current) => ({
+                ...current,
+                ...patch,
+                page: patch.page ?? 1
+              }))
+            }
+            onApplyFilters={() => loadTasks({ ...taskDraftFilters, page: 1 })}
+            onPageChange={(page) => loadTasks({ ...taskFilters, page })}
             busyTaskId={busyTaskId}
             onOpenTask={async (taskId) => {
               setErrorMessage(null);
@@ -704,7 +808,7 @@ export default function App() {
               try {
                 await pauseTask(taskId, "manual moderation");
                 await Promise.all([
-                  loadTasks(),
+                  loadTasks(taskFilters),
                   selectedTaskId === taskId ? loadTaskDetail(taskId) : Promise.resolve(),
                   loadOperatorData()
                 ]);
@@ -721,7 +825,7 @@ export default function App() {
               try {
                 await resumeTask(taskId, "issue cleared");
                 await Promise.all([
-                  loadTasks(),
+                  loadTasks(taskFilters),
                   selectedTaskId === taskId ? loadTaskDetail(taskId) : Promise.resolve(),
                   loadOperatorData()
                 ]);
@@ -745,7 +849,11 @@ export default function App() {
 
               try {
                 await resumeTask(taskId, "issue cleared");
-                await Promise.all([loadTaskDetail(taskId), loadTasks(), loadOperatorData()]);
+                await Promise.all([
+                  loadTaskDetail(taskId),
+                  loadTasks(taskFilters),
+                  loadOperatorData()
+                ]);
               } catch (error) {
                 setErrorMessage(captureError(error));
               } finally {

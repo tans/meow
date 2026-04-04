@@ -1,0 +1,64 @@
+{
+  "pid": 69164,
+  "parent_pid": 69076,
+  "started_at": "2026-04-04T11:26:23.113Z",
+  "cwd": "/Users/ke/code/meow",
+  "notify_script": "/Applications/ServBay/package/node/24/24.12.0/lib/node_modules/oh-my-codex/dist/scripts/notify-hook.js",
+  "poll_ms": 250,
+  "pid_file": "/Users/ke/code/meow/.omx/state/notify-fallback.pid",
+  "max_lifetime_ms": 21600000,
+  "tracked_files": 9,
+  "seen_turns": 5,
+  "dispatch_drain": {
+    "enabled": true,
+    "max_per_tick": 5,
+    "run_count": 17548,
+    "leader_only": true,
+    "last_tick_at": "2026-04-04T15:44:28.871Z",
+    "last_result": {
+      "processed": 0,
+      "skipped": 0,
+      "failed": 0
+    },
+    "last_error": null
+  },
+  "leader_nudge": {
+    "enabled": true,
+    "leader_only": true,
+    "stale_threshold_ms": 180000,
+    "precomputed_leader_stale": true,
+    "last_tick_at": "2026-04-04T15:44:28.873Z",
+    "last_error": null,
+    "run_count": 17548
+  },
+  "ralph_continue_steer": {
+    "enabled": true,
+    "cadence_ms": 60000,
+    "message": "Ralph loop active continue",
+    "active": false,
+    "last_state_check_at": "2026-04-04T15:44:29.257Z",
+    "last_sent_at": "",
+    "cooldown_anchor_at": "2026-04-04T09:02:10.874Z",
+    "last_reason": "blocked_by_current_session",
+    "last_error": null,
+    "state_path": "",
+    "pane_id": "",
+    "pane_current_command": "",
+    "current_phase": "",
+    "shared_timestamp_path": "/Users/ke/code/meow/.omx/state/ralph-last-steer-at",
+    "shared_last_sent_at": "",
+    "singleton_lock_path": "/Users/ke/code/meow/.omx/state/ralph-continue-steer.lock"
+  },
+  "fallback_auto_nudge": {
+    "enabled": true,
+    "stall_ms": 5000,
+    "last_tick_at": "2026-04-04T15:44:29.238Z",
+    "last_turn_at": "2026-04-04T14:33:19.596Z",
+    "last_turn_count": 5,
+    "last_message": " ## ✅ Phase 1 Step 1.3 Complete: shadcn Components Installed\n\n### Summary\n\nSuccessfully installed sh",
+    "last_reason": "eligible_but_not_sent",
+    "last_error": null,
+    "last_nudged_signature": "",
+    "last_nudged_at": ""
+  }
+}

@@ -1,0 +1,31 @@
+# Context Snapshot — admin-refinement
+
+- **Task statement:** `$ralph 继续完善admin`
+- **Desired outcome:** deliver the next meaningful, low-risk admin-console increment with code + verification, not just another mock shell.
+- **Known facts / evidence:**
+  - `apps/admin` already ships a working React admin shell wired to real APIs.
+  - Fresh baseline verification passed on April 4, 2026:
+    - `pnpm --filter @meow/admin test`
+    - `pnpm --filter @meow/admin build`
+  - Admin API already supports server-side query controls:
+    - `GET /admin/tasks?page&pageSize&status&keyword`
+    - `GET /admin/users?page&pageSize&state&role&keyword`
+  - Current admin UI does **not** expose these controls; it always fetches default task/user lists.
+  - Existing admin tests cover login, navigation, API wiring, and action buttons, but not operator search/filter/pagination flows.
+- **Constraints:**
+  - Ralph planning gate requires PRD + test spec before implementation.
+  - Keep scope narrow, reviewable, and reversible.
+  - No new dependencies.
+  - Reuse current admin layout/patterns.
+- **Unknowns / open questions:**
+  - Whether the user intended a different admin slice than query/filter tooling.
+  - Whether ledger/settings should also receive the same control surface in this pass.
+- **Likely codebase touchpoints:**
+  - `apps/admin/src/App.tsx`
+  - `apps/admin/src/lib/api.ts`
+  - `apps/admin/src/routes/TasksPage.tsx`
+  - `apps/admin/src/routes/UsersPage.tsx`
+  - `apps/admin/src/tests/admin-app-api.test.tsx`
+  - maybe component extraction if the filter UI repeats
+- **Working assumption for this Ralph loop:**
+  - “继续完善admin” most likely means advancing the currently wired admin shell into a more usable operator console. The best narrow increment is task/user search, filter, and pagination backed by existing APIs.

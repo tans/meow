@@ -1,0 +1,22 @@
+# Context Snapshot: admin-console-filters
+
+- task statement: $ralph 继续完善admin
+- desired outcome: Continue the admin console by exposing task/user discovery controls that already exist at the API layer, with regression coverage and green verification.
+- known facts/evidence:
+  - apps/admin currently loads real dashboard/tasks/users/settings APIs and existing admin tests/build pass.
+  - apps/api already supports filtered/paginated GET /admin/tasks (status, keyword, page, pageSize) and GET /admin/users (state, role, keyword, page, pageSize).
+  - Existing PRD/test-spec artifacts exist at .omx/plans/prd-admin-console-filters.md and .omx/plans/test-spec-admin-console-filters.md.
+  - Current admin UI does not expose task/user filter inputs or pagination metadata/controls.
+- constraints:
+  - Keep scope narrow to admin task/user discovery; no new dependencies.
+  - Preserve existing pause/resume/ban/detail flows.
+  - Must verify with admin test/build/lint/typecheck; run api tests only if backend/shared contracts change.
+- unknowns/open questions:
+  - Whether existing admin client types need pagination wrappers for task/user lists.
+  - Whether current actions should reset to page 1 after filter changes.
+- likely codebase touchpoints:
+  - apps/admin/src/App.tsx
+  - apps/admin/src/lib/api.ts
+  - apps/admin/src/routes/TasksPage.tsx
+  - apps/admin/src/routes/UsersPage.tsx
+  - apps/admin/src/tests/admin-app-api.test.tsx
