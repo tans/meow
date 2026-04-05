@@ -1,10 +1,33 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import * as domainTask from "./index.js";
 
 type DomainTaskApi = typeof import("./index.js");
 
 const api = domainTask as DomainTaskApi;
+const now = 1_700_000_000_000;
+const hour = 60 * 60 * 1000;
+
+const createTask = (
+  overrides: Partial<domainTask.Task> = {}
+): domainTask.Task => ({
+  id: "task-1",
+  merchantId: "merchant-1",
+  title: "Campaign",
+  description: "Description",
+  state: api.TaskState.Draft,
+  maxSubmissions: 3,
+  baseReward: 100,
+  rankingReward: 50,
+  deadline: now + 24 * hour,
+  createdAt: now - hour,
+  updatedAt: now - hour,
+  ...overrides
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("@meow/domain-task", () => {
   it("exports the requested state enums", () => {
@@ -358,6 +381,113 @@ describe("@meow/domain-task", () => {
       expect(api.validateSubmissionCount(task, 2)).toBe(true);
       expect(api.validateSubmissionCount(task, 3)).toBe(false);
       expect(api.validateSubmissionCount(task, 4)).toBe(false);
+    });
+  });
+
+  describe("deadline-aware helpers", () => {
+    it("detects whether a deadline is in the future or past", () => {
+      vi.spyOn(Date, "now").mockReturnValue(now);
+
+      expect(
+        api.isDeadlinePassed(createTask({ deadline: now + hour }))
+      ).toBe(false);
+      expect(
+        api.isDeadlinePassed(createTask({ deadline: now - 1 }))
+      ).toBe(true);
+    });
+
+    it("only allows deadline-driven ending for published or paused expired tasks", () => {
+      vi.spyOn(Date, "now").mockReturnValue(now);
+
+      expect(
+        api.canEndDueToDeadline(
+          createTask({ state: api.TaskState.Published, deadline: now - 1 })
+        )
+      ).toBe(true);
+      expect(
+        api.canEndDueToDeadline(
+          createTask({ state: api.TaskState.Paused, deadline: now - 1 })
+        )
+      ).toBe(true);
+      expect(
+        api.canEndDueToDeadline(
+          createTask({ state: api.TaskState.Published, deadline: now + hour })
+        )
+      ).toBe(false);
+      expect(
+        api.canEndDueToDeadline(
+          createTask({ state: api.TaskState.Draft, deadline: now - 1 })
+        )
+      ).toBe(false);
+      expect(
+        api.canEndDueToDeadline(
+          createTask({ state: api.TaskState.Funded, deadline: now - 1 })
+        )
+      ).toBe(false);
+    });
+
+    it("auto-ends expired published tasks", () => {
+      vi.spyOn(Date, "now").mockReturnValue(now);
+
+      const expiredPublishedTask = createTask({
+        state: api.TaskState.Published,
+        deadline: now - 1,
+        updatedAt: now - hour
+      });
+
+      const result = api.endTaskIfExpired(expiredPublishedTask);
+
+      expect(result).not.toBeInstanceOf(Error);
+      expect(result).toMatchObject({ state: api.TaskState.Ended });
+      if (!(result instanceof Error)) {
+        expect(result.updatedAt).toBe(now);
+      }
+    });
+
+    it("does not end tasks before their deadline", () => {
+      vi.spyOn(Date, "now").mockReturnValue(now);
+
+      const publishedTask = createTask({
+        state: api.TaskState.Published,
+        deadline: now + hour
+      });
+
+      expect(api.endTaskIfExpired(publishedTask)).toEqual(publishedTask);
+    });
+
+    it("does not let deadline checks end draft or funded tasks", () => {
+      vi.spyOn(Date, "now").mockReturnValue(now);
+
+      const expiredDraft = createTask({
+        state: api.TaskState.Draft,
+        deadline: now - 1
+      });
+      const expiredFunded = createTask({
+        state: api.TaskState.Funded,
+        deadline: now - 1
+      });
+
+      expect(api.canEndDueToDeadline(expiredDraft)).toBe(false);
+      expect(api.canEndDueToDeadline(expiredFunded)).toBe(false);
+      expect(api.endTaskIfExpired(expiredDraft)).toEqual(expiredDraft);
+      expect(api.endTaskIfExpired(expiredFunded)).toEqual(expiredFunded);
+    });
+
+    it("classifies task urgency from the remaining deadline window", () => {
+      vi.spyOn(Date, "now").mockReturnValue(now);
+
+      expect(
+        api.getTaskUrgency(createTask({ deadline: now - 1 }))
+      ).toBe("expired");
+      expect(
+        api.getTaskUrgency(createTask({ deadline: now + 23 * hour }))
+      ).toBe("urgent");
+      expect(
+        api.getTaskUrgency(createTask({ deadline: now + 71 * hour }))
+      ).toBe("normal");
+      expect(
+        api.getTaskUrgency(createTask({ deadline: now + 72 * hour }))
+      ).toBe("healthy");
     });
   });
 });

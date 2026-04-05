@@ -371,3 +371,31 @@ export const validateSubmissionCount = (
   task: Task,
   currentCount: number
 ): boolean => Number.isInteger(currentCount) && currentCount >= 0 && currentCount < task.maxSubmissions;
+
+export const isDeadlinePassed = (task: Task): boolean =>
+  Date.now() > task.deadline;
+
+export const getTimeUntilDeadline = (task: Task): number =>
+  task.deadline - Date.now();
+
+export const canEndDueToDeadline = (task: Task): boolean =>
+  (task.state === TaskState.Published || task.state === TaskState.Paused) &&
+  isDeadlinePassed(task);
+
+export const endTaskIfExpired = (task: Task): Task | Error => {
+  if (!canEndDueToDeadline(task)) {
+    return task;
+  }
+  return transitionTaskState(task, TaskState.Ended);
+};
+
+export type TaskUrgency = "expired" | "urgent" | "normal" | "healthy";
+
+export const getTaskUrgency = (task: Task): TaskUrgency => {
+  const remaining = getTimeUntilDeadline(task);
+  if (remaining < 0) return "expired";
+  const hour = 60 * 60 * 1000;
+  if (remaining < 24 * hour) return "urgent";
+  if (remaining < 72 * hour) return "normal";
+  return "healthy";
+};
