@@ -12,7 +12,7 @@ import {
   createTaskDraft,
   fundTask$,
   publishTask$,
-  endTask$,
+  endTaskIfExpired$,
   settleTask$,
 } from "@meow/domain-task";
 import { userDomainBlueprint } from "@meow/domain-user";
@@ -65,7 +65,10 @@ function replayScenario(scenario: ScenarioDefinition): HarnessReplayResult {
     if (published instanceof Error) {
       return { scenarioId: scenario.id, steps: [], ok: false };
     }
-    const ended = endTask$(published);
+    const ended = endTaskIfExpired$({
+      ...published,
+      deadline: Date.now() - 1,
+    });
     if (ended instanceof Error) {
       return { scenarioId: scenario.id, steps: [], ok: false };
     }
@@ -75,7 +78,7 @@ function replayScenario(scenario: ScenarioDefinition): HarnessReplayResult {
     }
     return {
       scenarioId: scenario.id,
-      steps: ["fund", "publish", "end", "settle"],
+      steps: ["fund", "publish", "endTaskIfExpired", "settle"],
       ok: true
     };
   }

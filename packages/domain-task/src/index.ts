@@ -6,6 +6,7 @@ export {
   pauseTask$,
   resumeTask$,
   endTask$,
+  endTaskIfExpired$,
   settleTask$,
   closeTask$,
   createSubmission$,

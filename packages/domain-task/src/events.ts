@@ -12,6 +12,7 @@ import {
   pauseTask as _pauseTask,
   resumeTask as _resumeTask,
   endTask as _endTask,
+  endTaskIfExpired as _endTaskIfExpired,
   settleTask as _settleTask,
   closeTask as _closeTask,
   createSubmission as _createSubmission,
@@ -168,6 +169,28 @@ export const endTask$ = (task: Task): Task | Error => {
   const from = task.state;
   const result = _endTask(task);
   if (!(result instanceof Error)) {
+    taskEventBus.emit("task.transitioned", {
+      taskId: result.id,
+      from,
+      to: TaskState.Ended,
+      task: result,
+    });
+  }
+  return result;
+};
+
+/**
+ * End a published or paused task only if its deadline has passed and emit a
+ * `task.transitioned` event when that deadline check actually ends the task.
+ */
+export const endTaskIfExpired$ = (task: Task): Task | Error => {
+  const from = task.state;
+  const result = _endTaskIfExpired(task);
+  if (
+    !(result instanceof Error) &&
+    from !== result.state &&
+    result.state === TaskState.Ended
+  ) {
     taskEventBus.emit("task.transitioned", {
       taskId: result.id,
       from,

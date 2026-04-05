@@ -33,7 +33,7 @@ export const scenarios: ScenarioDefinition[] = [
       "审核动作必须保留通过/驳回理由",
       "任务结束时未使用赏金原路退回"
     ],
-    replaySteps: ["fund", "publish", "end", "settle"]
+    replaySteps: ["fund", "publish", "endTaskIfExpired", "settle"]
   },
   {
     id: "creator-earning-loop",

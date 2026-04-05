@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   taskEventBus,
   fundTask$,
@@ -6,6 +6,7 @@ import {
   pauseTask$,
   resumeTask$,
   endTask$,
+  endTaskIfExpired$,
   settleTask$,
   closeTask$,
   createSubmission$,
@@ -18,6 +19,7 @@ import { createTaskDraft, createSubmission, TaskState, SubmissionState } from ".
 describe("taskEventBus", () => {
   beforeEach(() => {
     taskEventBus.removeAllListeners();
+    vi.restoreAllMocks();
   });
 
   describe("task transition events", () => {
@@ -248,6 +250,104 @@ describe("taskEventBus", () => {
       const second = approveSubmission$(approved);
       expect(second).toBeInstanceOf(Error);
       expect(events).toHaveLength(1); // only the first approval
+    });
+  });
+
+  describe("deadline-aware event wrappers", () => {
+    it("endTaskIfExpired$ does not emit when task is not expired", () => {
+      const events: unknown[] = [];
+      taskEventBus.on("task.transitioned", (event) => events.push(event));
+
+      const task = createTaskDraft(
+        "merchant-1",
+        "Campaign",
+        "Description",
+        3,
+        100,
+        50,
+        Date.now() + 60_000
+      ) as ReturnType<typeof createTaskDraft>;
+      if (task instanceof Error) throw task;
+
+      const funded = fundTask$(task) as ReturnType<typeof fundTask$>;
+      if (funded instanceof Error) throw funded;
+
+      const published = publishTask$(funded) as ReturnType<typeof publishTask$>;
+      if (published instanceof Error) throw published;
+
+      events.length = 0;
+
+      const result = endTaskIfExpired$(published);
+
+      expect(result).toEqual(published);
+      expect(events).toHaveLength(0);
+    });
+
+    it("endTaskIfExpired$ emits task.transitioned when task deadline has passed", () => {
+      const events: unknown[] = [];
+      taskEventBus.on("task.transitioned", (event) => events.push(event));
+
+      const deadline = Date.now() + 60_000;
+      const task = createTaskDraft(
+        "merchant-1",
+        "Campaign",
+        "Description",
+        3,
+        100,
+        50,
+        deadline
+      ) as ReturnType<typeof createTaskDraft>;
+      if (task instanceof Error) throw task;
+
+      const funded = fundTask$(task) as ReturnType<typeof fundTask$>;
+      if (funded instanceof Error) throw funded;
+
+      const published = publishTask$(funded) as ReturnType<typeof publishTask$>;
+      if (published instanceof Error) throw published;
+
+      vi.spyOn(Date, "now").mockReturnValue(deadline + 1);
+      events.length = 0;
+
+      const result = endTaskIfExpired$(published);
+
+      expect(result).not.toBeInstanceOf(Error);
+      expect(events).toHaveLength(1);
+      expect(events[0]).toMatchObject({
+        taskId: published.id,
+        from: TaskState.Published,
+        to: TaskState.Ended,
+      });
+    });
+
+    it("endTaskIfExpired$ does not emit for draft/funded tasks even if expired", () => {
+      const events: unknown[] = [];
+      taskEventBus.on("task.transitioned", (event) => events.push(event));
+
+      const deadline = Date.now() + 60_000;
+      const task = createTaskDraft(
+        "merchant-1",
+        "Campaign",
+        "Description",
+        3,
+        100,
+        50,
+        deadline
+      ) as ReturnType<typeof createTaskDraft>;
+      if (task instanceof Error) throw task;
+
+      vi.spyOn(Date, "now").mockReturnValue(deadline + 1);
+      events.length = 0;
+
+      const expiredDraft = endTaskIfExpired$(task);
+      expect(expiredDraft).toEqual(task);
+
+      const funded = fundTask$(task) as ReturnType<typeof fundTask$>;
+      if (funded instanceof Error) throw funded;
+
+      events.length = 0;
+      const expiredFunded = endTaskIfExpired$(funded);
+      expect(expiredFunded).toEqual(funded);
+      expect(events).toHaveLength(0);
     });
   });
 
