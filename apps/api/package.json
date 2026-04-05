@@ -20,7 +20,8 @@
     "@meow/domain-risk": "workspace:*",
     "@meow/domain-task": "workspace:*",
     "@meow/domain-user": "workspace:*",
-    "hono": "^4.7.2"
+    "hono": "^4.7.2",
+    "@meow/storage": "workspace:*"
   },
   "devDependencies": {
     "vitest": "^3.1.2"

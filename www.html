@@ -1,0 +1,3895 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>创意喵 - AI内容众包撮合平台 | 专业、高效、安全</title>
+        <meta
+            name="description"
+            content="创意喵是新一代AI内容众包撮合平台，汇聚10万+优质创作者，为企业提供短视频、图片等AI内容一站式服务。低成本、高效率、强保障。"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --primary: #4f8ef7;
+                --primary-dark: #2b7de9;
+                --primary-light: #e8f2ff;
+                --accent: #ff6b35;
+                --accent-light: #fff0eb;
+                --success: #34c759;
+                --dark: #1a1a2e;
+                --dark-light: #2d2d44;
+                --gray: #6b7280;
+                --gray-light: #9ca3af;
+                --gray-lighter: #f3f4f6;
+                --white: #ffffff;
+                --bg-light: #f8fafc;
+                --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+                --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+                --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+                --radius-sm: 8px;
+                --radius-md: 12px;
+                --radius-lg: 20px;
+                --radius-xl: 28px;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family:
+                    "Inter",
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    "PingFang SC",
+                    "Microsoft YaHei",
+                    sans-serif;
+                color: var(--dark);
+                line-height: 1.6;
+                overflow-x: hidden;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 24px;
+            }
+
+            /* Navigation */
+            .nav {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+            }
+
+            .nav-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 24px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: 72px;
+            }
+
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 1.375rem;
+                font-weight: 700;
+                color: var(--dark);
+            }
+
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+                background: linear-gradient(
+                    135deg,
+                    var(--primary) 0%,
+                    #6366f1 100%
+                );
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 800;
+                font-size: 1.125rem;
+            }
+
+            .nav-links {
+                display: flex;
+                align-items: center;
+                gap: 40px;
+            }
+
+            .nav-link {
+                color: var(--gray);
+                font-size: 0.9375rem;
+                font-weight: 500;
+                transition: color 0.2s;
+                position: relative;
+            }
+
+            .nav-link:hover {
+                color: var(--primary);
+            }
+
+            .nav-cta {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: var(--primary);
+                color: white;
+                padding: 10px 24px;
+                border-radius: 50px;
+                font-weight: 600;
+                font-size: 0.9375rem;
+                transition: all 0.3s;
+            }
+
+            .nav-cta:hover {
+                background: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(79, 142, 247, 0.35);
+            }
+
+            /* Hero Section */
+            .hero {
+                padding: 160px 0 100px;
+                background: linear-gradient(
+                    180deg,
+                    var(--white) 0%,
+                    var(--bg-light) 100%
+                );
+                position: relative;
+                overflow: hidden;
+            }
+
+            .hero::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                right: -20%;
+                width: 800px;
+                height: 800px;
+                background: radial-gradient(
+                    circle,
+                    rgba(79, 142, 247, 0.08) 0%,
+                    transparent 70%
+                );
+                border-radius: 50%;
+            }
+
+            .hero::after {
+                content: "";
+                position: absolute;
+                bottom: -30%;
+                left: -10%;
+                width: 600px;
+                height: 600px;
+                background: radial-gradient(
+                    circle,
+                    rgba(99, 102, 241, 0.06) 0%,
+                    transparent 70%
+                );
+                border-radius: 50%;
+            }
+
+            .hero-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 24px;
+                position: relative;
+                z-index: 1;
+            }
+
+            .hero-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 60px;
+                align-items: center;
+            }
+
+            .hero-content {
+                animation: fadeInUp 0.8s ease;
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .hero-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: var(--primary-light);
+                color: var(--primary);
+                padding: 8px 16px;
+                border-radius: 50px;
+                font-size: 0.875rem;
+                font-weight: 600;
+                margin-bottom: 24px;
+            }
+
+            .hero-title {
+                font-size: clamp(2.25rem, 4vw, 3rem);
+                font-weight: 800;
+                color: var(--dark);
+                line-height: 1.15;
+                margin-bottom: 24px;
+            }
+
+            .hero-title .highlight {
+                background: linear-gradient(
+                    135deg,
+                    var(--primary) 0%,
+                    #6366f1 100%
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .hero-description {
+                font-size: 1.125rem;
+                color: var(--gray);
+                line-height: 1.8;
+                margin-bottom: 32px;
+                max-width: 520px;
+            }
+
+            .hero-buttons {
+                display: flex;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                padding: 14px 32px;
+                border-radius: 50px;
+                font-weight: 600;
+                font-size: 1rem;
+                transition: all 0.3s;
+                cursor: pointer;
+                border: none;
+            }
+
+            .btn-primary {
+                background: linear-gradient(
+                    135deg,
+                    var(--primary) 0%,
+                    #6366f1 100%
+                );
+                color: white;
+                box-shadow: 0 8px 24px rgba(79, 142, 247, 0.35);
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 32px rgba(79, 142, 247, 0.45);
+            }
+
+            .btn-secondary {
+                background: white;
+                color: var(--dark);
+                border: 2px solid var(--gray-lighter);
+            }
+
+            .btn-secondary:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+            }
+
+            /* Mini Program Display */
+            .hero-visual {
+                position: relative;
+                animation: fadeInUp 0.8s ease 0.2s backwards;
+            }
+
+            .miniprogram-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 32px;
+            }
+
+            .miniprogram-phone {
+                position: relative;
+                width: 280px;
+                height: 560px;
+                background: var(--dark);
+                border-radius: 40px;
+                padding: 12px;
+                box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            }
+
+            .phone-bezel {
+                width: 100%;
+                height: 100%;
+                background: #1a1a2e;
+                border-radius: 32px;
+                overflow: hidden;
+                position: relative;
+            }
+
+            .phone-notch-mini {
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80px;
+                height: 24px;
+                background: var(--dark);
+                border-radius: 0 0 16px 16px;
+                z-index: 10;
+            }
+
+            .phone-status-bar {
+                padding: 8px 16px;
+                display: flex;
+                justify-content: space-between;
+                font-size: 10px;
+                color: rgba(255, 255, 255, 0.6);
+                background: transparent;
+            }
+
+            .phone-content-mini {
+                padding: 0 12px;
+                padding-top: 8px;
+            }
+
+            .mini-header {
+                background: linear-gradient(
+                    135deg,
+                    var(--primary) 0%,
+                    #6366f1 100%
+                );
+                border-radius: 12px;
+                padding: 16px;
+                color: white;
+                margin-bottom: 12px;
+            }
+
+            .mini-header-title {
+                font-size: 16px;
+                font-weight: 700;
+                margin-bottom: 4px;
+            }
+
+            .mini-header-sub {
+                font-size: 11px;
+                opacity: 0.8;
+            }
+
+            .mini-section {
+                background: white;
+                border-radius: 12px;
+                padding: 14px;
+                margin-bottom: 12px;
+            }
+
+            .mini-section-title {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--dark);
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .mini-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+
+            .mini-grid-item {
+                text-align: center;
+                padding: 8px 4px;
+                background: var(--gray-lighter);
+                border-radius: 8px;
+            }
+
+            .mini-grid-icon {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+
+            .mini-grid-text {
+                font-size: 9px;
+                color: var(--gray);
+            }
+
+            .mini-task-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .mini-task-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+                background: var(--gray-lighter);
+                border-radius: 10px;
+            }
+
+            .mini-task-icon {
+                width: 40px;
+                height: 40px;
+                background: var(--primary-light);
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+            }
+
+            .mini-task-info {
+                flex: 1;
+            }
+
+            .mini-task-title {
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--dark);
+                margin-bottom: 2px;
+            }
+
+            .mini-task-meta {
+                font-size: 10px;
+                color: var(--gray-light);
+            }
+
+            .mini-task-price {
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--accent);
+            }
+
+            .mini-nav {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: space-around;
+                padding: 8px 20px;
+                background: white;
+                border-top: 1px solid var(--gray-lighter);
+            }
+
+            .mini-nav-item {
+                text-align: center;
+                font-size: 9px;
+                color: var(--gray-light);
+            }
+
+            .mini-nav-icon {
+                font-size: 18px;
+                margin-bottom: 2px;
+            }
+
+            .mini-nav-item.active {
+                color: var(--primary);
+            }
+
+            .qr-section-mini {
+                text-align: center;
+            }
+
+            .qr-code-box {
+                width: 160px;
+                height: 160px;
+                background: white;
+                border-radius: 16px;
+                padding: 12px;
+                box-shadow: var(--shadow-md);
+                margin: 0 auto 16px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .qr-pattern {
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    135deg,
+                    var(--gray-lighter) 0%,
+                    var(--gray-light) 100%
+                );
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 3rem;
+                position: relative;
+            }
+
+            .qr-corner {
+                position: absolute;
+                width: 24px;
+                height: 24px;
+                border: 3px solid var(--primary);
+            }
+
+            .qr-corner-tl {
+                top: 8px;
+                left: 8px;
+                border-right: none;
+                border-bottom: none;
+                border-radius: 4px 0 0 0;
+            }
+
+            .qr-corner-tr {
+                top: 8px;
+                right: 8px;
+                border-left: none;
+                border-bottom: none;
+                border-radius: 0 4px 0 0;
+            }
+
+            .qr-corner-bl {
+                bottom: 8px;
+                left: 8px;
+                border-right: none;
+                border-top: none;
+                border-radius: 0 0 0 4px;
+            }
+
+            .qr-corner-br {
+                bottom: 8px;
+                right: 8px;
+                border-left: none;
+                border-top: none;
+                border-radius: 0 0 4px 0;
+            }
+
+            .qr-center-icon {
+                width: 32px;
+                height: 32px;
+                background: var(--primary);
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 800;
+            }
+
+            .qr-label-main {
+                font-size: 14px;
+                font-weight: 700;
+                color: var(--dark);
+                margin-bottom: 4px;
+            }
+
+            .qr-label-sub {
+                font-size: 12px;
+                color: var(--gray);
+                margin-bottom: 12px;
+            }
+
+            .qr-scan-hint {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                font-size: 12px;
+                color: var(--primary);
+                font-weight: 500;
+            }
+
+            .scan-icon {
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+            }
+
+            /* Feature Preview Cards */
+            .feature-preview {
+                display: flex;
+                gap: 12px;
+                margin-top: 20px;
+            }
+
+            .feature-preview-item {
+                flex: 1;
+                background: white;
+                border-radius: 12px;
+                padding: 16px;
+                text-align: center;
+                box-shadow: var(--shadow-sm);
+            }
+
+            .feature-preview-icon {
+                width: 40px;
+                height: 40px;
+                background: var(--primary-light);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 8px;
+                font-size: 18px;
+            }
+
+            .feature-preview-title {
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--dark);
+                margin-bottom: 4px;
+            }
+
+            .feature-preview-desc {
+                font-size: 10px;
+                color: var(--gray);
+            }
+
+            .hero-stats {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 24px;
+                padding: 40px 0;
+                border-top: 1px solid var(--gray-lighter);
+                margin-top: 60px;
+            }
+
+            .hero-stat {
+                text-align: center;
+            }
+
+            .hero-stat-value {
+                font-size: 2.25rem;
+                font-weight: 800;
+                background: linear-gradient(
+                    135deg,
+                    var(--primary) 0%,
+                    #6366f1 100%
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .hero-stat-label {
+                color: var(--gray);
+                font-size: 0.9375rem;
+                margin-top: 8px;
+            }
+
+            /* Products Section */
+            .products {
+                padding: 100px 0;
+                background: var(--white);
+            }
+
+            .section-header {
+                text-align: center;
+                max-width: 640px;
+                margin: 0 auto 60px;
+            }
+
+            .section-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: var(--accent-light);
+                color: var(--accent);
+                padding: 8px 16px;
+                border-radius: 50px;
+                font-size: 0.875rem;
+                font-weight: 600;
+                margin-bottom: 16px;
+            }
+
+            .section-title {
+                font-size: clamp(1.75rem, 3vw, 2.5rem);
+                font-weight: 800;
+                color: var(--dark);
+                margin-bottom: 16px;
+            }
+
+            .section-desc {
+                font-size: 1.0625rem;
+                color: var(--gray);
+                line-height: 1.7;
+            }
+
+            .products-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 24px;
+            }
+
+            .product-card {
+                background: var(--white);
+                border: 1px solid var(--gray-lighter);
+                border-radius: var(--radius-lg);
+                padding: 32px;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .product-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--primary), #6366f1);
+                transform: scaleX(0);
+                transition: transform 0.3s ease;
+            }
+
+            .product-card:hover {
+                border-color: var(--primary);
+                box-shadow: var(--shadow-lg);
+                transform: translateY(-5px);
+            }
+
+            .product-card:hover::before {
+                transform: scaleX(1);
+            }
+
+            .product-icon {
+                width: 64px;
+                height: 64px;
+                background: var(--primary-light);
+                border-radius: var(--radius-md);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 20px;
+                font-size: 1.75rem;
+            }
+
+            .product-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--dark);
+                margin-bottom: 12px;
+            }
+
+            .product-desc {
+                color: var(--gray);
+                font-size: 0.9375rem;
+                line-height: 1.7;
+                margin-bottom: 20px;
+            }
+
+            .product-features {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .product-feature {
+                background: var(--gray-lighter);
+                color: var(--gray);
+                padding: 6px 12px;
+                border-radius: 50px;
+                font-size: 0.8125rem;
+                font-weight: 500;
+            }
+
+            /* Solution Section */
+            .solution {
+                padding: 100px 0;
+                background: var(--bg-light);
+            }
+
+            .solution-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 60px;
+                align-items: center;
+            }
+
+            .solution-visual {
+                position: relative;
+            }
+
+            .solution-img {
+                width: 100%;
+                border-radius: var(--radius-xl);
+                box-shadow: var(--shadow-lg);
+            }
+
+            .solution-card {
+                position: absolute;
+                background: white;
+                border-radius: var(--radius-md);
+                padding: 20px;
+                box-shadow: var(--shadow-md);
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .solution-card-1 {
+                bottom: -20px;
+                left: -20px;
+            }
+
+            .solution-card-2 {
+                top: 20px;
+                right: -20px;
+            }
+
+            .solution-card-icon {
+                width: 48px;
+                height: 48px;
+                background: var(--primary-light);
+                border-radius: var(--radius-sm);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.25rem;
+            }
+
+            .solution-card-title {
+                font-weight: 700;
+                color: var(--dark);
+            }
+
+            .solution-card-desc {
+                font-size: 0.8125rem;
+                color: var(--gray);
+            }
+
+            .solution-content {
+                padding: 20px 0;
+            }
+
+            .solution-title {
+                font-size: clamp(1.75rem, 3vw, 2.25rem);
+                font-weight: 800;
+                color: var(--dark);
+                margin-bottom: 24px;
+                line-height: 1.3;
+            }
+
+            .solution-desc {
+                font-size: 1.0625rem;
+                color: var(--gray);
+                line-height: 1.8;
+                margin-bottom: 32px;
+            }
+
+            .solution-features {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .solution-feature {
+                display: flex;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .solution-feature-icon {
+                width: 40px;
+                height: 40px;
+                background: var(--success);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .solution-feature-icon svg {
+                width: 20px;
+                height: 20px;
+                fill: white;
+            }
+
+            .solution-feature-content h4 {
+                font-weight: 700;
+                color: var(--dark);
+                margin-bottom: 4px;
+            }
+
+            .solution-feature-content p {
+                color: var(--gray);
+                font-size: 0.9375rem;
+            }
+
+            /* Process Section */
+            .process {
+                padding: 100px 0;
+                background: var(--white);
+            }
+
+            .process-steps {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 32px;
+                margin-top: 60px;
+                position: relative;
+            }
+
+            .process-steps::before {
+                content: "";
+                position: absolute;
+                top: 40px;
+                left: 12.5%;
+                right: 12.5%;
+                height: 3px;
+                background: linear-gradient(90deg, var(--primary), #6366f1);
+                opacity: 0.2;
+            }
+
+            .process-step {
+                text-align: center;
+                position: relative;
+            }
+
+            .process-step-icon {
+                width: 80px;
+                height: 80px;
+                background: linear-gradient(
+                    135deg,
+                    var(--primary) 0%,
+                    #6366f1 100%
+                );
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 24px;
+                font-size: 1.75rem;
+                font-weight: 800;
+                color: white;
+                box-shadow: 0 12px 32px rgba(79, 142, 247, 0.3);
+                position: relative;
+                z-index: 1;
+            }
+
+            .process-step-title {
+                font-size: 1.125rem;
+                font-weight: 700;
+                color: var(--dark);
+                margin-bottom: 8px;
+            }
+
+            .process-step-desc {
+                color: var(--gray);
+                font-size: 0.9375rem;
+                line-height: 1.6;
+            }
+
+            /* Cases Section */
+            .cases {
+                padding: 100px 0;
+                background: var(--bg-light);
+            }
+
+            .cases-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 24px;
+                margin-top: 60px;
+            }
+
+            .case-card {
+                background: white;
+                border-radius: var(--radius-lg);
+                padding: 32px;
+                box-shadow: var(--shadow-sm);
+                transition: all 0.3s ease;
+            }
+
+            .case-card:hover {
+                box-shadow: var(--shadow-lg);
+                transform: translateY(-5px);
+            }
+
+            .case-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+            }
+
+            .case-logo {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--dark);
+            }
+
+            .case-tag {
+                background: var(--gray-lighter);
+                color: var(--gray);
+                padding: 6px 12px;
+                border-radius: 50px;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+
+            .case-stats {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+
+            .case-stat {
+                background: var(--bg-light);
+                padding: 16px;
+                border-radius: var(--radius-md);
+                text-align: center;
+            }
+
+            .case-stat-value {
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: var(--primary);
+            }
+
+            .case-stat-label {
+                color: var(--gray);
+                font-size: 0.8125rem;
+                margin-top: 4px;
+            }
+
+            .case-desc {
+                color: var(--gray);
+                font-size: 0.9375rem;
+                line-height: 1.7;
+            }
+
+            /* CTA Section */
+            .cta {
+                padding: 100px 0;
+                background: linear-gradient(
+                    135deg,
+                    var(--primary) 0%,
+                    #6366f1 100%
+                );
+                position: relative;
+                overflow: hidden;
+            }
+
+            .cta::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                right: -20%;
+                width: 600px;
+                height: 600px;
+                background: radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    transparent 70%
+                );
+                border-radius: 50%;
+            }
+
+            .cta-container {
+                max-width: 800px;
+                margin: 0 auto;
+                text-align: center;
+                position: relative;
+                z-index: 1;
+            }
+
+            .cta-title {
+                font-size: clamp(1.75rem, 3vw, 2.5rem);
+                font-weight: 800;
+                color: white;
+                margin-bottom: 16px;
+            }
+
+            .cta-desc {
+                font-size: 1.125rem;
+                color: rgba(255, 255, 255, 0.85);
+                margin-bottom: 40px;
+            }
+
+            .cta-buttons {
+                display: flex;
+                justify-content: center;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+
+            .cta .btn-primary {
+                background: white;
+                color: var(--primary);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            }
+
+            .cta .btn-primary:hover {
+                background: var(--white);
+                transform: translateY(-3px);
+            }
+
+            .cta .btn-secondary {
+                background: transparent;
+                color: white;
+                border: 2px solid rgba(255, 255, 255, 0.5);
+            }
+
+            .cta .btn-secondary:hover {
+                border-color: white;
+                color: white;
+            }
+
+            /* QR Section */
+            .qr-section {
+                padding: 80px 0;
+                background: var(--white);
+            }
+
+            .qr-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 40px;
+                max-width: 900px;
+                margin: 40px auto 0;
+            }
+
+            .qr-item {
+                text-align: center;
+            }
+
+            .qr-code {
+                width: 160px;
+                height: 160px;
+                background: var(--bg-light);
+                border-radius: var(--radius-md);
+                margin: 0 auto 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+
+            .qr-placeholder {
+                width: 120px;
+                height: 120px;
+                background: linear-gradient(
+                    135deg,
+                    var(--gray-lighter) 0%,
+                    var(--gray-light) 100%
+                );
+                border-radius: var(--radius-sm);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 3rem;
+                color: var(--gray-light);
+            }
+
+            .qr-label {
+                font-weight: 700;
+                color: var(--dark);
+                margin-bottom: 4px;
+            }
+
+            .qr-desc {
+                color: var(--gray);
+                font-size: 0.875rem;
+            }
+
+            /* Footer */
+            .footer {
+                background: var(--dark);
+                padding: 80px 0 40px;
+                color: rgba(255, 255, 255, 0.7);
+            }
+
+            .footer-grid {
+                display: grid;
+                grid-template-columns: 2fr repeat(3, 1fr);
+                gap: 60px;
+                margin-bottom: 60px;
+            }
+
+            .footer-brand {
+                max-width: 280px;
+            }
+
+            .footer-logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: white;
+                margin-bottom: 20px;
+            }
+
+            .footer-desc {
+                font-size: 0.9375rem;
+                line-height: 1.8;
+                margin-bottom: 24px;
+            }
+
+            .footer-social {
+                display: flex;
+                gap: 12px;
+            }
+
+            .social-link {
+                width: 40px;
+                height: 40px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: var(--radius-sm);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s;
+            }
+
+            .social-link:hover {
+                background: var(--primary);
+                transform: translateY(-3px);
+            }
+
+            .social-link svg {
+                width: 20px;
+                height: 20px;
+                fill: white;
+            }
+
+            .footer-column h4 {
+                color: white;
+                font-weight: 700;
+                margin-bottom: 24px;
+                font-size: 1rem;
+            }
+
+            .footer-links {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .footer-link {
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 0.9375rem;
+                transition: color 0.2s;
+            }
+
+            .footer-link:hover {
+                color: white;
+            }
+
+            .footer-bottom {
+                padding-top: 40px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+
+            .footer-copyright {
+                font-size: 0.875rem;
+            }
+
+            .footer-legal {
+                display: flex;
+                gap: 32px;
+            }
+
+            .footer-legal a {
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 0.875rem;
+                transition: color 0.2s;
+            }
+
+            .footer-legal a:hover {
+                color: white;
+            }
+
+            /* Responsive */
+            @media (max-width: 1024px) {
+                .hero-grid {
+                    grid-template-columns: 1fr;
+                    gap: 40px;
+                }
+
+                .hero-visual {
+                    order: -1;
+                }
+
+                .hero-cards {
+                    height: auto;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 16px;
+                    justify-content: center;
+                }
+
+                .hero-card {
+                    position: relative;
+                    width: 280px;
+                }
+
+                .products-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .solution-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .process-steps {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 40px;
+                }
+
+                .process-steps::before {
+                    display: none;
+                }
+
+                .cases-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .footer-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .nav-links {
+                    display: none;
+                }
+
+                .hero {
+                    padding: 120px 0 60px;
+                }
+
+                .hero-stats {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 32px;
+                }
+
+                .products-grid,
+                .cases-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .process-steps {
+                    grid-template-columns: 1fr;
+                }
+
+                .qr-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .footer-grid {
+                    grid-template-columns: 1fr;
+                    gap: 40px;
+                }
+
+                .footer-bottom {
+                    flex-direction: column;
+                    text-align: center;
+                }
+            }
+
+            /* Animations */
+            .fade-in {
+                opacity: 0;
+                transform: translateY(30px);
+                transition:
+                    opacity 0.6s ease,
+                    transform 0.6s ease;
+            }
+
+            .fade-in.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: var(--bg-light);
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: var(--gray-light);
+                border-radius: 4px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--gray);
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="nav-container">
+                <a href="#" class="logo">
+                    <div class="logo-icon">创</div>
+                    创意喵
+                </a>
+                <div class="nav-links">
+                    <a href="#products" class="nav-link">核心功能</a>
+                    <a href="#solution" class="nav-link">解决方案</a>
+                    <a href="#cases" class="nav-link">客户案例</a>
+                    <a href="#process" class="nav-link">使用流程</a>
+                    <a href="#qr" class="nav-cta">
+                        <svg
+                            width="18"
+                            height="18"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
+                            />
+                        </svg>
+                        扫码使用
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-container">
+                <div class="hero-grid">
+                    <div class="hero-content">
+                        <div class="hero-badge">
+                            <svg
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                                />
+                            </svg>
+                            AI驱动的内容众包新范式
+                        </div>
+                        <h1 class="hero-title">
+                            连接创意与价值<br />
+                            <span class="highlight">智造内容变现新方式</span>
+                        </h1>
+                        <p class="hero-description">
+                            创意喵是新一代AI内容众包撮合平台，汇聚10万+优质创作者，
+                            为企业提供短视频、图片等AI内容一站式服务。低成本、高效率、强保障。
+                        </p>
+                        <div class="hero-buttons">
+                            <a href="#qr" class="btn btn-primary">
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
+                                    />
+                                </svg>
+                                扫码使用
+                            </a>
+                            <a href="#products" class="btn btn-secondary">
+                                了解更多
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
+                                    />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="miniprogram-container">
+                            <!-- Mini Program Phone Mockup -->
+                            <div class="miniprogram-phone">
+                                <div class="phone-bezel">
+                                    <div class="phone-notch-mini"></div>
+                                    <div class="phone-status-bar">
+                                        <span>9:41</span>
+                                        <span>100%</span>
+                                    </div>
+                                    <div class="phone-content-mini">
+                                        <!-- Header -->
+                                        <div class="mini-header">
+                                            <div class="mini-header-title">
+                                                创意喵
+                                            </div>
+                                            <div class="mini-header-sub">
+                                                AI内容众包撮合平台
+                                            </div>
+                                        </div>
+
+                                        <!-- Quick Actions -->
+                                        <div class="mini-section">
+                                            <div class="mini-section-title">
+                                                <span>🎯</span> 快捷功能
+                                            </div>
+                                            <div class="mini-grid">
+                                                <div class="mini-grid-item">
+                                                    <div class="mini-grid-icon">
+                                                        📋
+                                                    </div>
+                                                    <div class="mini-grid-text">
+                                                        发布任务
+                                                    </div>
+                                                </div>
+                                                <div class="mini-grid-item">
+                                                    <div class="mini-grid-icon">
+                                                        🎬
+                                                    </div>
+                                                    <div class="mini-grid-text">
+                                                        短视频
+                                                    </div>
+                                                </div>
+                                                <div class="mini-grid-item">
+                                                    <div class="mini-grid-icon">
+                                                        🖼️
+                                                    </div>
+                                                    <div class="mini-grid-text">
+                                                        图片
+                                                    </div>
+                                                </div>
+                                                <div class="mini-grid-item">
+                                                    <div class="mini-grid-icon">
+                                                        🤖
+                                                    </div>
+                                                    <div class="mini-grid-text">
+                                                        AI创作
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Task List -->
+                                        <div class="mini-section">
+                                            <div class="mini-section-title">
+                                                <span>🔥</span> 热门任务
+                                            </div>
+                                            <div class="mini-task-list">
+                                                <div class="mini-task-item">
+                                                    <div class="mini-task-icon">
+                                                        🎬
+                                                    </div>
+                                                    <div class="mini-task-info">
+                                                        <div
+                                                            class="mini-task-title"
+                                                        >
+                                                            餐饮宣传视频
+                                                        </div>
+                                                        <div
+                                                            class="mini-task-meta"
+                                                        >
+                                                            12人投递 · 3天后截止
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="mini-task-price"
+                                                    >
+                                                        ¥500
+                                                    </div>
+                                                </div>
+                                                <div class="mini-task-item">
+                                                    <div class="mini-task-icon">
+                                                        🖼️
+                                                    </div>
+                                                    <div class="mini-task-info">
+                                                        <div
+                                                            class="mini-task-title"
+                                                        >
+                                                            产品主图设计
+                                                        </div>
+                                                        <div
+                                                            class="mini-task-meta"
+                                                        >
+                                                            23人投递 · 5天后截止
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="mini-task-price"
+                                                    >
+                                                        ¥200
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bottom Navigation -->
+                                    <div class="mini-nav">
+                                        <div class="mini-nav-item active">
+                                            <div class="mini-nav-icon">🏠</div>
+                                            首页
+                                        </div>
+                                        <div class="mini-nav-item">
+                                            <div class="mini-nav-icon">📋</div>
+                                            任务
+                                        </div>
+                                        <div class="mini-nav-item">
+                                            <div class="mini-nav-icon">💰</div>
+                                            收益
+                                        </div>
+                                        <div class="mini-nav-item">
+                                            <div class="mini-nav-icon">👤</div>
+                                            我的
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- QR Code Section -->
+                            <div class="qr-section-mini">
+                                <div class="qr-code-box">
+                                    <div class="qr-pattern">
+                                        <div
+                                            class="qr-corner qr-corner-tl"
+                                        ></div>
+                                        <div
+                                            class="qr-corner qr-corner-tr"
+                                        ></div>
+                                        <div
+                                            class="qr-corner qr-corner-bl"
+                                        ></div>
+                                        <div
+                                            class="qr-corner qr-corner-br"
+                                        ></div>
+                                        <div class="qr-center-icon">创</div>
+                                    </div>
+                                </div>
+                                <div class="qr-label-main">微信扫码注册</div>
+                                <div class="qr-label-sub">
+                                    体验AI内容众包平台
+                                </div>
+                                <div class="qr-scan-hint">
+                                    <span class="scan-icon">📱</span>
+                                    微信扫一扫，立即使用
+                                </div>
+
+                                <!-- Feature Preview -->
+                                <div class="feature-preview">
+                                    <div class="feature-preview-item">
+                                        <div class="feature-preview-icon">
+                                            ⚡
+                                        </div>
+                                        <div class="feature-preview-title">
+                                            极速注册
+                                        </div>
+                                        <div class="feature-preview-desc">
+                                            3秒完成
+                                        </div>
+                                    </div>
+                                    <div class="feature-preview-item">
+                                        <div class="feature-preview-icon">
+                                            🔒
+                                        </div>
+                                        <div class="feature-preview-title">
+                                            资金安全
+                                        </div>
+                                        <div class="feature-preview-desc">
+                                            托管保障
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-stats fade-in">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">100,000+</div>
+                        <div class="hero-stat-label">入驻创作者</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">50,000+</div>
+                        <div class="hero-stat-label">服务商家</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">500,000+</div>
+                        <div class="hero-stat-label">完成订单</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">99.5%</div>
+                        <div class="hero-stat-label">好评率</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section class="products" id="products">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <div class="section-badge">
+                        <svg
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                            />
+                        </svg>
+                        核心功能
+                    </div>
+                    <h2 class="section-title">为什么选择创意喵</h2>
+                    <p class="section-desc">
+                        专为中小企业和创作者打造的一站式AI内容众包解决方案
+                    </p>
+                </div>
+                <div class="products-grid">
+                    <div class="product-card fade-in">
+                        <div class="product-icon">🎯</div>
+                        <h3 class="product-title">AI智能匹配</h3>
+                        <p class="product-desc">
+                            基于AI算法智能分析任务需求与创作者能力标签，精准推荐最合适的创作者，提升匹配效率300%。
+                        </p>
+                        <div class="product-features">
+                            <span class="product-feature">智能推荐</span>
+                            <span class="product-feature">能力标签</span>
+                            <span class="product-feature">精准匹配</span>
+                        </div>
+                    </div>
+                    <div class="product-card fade-in">
+                        <div class="product-icon">🔒</div>
+                        <h3 class="product-title">资金托管保障</h3>
+                        <p class="product-desc">
+                            平台全程托管交易资金，验收通过后自动结算，杜绝跑单风险，让交易更安心。
+                        </p>
+                        <div class="product-features">
+                            <span class="product-feature">预付托管</span>
+                            <span class="product-feature">自动结算</span>
+                            <span class="product-feature">零风险</span>
+                        </div>
+                    </div>
+                    <div class="product-card fade-in">
+                        <div class="product-icon">⭐</div>
+                        <h3 class="product-title">双向信用体系</h3>
+                        <p class="product-desc">
+                            商家与创作者独立信用评分，基于历史行为多维度评估，营造诚信、透明的合作环境。
+                        </p>
+                        <div class="product-features">
+                            <span class="product-feature">独立评分</span>
+                            <span class="product-feature">等级特权</span>
+                            <span class="product-feature">透明公开</span>
+                        </div>
+                    </div>
+                    <div class="product-card fade-in">
+                        <div class="product-icon">✨</div>
+                        <h3 class="product-title">AI辅助创作</h3>
+                        <p class="product-desc">
+                            内置AI脚本生成、图片生成、视频生成工具，大幅降低创作门槛，提升创作效率。
+                        </p>
+                        <div class="product-features">
+                            <span class="product-feature">脚本生成</span>
+                            <span class="product-feature">图片生成</span>
+                            <span class="product-feature">视频生成</span>
+                        </div>
+                    </div>
+                    <div class="product-card fade-in">
+                        <div class="product-icon">📱</div>
+                        <h3 class="product-title">一键内容分发</h3>
+                        <p class="product-desc">
+                            对接抖音、快手、小红书、视频号等平台，一键分发已验收内容，省时省力。
+                        </p>
+                        <div class="product-features">
+                            <span class="product-feature">多平台</span>
+                            <span class="product-feature">一键发布</span>
+                            <span class="product-feature">数据追踪</span>
+                        </div>
+                    </div>
+                    <div class="product-card fade-in">
+                        <div class="product-icon">🛡️</div>
+                        <h3 class="product-title">AI智能审核</h3>
+                        <p class="product-desc">
+                            AI自动查重、违规内容识别、质量评分，智能过滤低质量内容，保障平台内容质量。
+                        </p>
+                        <div class="product-features">
+                            <span class="product-feature">自动查重</span>
+                            <span class="product-feature">合规检测</span>
+                            <span class="product-feature">质量评分</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solution Section -->
+        <section class="solution" id="solution">
+            <div class="container">
+                <div class="solution-grid">
+                    <div class="solution-visual fade-in">
+                        <div
+                            style="
+                                background: linear-gradient(
+                                    135deg,
+                                    #e8f2ff 0%,
+                                    #f0e6ff 100%
+                                );
+                                border-radius: 28px;
+                                height: 400px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                position: relative;
+                            "
+                        >
+                            <div style="text-align: center">
+                                <div
+                                    style="font-size: 4rem; margin-bottom: 16px"
+                                >
+                                    🎬
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 1.25rem;
+                                        font-weight: 700;
+                                        color: var(--dark);
+                                    "
+                                >
+                                    AI内容众包
+                                </div>
+                                <div
+                                    style="color: var(--gray); margin-top: 8px"
+                                >
+                                    短视频 · 图片 · 数字人
+                                </div>
+                            </div>
+                        </div>
+                        <div class="solution-card solution-card-1">
+                            <div class="solution-card-icon">💰</div>
+                            <div>
+                                <div class="solution-card-title">
+                                    节省50%成本
+                                </div>
+                                <div class="solution-card-desc">
+                                    相比传统外包
+                                </div>
+                            </div>
+                        </div>
+                        <div class="solution-card solution-card-2">
+                            <div class="solution-card-icon">⚡</div>
+                            <div>
+                                <div class="solution-card-title">
+                                    响应速度提升
+                                </div>
+                                <div class="solution-card-desc">分钟级匹配</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="solution-content fade-in">
+                        <div class="section-badge">
+                            <svg
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            </svg>
+                            解决方案
+                        </div>
+                        <h2 class="solution-title">商家省心，创作者安心</h2>
+                        <p class="solution-desc">
+                            创意喵深度理解商家与创作者的痛点，提供针对性的解决方案，
+                            让供需两端都能获得最佳体验。
+                        </p>
+                        <div class="solution-features">
+                            <div class="solution-feature">
+                                <div class="solution-feature-icon">
+                                    <svg viewBox="0 0 24 24">
+                                        <path
+                                            d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="solution-feature-content">
+                                    <h4>低成本</h4>
+                                    <p>相比传统外包节省50%以上内容制作成本</p>
+                                </div>
+                            </div>
+                            <div class="solution-feature">
+                                <div class="solution-feature-icon">
+                                    <svg viewBox="0 0 24 24">
+                                        <path
+                                            d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="solution-feature-content">
+                                    <h4>高效率</h4>
+                                    <p>
+                                        AI智能匹配，分钟级响应，快速找到合适创作者
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="solution-feature">
+                                <div class="solution-feature-icon">
+                                    <svg viewBox="0 0 24 24">
+                                        <path
+                                            d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="solution-feature-content">
+                                    <h4>零风险</h4>
+                                    <p>资金托管+双向信用保障，交易安全无忧</p>
+                                </div>
+                            </div>
+                            <div class="solution-feature">
+                                <div class="solution-feature-icon">
+                                    <svg viewBox="0 0 24 24">
+                                        <path
+                                            d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="solution-feature-content">
+                                    <h4>专业服务</h4>
+                                    <p>7×12小时客服支持，随时解答疑问</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Process Section -->
+        <section class="process" id="process">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <div class="section-badge">
+                        <svg
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                            />
+                        </svg>
+                        使用流程
+                    </div>
+                    <h2 class="section-title">简单四步，快速上手</h2>
+                    <p class="section-desc">
+                        无论你是需求方还是创作者，都能轻松玩转创意喵
+                    </p>
+                </div>
+                <div class="process-steps">
+                    <div class="process-step fade-in">
+                        <div class="process-step-icon">1</div>
+                        <h3 class="process-step-title">扫码注册</h3>
+                        <p class="process-step-desc">
+                            微信扫码即可快速注册，无需繁琐认证流程
+                        </p>
+                    </div>
+                    <div class="process-step fade-in">
+                        <div class="process-step-icon">2</div>
+                        <h3 class="process-step-title">发布/接单</h3>
+                        <p class="process-step-desc">
+                            商家发布任务需求，创作者浏览并投递作品
+                        </p>
+                    </div>
+                    <div class="process-step fade-in">
+                        <div class="process-step-icon">3</div>
+                        <h3 class="process-step-title">AI辅助+审核</h3>
+                        <p class="process-step-desc">
+                            AI工具辅助创作，智能审核保障内容质量
+                        </p>
+                    </div>
+                    <div class="process-step fade-in">
+                        <div class="process-step-icon">4</div>
+                        <h3 class="process-step-title">验收+结算</h3>
+                        <p class="process-step-desc">
+                            验收通过后资金自动结算，支持一键分发
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cases Section -->
+        <section class="cases" id="cases">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <div class="section-badge">
+                        <svg
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+                            />
+                        </svg>
+                        客户案例
+                    </div>
+                    <h2 class="section-title">他们都在用创意喵</h2>
+                    <p class="section-desc">
+                        来自不同行业的商家和创作者都在创意喵获得了成功
+                    </p>
+                </div>
+                <div class="cases-grid">
+                    <div class="case-card fade-in">
+                        <div class="case-header">
+                            <div class="case-logo">味美餐饮</div>
+                            <div class="case-tag">餐饮行业</div>
+                        </div>
+                        <div class="case-stats">
+                            <div class="case-stat">
+                                <div class="case-stat-value">500+</div>
+                                <div class="case-stat-label">完成订单</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-stat-value">¥2.5万</div>
+                                <div class="case-stat-label">月均消费</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-stat-value">98%</div>
+                                <div class="case-stat-label">好评率</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-stat-value">3天</div>
+                                <div class="case-stat-label">平均交付</div>
+                            </div>
+                        </div>
+                        <p class="case-desc">
+                            "创意喵帮助我们快速获取了大量优质的宣传视频，相比传统拍摄节省了80%的成本。"
+                        </p>
+                    </div>
+                    <div class="case-card fade-in">
+                        <div class="case-header">
+                            <div class="case-logo">优品电商</div>
+                            <div class="case-tag">电商零售</div>
+                        </div>
+                        <div class="case-stats">
+                            <div class="case-stat">
+                                <div class="case-stat-value">1000+</div>
+                                <div class="case-stat-label">完成订单</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-stat-value">¥5万</div>
+                                <div class="case-stat-label">月均消费</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-stat-value">99%</div>
+                                <div class="case-stat-label">好评率</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-stat-value">2天</div>
+                                <div class="case-stat-label">平均交付</div>
+                            </div>
+                        </div>
+                        <p class="case-desc">
+                            "AI辅助创作功能太强大了，一键生成脚本和图片，大幅提升了我们的内容产出效率。"
+                        </p>
+                    </div>
+                    <div class="case-card fade-in">
+                        <div class="case-header">
+                            <div class="case-logo">小明工作室</div>
+                            <div class="case-tag">创作者</div>
+                        </div>
+                        <div class="case-stats">
+                            <div class="case-stat">
+                                <div class="case-stat-value">300+</div>
+                                <div class="case-stat-label">完成订单</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-stat-value">¥1.2万</div>
+                                <div class="case-stat-label">月均收益</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-stat-value">96%</div>
+                                <div class="case-stat-label">通过率</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-stat-value">SSS</div>
+                                <div class="case-stat-label">信用等级</div>
+                            </div>
+                        </div>
+                        <p class="case-desc">
+                            "作为兼职创作者，创意喵让我能够灵活接单，AI工具让创作变得更轻松，收益也很可观。"
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <div class="cta-container fade-in">
+                <h2 class="cta-title">立即开始你的创意之旅</h2>
+                <p class="cta-desc">
+                    微信扫码进入小程序，开启高效内容众包新体验
+                </p>
+                <div class="cta-buttons">
+                    <a href="#qr" class="btn btn-primary">
+                        <svg
+                            width="20"
+                            height="20"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
+                            />
+                        </svg>
+                        扫码使用
+                    </a>
+                    <a href="#" class="btn btn-secondary"> 联系我们 </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- QR Section -->
+        <section class="qr-section" id="qr">
+            <div class="container">
+                <div class="section-header fade-in">
+                    <div class="section-badge">
+                        <svg
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
+                            />
+                        </svg>
+                        扫码体验
+                    </div>
+                    <h2 class="section-title">选择适合你的版本</h2>
+                    <p class="section-desc">
+                        微信扫码进入小程序，立即体验创意喵
+                    </p>
+                </div>
+                <div class="qr-grid">
+                    <div class="qr-item fade-in">
+                        <div class="qr-code">
+                            <div class="qr-placeholder">📱</div>
+                        </div>
+                        <div class="qr-label">创意喵</div>
+                        <div class="qr-desc">综合版小程序</div>
+                    </div>
+                    <div class="qr-item fade-in">
+                        <div class="qr-code">
+                            <div class="qr-placeholder">🏪</div>
+                        </div>
+                        <div class="qr-label">商家版</div>
+                        <div class="qr-desc">商家端小程序</div>
+                    </div>
+                    <div class="qr-item fade-in">
+                        <div class="qr-code">
+                            <div class="qr-placeholder">🎨</div>
+                        </div>
+                        <div class="qr-label">创作者版</div>
+                        <div class="qr-desc">创作者端小程序</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <div class="footer-logo">
+                            <div class="logo-icon">创</div>
+                            创意喵
+                        </div>
+                        <p class="footer-desc">
+                            AI内容众包撮合平台，连接创意与价值，
+                            让内容创作更高效、更安全、更简单。
+                        </p>
+                        <div class="footer-social">
+                            <a href="#" class="social-link">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+                                    />
+                                </svg>
+                            </a>
+                            <a href="#" class="social-link">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"
+                                    />
+                                </svg>
+                            </a>
+                            <a href="#" class="social-link">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
+                                    />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="footer-column">
+                        <h4>产品服务</h4>
+                        <div class="footer-links">
+                            <a href="#products" class="footer-link">核心功能</a>
+                            <a href="#" class="footer-link">AI创作工具</a>
+                            <a href="#" class="footer-link">内容分发</a>
+                            <a href="#" class="footer-link">信用体系</a>
+                        </div>
+                    </div>
+                    <div class="footer-column">
+                        <h4>关于平台</h4>
+                        <div class="footer-links">
+                            <a href="#" class="footer-link">关于我们</a>
+                            <a href="#" class="footer-link">加入我们</a>
+                            <a href="#" class="footer-link">新闻动态</a>
+                            <a href="#" class="footer-link">帮助中心</a>
+                        </div>
+                    </div>
+                    <div class="footer-column">
+                        <h4>联系我们</h4>
+                        <div class="footer-links">
+                            <a href="#" class="footer-link">商务合作</a>
+                            <a href="#" class="footer-link">客服邮箱</a>
+                            <a href="#" class="footer-link">用户协议</a>
+                            <a href="#" class="footer-link">隐私政策</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <div class="footer-copyright">
+                        © 2026 创意喵 AI内容众包撮合平台. All rights reserved.
+                    </div>
+                    <div class="footer-legal">
+                        <a href="#">用户协议</a>
+                        <a href="#">隐私政策</a>
+                        <a href="#">ICP备案号</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+            // Intersection Observer for fade-in animations
+            const observerOptions = {
+                root: null,
+                rootMargin: "0px",
+                threshold: 0.1,
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("visible");
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll(".fade-in").forEach((el) => {
+                observer.observe(el);
+            });
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+                anchor.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(
+                        this.getAttribute("href"),
+                    );
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                        });
+                    }
+                });
+            });
+
+            // Counter animation for stats
+            function animateCounter(element, target, duration = 2000) {
+                const start = 0;
+                const increment = target / (duration / 16);
+                let current = start;
+
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        clearInterval(timer);
+                    }
+                }, 16);
+            }
+
+            // Trigger counter animation when stats are visible
+            const statsObserver = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            statsObserver.unobserve(entry.target);
+                        }
+                    });
+                },
+                { threshold: 0.5 },
+            );
+
+            const heroStats = document.querySelector(".hero-stats");
+            if (heroStats) {
+                statsObserver.observe(heroStats);
+            }
+        </script>
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    "Helvetica Neue", Arial, sans-serif;
+            }
+
+            .inland-security-footer {
+                position: fixed;
+                z-index: 10;
+                bottom: 0;
+                right: 0;
+                width: fit-content;
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            .tooltip-container {
+                position: relative;
+            }
+
+            .trigger-content {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+                padding: 8px;
+                background-color: transparent;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+
+            .minimax-link {
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                font-weight: 300;
+                color: #adadad;
+                text-decoration: none;
+            }
+
+            .minimax-link:visited {
+                color: #adadad;
+            }
+
+            .minimax-link:hover {
+                color: #666666;
+            }
+
+            .tooltip-content {
+                position: absolute;
+                bottom: 100%;
+                right: 0;
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                padding: 8px;
+                padding-bottom: 16px; /* 8px 内容间距 + 8px 用于鼠标移动的透明区域 */
+                font-size: 12px;
+                line-height: 17px;
+                background-color: #fafafa;
+                border-radius: 12px;
+                white-space: nowrap;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                color: #171717;
+            }
+
+            /* 创建透明的连接区域，让鼠标可以平滑移动到 tooltip */
+            .tooltip-content::after {
+                content: "";
+                position: absolute;
+                bottom: -8px;
+                left: 0;
+                right: 0;
+                height: 16px;
+            }
+
+            .tooltip-container:hover .tooltip-content {
+                display: flex;
+            }
+
+            .info-section {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px;
+            }
+
+            .beian-link {
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                color: #171717;
+            }
+
+            .beian-icon {
+                width: 14px;
+                height: 14px;
+                margin-right: 2px;
+            }
+
+            .underline-text {
+                color: #171717;
+                text-decoration: underline;
+            }
+
+            .underline-text:hover {
+                color: #000000;
+            }
+
+            /* 深色模式支持 */
+            @media (prefers-color-scheme: dark) {
+                .trigger-content {
+                    background-color: transparent;
+                }
+
+                .minimax-link,
+                .minimax-link:visited {
+                    color: #666666;
+                }
+
+                .minimax-link:hover {
+                    color: #adadad;
+                }
+
+                .tooltip-content {
+                    background-color: #262626;
+                    color: #ededed;
+                }
+
+                .beian-link,
+                .underline-text {
+                    color: #ededed;
+                }
+
+                .underline-text:hover {
+                    color: #ffffff;
+                }
+            }
+        </style>
+        <div class="inland-security-footer">
+            <div class="tooltip-container">
+                <div class="trigger-content">
+                    <a
+                        href="https://www.minimaxi.com/"
+                        target="_blank"
+                        rel="noreferrer"
+                        class="minimax-link"
+                    >
+                        <span>© 2026 MiniMax</span>
+                    </a>
+                </div>
+                <div class="tooltip-content">
+                    <section class="info-section">
+                        <span>上海稀宇科技有限公司</span>
+                    </section>
+
+                    <section class="info-section">
+                        <a
+                            class="beian-link"
+                            href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010402010179"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            <img
+                                alt="hailuo-beian-icon"
+                                src="https://cdn.hailuoai.com/hailuo-video-web/public_assets/223037d3-79fd-4db0-a456-749f38a6a14b.png"
+                                class="beian-icon"
+                            />
+                            <span class="underline-text"
+                                >沪公网安备31010402010179号</span
+                            >
+                        </a>
+                        <a
+                            href="https://beian.miit.gov.cn/"
+                            target="_blank"
+                            rel="noreferrer"
+                            class="underline-text"
+                        >
+                            沪ICP备2023003282号-38
+                        </a>
+                    </section>
+
+                    <section class="info-section">
+                        <span>模型名称：MiniMax</span>
+                        <span>备案号：Shanghai-MiniMax-202505230046</span>
+                    </section>
+
+                    <section class="info-section">
+                        <a
+                            href="https://agent.minimaxi.com/doc/zh/terms-of-service.html"
+                            target="_blank"
+                            rel="noreferrer"
+                            class="underline-text"
+                        >
+                            用户协议
+                        </a>
+                        <a
+                            href="https://agent.minimaxi.com/doc/zh/privacy-policy.html"
+                            target="_blank"
+                            rel="noreferrer"
+                            class="underline-text"
+                        >
+                            隐私政策
+                        </a>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            /**
+             * Iframe 元素高亮注入脚本
+             * 需要在目标网站中引入此脚本来支持跨域 iframe 高亮功能
+             *
+             * 使用方法：
+             * 1. 将此脚本添加到目标网站的 HTML 中
+             * 2. 或通过浏览器扩展、用户脚本等方式注入
+             */
+
+            (function () {
+                "use strict";
+
+                // 检查是否在 iframe 中
+                if (window.self === window.top) {
+                    return; // 不在 iframe 中，不执行
+                }
+
+                // 检查是否已经初始化过
+                if (window.__iframeHighlightInitialized) {
+                    return;
+                }
+                window.__iframeHighlightInitialized = true;
+                console.log("Iframe 高亮脚本已加载");
+
+                // 创建高亮覆盖层
+                var overlay = document.createElement("div");
+                overlay.id = "iframe-highlight-overlay";
+                overlay.style.cssText =
+                    "\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    pointer-events: none;\n    z-index: 999999;\n    overflow: hidden;\n  ";
+
+                // 创建悬停高亮框（虚线边框）
+                var highlightBox = document.createElement("div");
+                highlightBox.id = "iframe-highlight-box";
+                highlightBox.style.cssText =
+                    "\n    position: absolute;\n    border: 2px dashed #007AFF;\n    background: rgba(0, 122, 255, 0.08);\n    pointer-events: none;\n    display: none;\n    transition: all 0.1s ease;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);\n    border-radius: 2px;\n  ";
+
+                // 创建选中节点的常驻高亮框（实线边框）
+                var selectedBox = document.createElement("div");
+                selectedBox.id = "iframe-selected-box";
+                selectedBox.style.cssText =
+                    "\n    position: absolute;\n    border: 2px solid #007AFF;\n    pointer-events: none;\n    display: none;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 107, 53, 0.4);\n    border-radius: 2px;\n    z-index: 1000000;\n  ";
+
+                // 创建悬停标签显示
+                var tagLabel = document.createElement("div");
+                tagLabel.id = "iframe-tag-label";
+                tagLabel.style.cssText =
+                    "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 2px 6px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 2px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000001;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);\n    font-weight: 500;\n  ";
+
+                // 创建选中节点标签
+                var selectedLabel = document.createElement("div");
+                selectedLabel.id = "iframe-selected-label";
+                selectedLabel.style.cssText =
+                    "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 3px 8px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 3px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000002;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\n    font-weight: 600;\n  ";
+                overlay.appendChild(highlightBox);
+                overlay.appendChild(selectedBox);
+                overlay.appendChild(tagLabel);
+                overlay.appendChild(selectedLabel);
+                document.body.appendChild(overlay);
+
+                // 存储当前选中的元素
+                var selectedElement = null;
+                var highlightEnabled = false;
+
+                // 更新选中元素的高亮显示
+                function updateSelectedHighlight(element) {
+                    console.log(
+                        "updateSelectedHighlight called with:",
+                        element,
+                    );
+                    if (!element) {
+                        selectedBox.style.display = "none";
+                        selectedLabel.style.display = "none";
+                        selectedElement = null;
+                        console.log("Cleared selected highlight");
+                        return;
+                    }
+                    selectedElement = element;
+                    var rect = element.getBoundingClientRect();
+                    console.log("Selected element rect:", rect);
+
+                    // 更新选中高亮框位置
+                    selectedBox.style.display = "block";
+                    selectedBox.style.left = "".concat(rect.left - 2, "px");
+                    selectedBox.style.top = "".concat(rect.top - 2, "px");
+                    selectedBox.style.width = "".concat(rect.width + 4, "px");
+                    selectedBox.style.height = "".concat(rect.height + 4, "px");
+
+                    // 更新选中标签位置和内容
+                    selectedLabel.style.display = "block";
+                    selectedLabel.textContent = "\u2713 <".concat(
+                        element.tagName.toLowerCase(),
+                        ">",
+                    );
+
+                    // 计算标签位置，确保不超出视窗
+                    var labelTop = rect.top - 28;
+                    var labelLeft = rect.left;
+
+                    // 如果标签会超出顶部，显示在元素下方
+                    if (labelTop < 5) {
+                        labelTop = rect.bottom + 5;
+                    }
+
+                    // 如果标签会超出右侧，向左调整
+                    var labelWidth = selectedLabel.offsetWidth || 100; // 预估宽度
+                    if (labelLeft + labelWidth > window.innerWidth - 10) {
+                        labelLeft = window.innerWidth - labelWidth - 10;
+                    }
+                    selectedLabel.style.left = "".concat(
+                        Math.max(5, labelLeft),
+                        "px",
+                    );
+                    selectedLabel.style.top = "".concat(labelTop, "px");
+                    console.log("Selected highlight positioned at:", {
+                        left: selectedBox.style.left,
+                        top: selectedBox.style.top,
+                        width: selectedBox.style.width,
+                        height: selectedBox.style.height,
+                    });
+                }
+                function getElementSelector(element) {
+                    if (!(element instanceof Element))
+                        throw new Error("Argument must be a DOM element");
+                    var segments = [];
+                    var current = element;
+                    while (current !== document.documentElement) {
+                        var selector = "";
+                        // 优先检查唯一ID
+                        if (
+                            current.id &&
+                            document.querySelectorAll("#".concat(current.id))
+                                .length === 1
+                        ) {
+                            segments.unshift("#".concat(current.id));
+                            break; // ID唯一，无需继续向上
+                        }
+
+                        // 生成类名选择器（取第一个有效类名）
+                        var classes = Array.from(current.classList).filter(
+                            function (c) {
+                                return !c.startsWith("js-");
+                            },
+                        );
+                        var className =
+                            classes.length > 0 ? ".".concat(classes[0]) : "";
+
+                        // 生成位置索引（nth-child）
+                        var tag = current.tagName.toLowerCase();
+                        if (!className) {
+                            var siblings = Array.from(
+                                current.parentNode.children,
+                            );
+                            var index =
+                                siblings.findIndex(function (el) {
+                                    return el === current;
+                                }) + 1;
+                            selector = ""
+                                .concat(tag, ":nth-child(")
+                                .concat(index, ")");
+                        } else {
+                            selector = className;
+                        }
+                        segments.unshift(selector);
+                        current = current.parentElement;
+                    }
+
+                    // 处理根元素
+                    if (current === document.documentElement) {
+                        segments.unshift("html");
+                    }
+                    return segments.join(" > ");
+                }
+
+                // 获取元素文本内容
+                function getElementText(element) {
+                    var _element$textContent;
+                    if (element.tagName === "INPUT") {
+                        return element.value || element.placeholder || "";
+                    }
+                    if (element.tagName === "TEXTAREA") {
+                        return element.value || element.placeholder || "";
+                    }
+                    var text =
+                        ((_element$textContent = element.textContent) ===
+                            null || _element$textContent === void 0
+                            ? void 0
+                            : _element$textContent.trim()) || "";
+                    return text.length > 50
+                        ? text.substring(0, 50) + "..."
+                        : text;
+                }
+
+                // 获取元素属性信息
+                function getElementAttributes(element) {
+                    var attrs = {};
+                    for (var i = 0; i < element.attributes.length; i++) {
+                        var attr = element.attributes[i];
+                        attrs[attr.name] = attr.value;
+                    }
+                    return attrs;
+                }
+
+                // 鼠标悬停事件处理
+                function handleMouseOver(e) {
+                    if (!highlightEnabled) return;
+                    var target = e.target;
+                    if (
+                        !target ||
+                        target === overlay ||
+                        target === highlightBox ||
+                        target === tagLabel ||
+                        target === selectedBox ||
+                        target === selectedLabel
+                    ) {
+                        return;
+                    }
+
+                    // 避免高亮 html 和 body 元素
+                    if (
+                        target === document.documentElement ||
+                        target === document.body
+                    ) {
+                        return;
+                    }
+
+                    // 如果是已选中的元素，不显示悬停高亮
+                    if (target === selectedElement) {
+                        highlightBox.style.display = "none";
+                        tagLabel.style.display = "none";
+                        return;
+                    }
+                    var rect = target.getBoundingClientRect();
+                    var selector = getElementSelector(target);
+                    var text = getElementText(target);
+                    var attributes = getElementAttributes(target);
+
+                    // 更新悬停高亮框位置
+                    highlightBox.style.display = "block";
+                    highlightBox.style.left = "".concat(rect.left - 2, "px");
+                    highlightBox.style.top = "".concat(rect.top - 2, "px");
+                    highlightBox.style.width = "".concat(rect.width + 4, "px");
+                    highlightBox.style.height = "".concat(
+                        rect.height + 4,
+                        "px",
+                    );
+
+                    // 更新标签位置和内容
+                    tagLabel.style.display = "block";
+                    tagLabel.textContent = "<".concat(
+                        target.tagName.toLowerCase(),
+                        ">",
+                    );
+
+                    // 计算标签位置，确保不超出视窗
+                    var labelTop = rect.top - 22;
+                    var labelLeft = rect.left;
+
+                    // 如果标签会超出顶部，显示在元素下方
+                    if (labelTop < 0) {
+                        labelTop = rect.bottom + 5;
+                    }
+
+                    // 如果标签会超出右侧，向左调整
+                    if (labelLeft + tagLabel.offsetWidth > window.innerWidth) {
+                        labelLeft =
+                            window.innerWidth - tagLabel.offsetWidth - 5;
+                    }
+                    tagLabel.style.left = "".concat(
+                        Math.max(0, labelLeft),
+                        "px",
+                    );
+                    tagLabel.style.top = "".concat(labelTop, "px");
+
+                    // 发送消息到父窗口
+                    var elementInfo = {
+                        tagName: target.tagName.toLowerCase(),
+                        rect: {
+                            left: rect.left,
+                            top: rect.top,
+                            right: rect.right,
+                            bottom: rect.bottom,
+                            width: rect.width,
+                            height: rect.height,
+                            x: rect.x,
+                            y: rect.y,
+                        },
+                        selector: selector,
+                        text: text,
+                        attributes: attributes,
+                        url: window.location.href,
+                        path: window.location.pathname,
+                        timestamp: Date.now(),
+                    };
+                    try {
+                        window.parent.postMessage(
+                            {
+                                type: "iframe-element-hover",
+                                data: elementInfo,
+                                source: "iframe-highlight-injector",
+                            },
+                            "*",
+                        );
+                    } catch (error) {
+                        console.warn("无法发送消息到父窗口:", error);
+                    }
+                }
+
+                // 鼠标离开事件处理
+                function handleMouseOut(e) {
+                    if (!highlightEnabled) return;
+                    var relatedTarget = e.relatedTarget;
+
+                    // 如果鼠标移动到高亮相关元素上，不隐藏高亮
+                    if (
+                        relatedTarget &&
+                        (relatedTarget === highlightBox ||
+                            relatedTarget === tagLabel ||
+                            relatedTarget === overlay ||
+                            relatedTarget === selectedBox ||
+                            relatedTarget === selectedLabel)
+                    ) {
+                        return;
+                    }
+                    highlightBox.style.display = "none";
+                    tagLabel.style.display = "none";
+                    try {
+                        window.parent.postMessage(
+                            {
+                                type: "iframe-element-hover",
+                                data: null,
+                                source: "iframe-highlight-injector",
+                            },
+                            "*",
+                        );
+                    } catch (error) {
+                        console.warn("无法发送消息到父窗口:", error);
+                    }
+                }
+
+                // 点击事件处理
+                function handleClick(e) {
+                    var target = e.target;
+                    if (
+                        !target ||
+                        target === overlay ||
+                        target === highlightBox ||
+                        target === tagLabel ||
+                        target === selectedBox ||
+                        target === selectedLabel
+                    ) {
+                        return;
+                    }
+
+                    // 避免处理 html 和 body 元素
+                    if (
+                        target === document.documentElement ||
+                        target === document.body
+                    ) {
+                        return;
+                    }
+
+                    // 检查是否是交互元素，这些元素需要保留默认行为
+                    var isInteractiveElement = [
+                        "input",
+                        "textarea",
+                        "select",
+                        "button",
+                        "a",
+                    ].includes(target.tagName.toLowerCase());
+
+                    // 如果高亮功能启用，对于非交互元素阻止默认行为和事件传播
+                    if (highlightEnabled) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    var rect = target.getBoundingClientRect();
+                    var selector = getElementSelector(target);
+                    var text = getElementText(target);
+                    var attributes = getElementAttributes(target);
+                    console.log("Element clicked:", {
+                        tagName: target.tagName,
+                        selector: selector,
+                        rect: rect,
+                    });
+
+                    // 立即更新选中高亮
+                    updateSelectedHighlight(target);
+
+                    // 隐藏悬停高亮，因为现在是选中状态
+                    highlightBox.style.display = "none";
+                    tagLabel.style.display = "none";
+                    var elementInfo = {
+                        tagName: target.tagName.toLowerCase(),
+                        rect: {
+                            left: rect.left,
+                            top: rect.top,
+                            right: rect.right,
+                            bottom: rect.bottom,
+                            width: rect.width,
+                            height: rect.height,
+                            x: rect.x,
+                            y: rect.y,
+                        },
+                        selector: selector,
+                        text: text,
+                        attributes: attributes,
+                        url: window.location.href,
+                        path: window.location.pathname,
+                        timestamp: Date.now(),
+                    };
+                    try {
+                        window.parent.postMessage(
+                            {
+                                type: "iframe-element-click",
+                                data: elementInfo,
+                                source: "iframe-highlight-injector",
+                            },
+                            "*",
+                        );
+                    } catch (error) {
+                        console.warn("无法发送消息到父窗口:", error);
+                    }
+                }
+
+                // 监听来自父窗口的消息
+                function handleParentMessage(event) {
+                    console.log("Received message from parent:", event.data);
+                    if (event.data.type === "iframe-highlight-toggle") {
+                        var enabled = event.data.enabled;
+                        console.log("Highlight toggle:", enabled);
+                        if (enabled) {
+                            enableHighlight();
+                        } else {
+                            disableHighlight();
+                        }
+                    } else if (event.data.type === "enable-iframe-highlight") {
+                        console.log("Enable iframe highlight");
+                        enableHighlight();
+                    } else if (event.data.type === "disable-iframe-highlight") {
+                        console.log("Disable iframe highlight");
+                        disableHighlight();
+                    } else if (event.data.type === "toggle-iframe-highlight") {
+                        var _enabled =
+                            event.data.enabled !== undefined
+                                ? event.data.enabled
+                                : !highlightEnabled;
+                        console.log("Toggle iframe highlight to:", _enabled);
+                        if (_enabled) {
+                            enableHighlight();
+                        } else {
+                            disableHighlight();
+                        }
+                    } else if (event.data.type === "update-selected-element") {
+                        var selector = event.data.selector;
+                        console.log(
+                            "Update selected element with selector:",
+                            selector,
+                        );
+                        if (selector) {
+                            try {
+                                var element = document.querySelector(selector);
+                                console.log(
+                                    "Found element by selector:",
+                                    element,
+                                );
+                                updateSelectedHighlight(element);
+                            } catch (error) {
+                                console.warn(
+                                    "Failed to select element:",
+                                    error,
+                                );
+                                updateSelectedHighlight(null);
+                            }
+                        } else {
+                            updateSelectedHighlight(null);
+                        }
+                    } else if (event.data.type === "clear-selected-element") {
+                        console.log("Clear selected element");
+                        updateSelectedHighlight(null);
+                    }
+                }
+
+                // 启用高亮功能
+                function enableHighlight() {
+                    console.log("Enabling highlight");
+                    document.addEventListener(
+                        "mouseover",
+                        handleMouseOver,
+                        true,
+                    );
+                    document.addEventListener("mouseout", handleMouseOut, true);
+                    document.addEventListener("click", handleClick, true);
+                    highlightEnabled = true;
+                    overlay.style.display = "block";
+                }
+
+                // 禁用高亮功能
+                function disableHighlight() {
+                    console.log("Disabling highlight");
+                    highlightEnabled = false;
+                    // 保持事件监听器，但通过 highlightEnabled 变量控制行为
+                    // 这样可以保留选中状态的显示
+                    highlightBox.style.display = "none";
+                    tagLabel.style.display = "none";
+                    // 不隐藏 selectedBox 和 selectedLabel，保留选中状态
+                }
+
+                // 完全禁用高亮功能（移除所有监听器）
+                function fullyDisableHighlight() {
+                    console.log("Fully disabling highlight");
+                    highlightEnabled = false;
+                    document.removeEventListener(
+                        "mouseover",
+                        handleMouseOver,
+                        true,
+                    );
+                    document.removeEventListener(
+                        "mouseout",
+                        handleMouseOut,
+                        true,
+                    );
+                    document.removeEventListener("click", handleClick, true);
+                    overlay.style.display = "none";
+                    highlightBox.style.display = "none";
+                    tagLabel.style.display = "none";
+                    selectedBox.style.display = "none";
+                    selectedLabel.style.display = "none";
+                }
+
+                // 添加事件监听
+                enableHighlight();
+                window.addEventListener("message", handleParentMessage);
+
+                // 暴露全局函数供外部调用
+                window.__iframeHighlightControl = {
+                    enable: enableHighlight,
+                    disable: disableHighlight,
+                    fullyDisable: fullyDisableHighlight,
+                    isEnabled: function isEnabled() {
+                        return highlightEnabled;
+                    },
+                    getSelectedElement: function getSelectedElement() {
+                        return selectedElement;
+                    },
+                    updateSelected: updateSelectedHighlight,
+                    // 通过消息发送开关控制
+                    sendToggleMessage: function sendToggleMessage(enabled) {
+                        window.parent.postMessage(
+                            {
+                                type: "iframe-highlight-status",
+                                enabled: enabled || highlightEnabled,
+                                source: "iframe-highlight-injector",
+                            },
+                            "*",
+                        );
+                    },
+                };
+
+                // 通知父窗口脚本已加载
+                try {
+                    window.parent.postMessage(
+                        {
+                            type: "iframe-highlight-ready",
+                            data: {
+                                url: window.location.href,
+                                userAgent: navigator.userAgent,
+                                timestamp: Date.now(),
+                            },
+                            source: "iframe-highlight-injector",
+                        },
+                        "*",
+                    );
+                } catch (error) {
+                    console.warn("无法发送就绪消息到父窗口:", error);
+                }
+
+                // 清理函数
+                window.__iframeHighlightCleanup = function () {
+                    fullyDisableHighlight();
+                    window.removeEventListener("message", handleParentMessage);
+                    if (overlay.parentElement) {
+                        overlay.parentElement.removeChild(overlay);
+                    }
+                    delete window.__iframeHighlightInitialized;
+                    delete window.__iframeHighlightCleanup;
+                };
+            })();
+        </script>
+
+        <script>
+            /**
+             * Iframe 元素高亮注入脚本
+             * 需要在目标网站中引入此脚本来支持跨域 iframe 高亮功能
+             *
+             * 使用方法：
+             * 1. 将此脚本添加到目标网站的 HTML 中
+             * 2. 或通过浏览器扩展、用户脚本等方式注入
+             */
+
+            (function () {
+                "use strict";
+
+                // 检查是否在 iframe 中
+                if (window.self === window.top) {
+                    return; // 不在 iframe 中，不执行
+                }
+
+                // 检查是否已经初始化过
+                if (window.__iframeHighlightInitialized) {
+                    return;
+                }
+                window.__iframeHighlightInitialized = true;
+                console.log("Iframe 高亮脚本已加载");
+
+                // 创建高亮覆盖层
+                var overlay = document.createElement("div");
+                overlay.id = "iframe-highlight-overlay";
+                overlay.style.cssText =
+                    "\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    pointer-events: none;\n    z-index: 999999;\n    overflow: hidden;\n  ";
+
+                // 创建悬停高亮框（虚线边框）
+                var highlightBox = document.createElement("div");
+                highlightBox.id = "iframe-highlight-box";
+                highlightBox.style.cssText =
+                    "\n    position: absolute;\n    border: 2px dashed #007AFF;\n    background: rgba(0, 122, 255, 0.08);\n    pointer-events: none;\n    display: none;\n    transition: all 0.1s ease;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);\n    border-radius: 2px;\n  ";
+
+                // 创建选中节点的常驻高亮框（实线边框）
+                var selectedBox = document.createElement("div");
+                selectedBox.id = "iframe-selected-box";
+                selectedBox.style.cssText =
+                    "\n    position: absolute;\n    border: 2px solid #007AFF;\n    pointer-events: none;\n    display: none;\n    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 8px rgba(255, 107, 53, 0.4);\n    border-radius: 2px;\n    z-index: 1000000;\n  ";
+
+                // 创建悬停标签显示
+                var tagLabel = document.createElement("div");
+                tagLabel.id = "iframe-tag-label";
+                tagLabel.style.cssText =
+                    "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 2px 6px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 2px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000001;\n    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);\n    font-weight: 500;\n  ";
+
+                // 创建选中节点标签
+                var selectedLabel = document.createElement("div");
+                selectedLabel.id = "iframe-selected-label";
+                selectedLabel.style.cssText =
+                    "\n    position: absolute;\n    background: #007AFF;\n    color: white;\n    padding: 3px 8px;\n    font-size: 11px;\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\n    border-radius: 3px;\n    pointer-events: none;\n    display: none;\n    white-space: nowrap;\n    z-index: 1000002;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);\n    font-weight: 600;\n  ";
+                overlay.appendChild(highlightBox);
+                overlay.appendChild(selectedBox);
+                overlay.appendChild(tagLabel);
+                overlay.appendChild(selectedLabel);
+                document.body.appendChild(overlay);
+
+                // 存储当前选中的元素
+                var selectedElement = null;
+                var highlightEnabled = false;
+
+                // 更新选中元素的高亮显示
+                function updateSelectedHighlight(element) {
+                    console.log(
+                        "updateSelectedHighlight called with:",
+                        element,
+                    );
+                    if (!element) {
+                        selectedBox.style.display = "none";
+                        selectedLabel.style.display = "none";
+                        selectedElement = null;
+                        console.log("Cleared selected highlight");
+                        return;
+                    }
+                    selectedElement = element;
+                    var rect = element.getBoundingClientRect();
+                    console.log("Selected element rect:", rect);
+
+                    // 更新选中高亮框位置
+                    selectedBox.style.display = "block";
+                    selectedBox.style.left = "".concat(rect.left - 2, "px");
+                    selectedBox.style.top = "".concat(rect.top - 2, "px");
+                    selectedBox.style.width = "".concat(rect.width + 4, "px");
+                    selectedBox.style.height = "".concat(rect.height + 4, "px");
+
+                    // 更新选中标签位置和内容
+                    selectedLabel.style.display = "block";
+                    selectedLabel.textContent = "\u2713 <".concat(
+                        element.tagName.toLowerCase(),
+                        ">",
+                    );
+
+                    // 计算标签位置，确保不超出视窗
+                    var labelTop = rect.top - 28;
+                    var labelLeft = rect.left;
+
+                    // 如果标签会超出顶部，显示在元素下方
+                    if (labelTop < 5) {
+                        labelTop = rect.bottom + 5;
+                    }
+
+                    // 如果标签会超出右侧，向左调整
+                    var labelWidth = selectedLabel.offsetWidth || 100; // 预估宽度
+                    if (labelLeft + labelWidth > window.innerWidth - 10) {
+                        labelLeft = window.innerWidth - labelWidth - 10;
+                    }
+                    selectedLabel.style.left = "".concat(
+                        Math.max(5, labelLeft),
+                        "px",
+                    );
+                    selectedLabel.style.top = "".concat(labelTop, "px");
+                    console.log("Selected highlight positioned at:", {
+                        left: selectedBox.style.left,
+                        top: selectedBox.style.top,
+                        width: selectedBox.style.width,
+                        height: selectedBox.style.height,
+                    });
+                }
+                function getElementSelector(element) {
+                    if (!(element instanceof Element))
+                        throw new Error("Argument must be a DOM element");
+                    var segments = [];
+                    var current = element;
+                    while (current !== document.documentElement) {
+                        var selector = "";
+                        // 优先检查唯一ID
+                        if (
+                            current.id &&
+                            document.querySelectorAll("#".concat(current.id))
+                                .length === 1
+                        ) {
+                            segments.unshift("#".concat(current.id));
+                            break; // ID唯一，无需继续向上
+                        }
+
+                        // 生成类名选择器（取第一个有效类名）
+                        var classes = Array.from(current.classList).filter(
+                            function (c) {
+                                return !c.startsWith("js-");
+                            },
+                        );
+                        var className =
+                            classes.length > 0 ? ".".concat(classes[0]) : "";
+
+                        // 生成位置索引（nth-child）
+                        var tag = current.tagName.toLowerCase();
+                        if (!className) {
+                            var siblings = Array.from(
+                                current.parentNode.children,
+                            );
+                            var index =
+                                siblings.findIndex(function (el) {
+                                    return el === current;
+                                }) + 1;
+                            selector = ""
+                                .concat(tag, ":nth-child(")
+                                .concat(index, ")");
+                        } else {
+                            selector = className;
+                        }
+                        segments.unshift(selector);
+                        current = current.parentElement;
+                    }
+
+                    // 处理根元素
+                    if (current === document.documentElement) {
+                        segments.unshift("html");
+                    }
+                    return segments.join(" > ");
+                }
+
+                // 获取元素文本内容
+                function getElementText(element) {
+                    var _element$textContent;
+                    if (element.tagName === "INPUT") {
+                        return element.value || element.placeholder || "";
+                    }
+                    if (element.tagName === "TEXTAREA") {
+                        return element.value || element.placeholder || "";
+                    }
+                    var text =
+                        ((_element$textContent = element.textContent) ===
+                            null || _element$textContent === void 0
+                            ? void 0
+                            : _element$textContent.trim()) || "";
+                    return text.length > 50
+                        ? text.substring(0, 50) + "..."
+                        : text;
+                }
+
+                // 获取元素属性信息
+                function getElementAttributes(element) {
+                    var attrs = {};
+                    for (var i = 0; i < element.attributes.length; i++) {
+                        var attr = element.attributes[i];
+                        attrs[attr.name] = attr.value;
+                    }
+                    return attrs;
+                }
+
+                // 鼠标悬停事件处理
+                function handleMouseOver(e) {
+                    if (!highlightEnabled) return;
+                    var target = e.target;
+                    if (
+                        !target ||
+                        target === overlay ||
+                        target === highlightBox ||
+                        target === tagLabel ||
+                        target === selectedBox ||
+                        target === selectedLabel
+                    ) {
+                        return;
+                    }
+
+                    // 避免高亮 html 和 body 元素
+                    if (
+                        target === document.documentElement ||
+                        target === document.body
+                    ) {
+                        return;
+                    }
+
+                    // 如果是已选中的元素，不显示悬停高亮
+                    if (target === selectedElement) {
+                        highlightBox.style.display = "none";
+                        tagLabel.style.display = "none";
+                        return;
+                    }
+                    var rect = target.getBoundingClientRect();
+                    var selector = getElementSelector(target);
+                    var text = getElementText(target);
+                    var attributes = getElementAttributes(target);
+
+                    // 更新悬停高亮框位置
+                    highlightBox.style.display = "block";
+                    highlightBox.style.left = "".concat(rect.left - 2, "px");
+                    highlightBox.style.top = "".concat(rect.top - 2, "px");
+                    highlightBox.style.width = "".concat(rect.width + 4, "px");
+                    highlightBox.style.height = "".concat(
+                        rect.height + 4,
+                        "px",
+                    );
+
+                    // 更新标签位置和内容
+                    tagLabel.style.display = "block";
+                    tagLabel.textContent = "<".concat(
+                        target.tagName.toLowerCase(),
+                        ">",
+                    );
+
+                    // 计算标签位置，确保不超出视窗
+                    var labelTop = rect.top - 22;
+                    var labelLeft = rect.left;
+
+                    // 如果标签会超出顶部，显示在元素下方
+                    if (labelTop < 0) {
+                        labelTop = rect.bottom + 5;
+                    }
+
+                    // 如果标签会超出右侧，向左调整
+                    if (labelLeft + tagLabel.offsetWidth > window.innerWidth) {
+                        labelLeft =
+                            window.innerWidth - tagLabel.offsetWidth - 5;
+                    }
+                    tagLabel.style.left = "".concat(
+                        Math.max(0, labelLeft),
+                        "px",
+                    );
+                    tagLabel.style.top = "".concat(labelTop, "px");
+
+                    // 发送消息到父窗口
+                    var elementInfo = {
+                        tagName: target.tagName.toLowerCase(),
+                        rect: {
+                            left: rect.left,
+                            top: rect.top,
+                            right: rect.right,
+                            bottom: rect.bottom,
+                            width: rect.width,
+                            height: rect.height,
+                            x: rect.x,
+                            y: rect.y,
+                        },
+                        selector: selector,
+                        text: text,
+                        attributes: attributes,
+                        url: window.location.href,
+                        path: window.location.pathname,
+                        timestamp: Date.now(),
+                    };
+                    try {
+                        window.parent.postMessage(
+                            {
+                                type: "iframe-element-hover",
+                                data: elementInfo,
+                                source: "iframe-highlight-injector",
+                            },
+                            "*",
+                        );
+                    } catch (error) {
+                        console.warn("无法发送消息到父窗口:", error);
+                    }
+                }
+
+                // 鼠标离开事件处理
+                function handleMouseOut(e) {
+                    if (!highlightEnabled) return;
+                    var relatedTarget = e.relatedTarget;
+
+                    // 如果鼠标移动到高亮相关元素上，不隐藏高亮
+                    if (
+                        relatedTarget &&
+                        (relatedTarget === highlightBox ||
+                            relatedTarget === tagLabel ||
+                            relatedTarget === overlay ||
+                            relatedTarget === selectedBox ||
+                            relatedTarget === selectedLabel)
+                    ) {
+                        return;
+                    }
+                    highlightBox.style.display = "none";
+                    tagLabel.style.display = "none";
+                    try {
+                        window.parent.postMessage(
+                            {
+                                type: "iframe-element-hover",
+                                data: null,
+                                source: "iframe-highlight-injector",
+                            },
+                            "*",
+                        );
+                    } catch (error) {
+                        console.warn("无法发送消息到父窗口:", error);
+                    }
+                }
+
+                // 点击事件处理
+                function handleClick(e) {
+                    var target = e.target;
+                    if (
+                        !target ||
+                        target === overlay ||
+                        target === highlightBox ||
+                        target === tagLabel ||
+                        target === selectedBox ||
+                        target === selectedLabel
+                    ) {
+                        return;
+                    }
+
+                    // 避免处理 html 和 body 元素
+                    if (
+                        target === document.documentElement ||
+                        target === document.body
+                    ) {
+                        return;
+                    }
+
+                    // 检查是否是交互元素，这些元素需要保留默认行为
+                    var isInteractiveElement = [
+                        "input",
+                        "textarea",
+                        "select",
+                        "button",
+                        "a",
+                    ].includes(target.tagName.toLowerCase());
+
+                    // 如果高亮功能启用，对于非交互元素阻止默认行为和事件传播
+                    if (highlightEnabled) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    var rect = target.getBoundingClientRect();
+                    var selector = getElementSelector(target);
+                    var text = getElementText(target);
+                    var attributes = getElementAttributes(target);
+                    console.log("Element clicked:", {
+                        tagName: target.tagName,
+                        selector: selector,
+                        rect: rect,
+                    });
+
+                    // 立即更新选中高亮
+                    updateSelectedHighlight(target);
+
+                    // 隐藏悬停高亮，因为现在是选中状态
+                    highlightBox.style.display = "none";
+                    tagLabel.style.display = "none";
+                    var elementInfo = {
+                        tagName: target.tagName.toLowerCase(),
+                        rect: {
+                            left: rect.left,
+                            top: rect.top,
+                            right: rect.right,
+                            bottom: rect.bottom,
+                            width: rect.width,
+                            height: rect.height,
+                            x: rect.x,
+                            y: rect.y,
+                        },
+                        selector: selector,
+                        text: text,
+                        attributes: attributes,
+                        url: window.location.href,
+                        path: window.location.pathname,
+                        timestamp: Date.now(),
+                    };
+                    try {
+                        window.parent.postMessage(
+                            {
+                                type: "iframe-element-click",
+                                data: elementInfo,
+                                source: "iframe-highlight-injector",
+                            },
+                            "*",
+                        );
+                    } catch (error) {
+                        console.warn("无法发送消息到父窗口:", error);
+                    }
+                }
+
+                // 监听来自父窗口的消息
+                function handleParentMessage(event) {
+                    console.log("Received message from parent:", event.data);
+                    if (event.data.type === "iframe-highlight-toggle") {
+                        var enabled = event.data.enabled;
+                        console.log("Highlight toggle:", enabled);
+                        if (enabled) {
+                            enableHighlight();
+                        } else {
+                            disableHighlight();
+                        }
+                    } else if (event.data.type === "enable-iframe-highlight") {
+                        console.log("Enable iframe highlight");
+                        enableHighlight();
+                    } else if (event.data.type === "disable-iframe-highlight") {
+                        console.log("Disable iframe highlight");
+                        disableHighlight();
+                    } else if (event.data.type === "toggle-iframe-highlight") {
+                        var _enabled =
+                            event.data.enabled !== undefined
+                                ? event.data.enabled
+                                : !highlightEnabled;
+                        console.log("Toggle iframe highlight to:", _enabled);
+                        if (_enabled) {
+                            enableHighlight();
+                        } else {
+                            disableHighlight();
+                        }
+                    } else if (event.data.type === "update-selected-element") {
+                        var selector = event.data.selector;
+                        console.log(
+                            "Update selected element with selector:",
+                            selector,
+                        );
+                        if (selector) {
+                            try {
+                                var element = document.querySelector(selector);
+                                console.log(
+                                    "Found element by selector:",
+                                    element,
+                                );
+                                updateSelectedHighlight(element);
+                            } catch (error) {
+                                console.warn(
+                                    "Failed to select element:",
+                                    error,
+                                );
+                                updateSelectedHighlight(null);
+                            }
+                        } else {
+                            updateSelectedHighlight(null);
+                        }
+                    } else if (event.data.type === "clear-selected-element") {
+                        console.log("Clear selected element");
+                        updateSelectedHighlight(null);
+                    }
+                }
+
+                // 启用高亮功能
+                function enableHighlight() {
+                    console.log("Enabling highlight");
+                    document.addEventListener(
+                        "mouseover",
+                        handleMouseOver,
+                        true,
+                    );
+                    document.addEventListener("mouseout", handleMouseOut, true);
+                    document.addEventListener("click", handleClick, true);
+                    highlightEnabled = true;
+                    overlay.style.display = "block";
+                }
+
+                // 禁用高亮功能
+                function disableHighlight() {
+                    console.log("Disabling highlight");
+                    highlightEnabled = false;
+                    // 保持事件监听器，但通过 highlightEnabled 变量控制行为
+                    // 这样可以保留选中状态的显示
+                    highlightBox.style.display = "none";
+                    tagLabel.style.display = "none";
+                    // 不隐藏 selectedBox 和 selectedLabel，保留选中状态
+                }
+
+                // 完全禁用高亮功能（移除所有监听器）
+                function fullyDisableHighlight() {
+                    console.log("Fully disabling highlight");
+                    highlightEnabled = false;
+                    document.removeEventListener(
+                        "mouseover",
+                        handleMouseOver,
+                        true,
+                    );
+                    document.removeEventListener(
+                        "mouseout",
+                        handleMouseOut,
+                        true,
+                    );
+                    document.removeEventListener("click", handleClick, true);
+                    overlay.style.display = "none";
+                    highlightBox.style.display = "none";
+                    tagLabel.style.display = "none";
+                    selectedBox.style.display = "none";
+                    selectedLabel.style.display = "none";
+                }
+
+                // 添加事件监听
+                enableHighlight();
+                window.addEventListener("message", handleParentMessage);
+
+                // 暴露全局函数供外部调用
+                window.__iframeHighlightControl = {
+                    enable: enableHighlight,
+                    disable: disableHighlight,
+                    fullyDisable: fullyDisableHighlight,
+                    isEnabled: function isEnabled() {
+                        return highlightEnabled;
+                    },
+                    getSelectedElement: function getSelectedElement() {
+                        return selectedElement;
+                    },
+                    updateSelected: updateSelectedHighlight,
+                    // 通过消息发送开关控制
+                    sendToggleMessage: function sendToggleMessage(enabled) {
+                        window.parent.postMessage(
+                            {
+                                type: "iframe-highlight-status",
+                                enabled: enabled || highlightEnabled,
+                                source: "iframe-highlight-injector",
+                            },
+                            "*",
+                        );
+                    },
+                };
+
+                // 通知父窗口脚本已加载
+                try {
+                    window.parent.postMessage(
+                        {
+                            type: "iframe-highlight-ready",
+                            data: {
+                                url: window.location.href,
+                                userAgent: navigator.userAgent,
+                                timestamp: Date.now(),
+                            },
+                            source: "iframe-highlight-injector",
+                        },
+                        "*",
+                    );
+                } catch (error) {
+                    console.warn("无法发送就绪消息到父窗口:", error);
+                }
+
+                // 清理函数
+                window.__iframeHighlightCleanup = function () {
+                    fullyDisableHighlight();
+                    window.removeEventListener("message", handleParentMessage);
+                    if (overlay.parentElement) {
+                        overlay.parentElement.removeChild(overlay);
+                    }
+                    delete window.__iframeHighlightInitialized;
+                    delete window.__iframeHighlightCleanup;
+                };
+            })();
+        </script>
+        <style>
+            #minimax-floating-ball {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 12px;
+                background: #222222;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                color: #f8f8f8;
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+                    sans-serif;
+                z-index: 9999;
+                transition: all 0.3s ease;
+                overflow: hidden;
+                cursor: pointer;
+            }
+
+            #minimax-floating-ball:hover {
+                transform: translateY(-2px);
+                background: #383838;
+            }
+            .minimax-ball-content {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .minimax-logo-wave {
+                width: 20px;
+                height: 17px;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='17' viewBox='0 0 20 17' fill='none'%3E%3Cpath d='M20 12.3718L16.283 16.2413H12.2518V13.1614H9.17175V16.2413H7.00999V13.1613H3.92998V16.2413H0V4.00101L3.84145 0H20V12.3718Z' fill='white'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: center;
+            }
+
+            .minimax-ball-text {
+                font-size: 12px;
+                font-weight: 500;
+                white-space: nowrap;
+            }
+
+            .minimax-close-icon {
+                margin-left: 8px;
+                font-size: 16px;
+                width: 18px;
+                height: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                cursor: pointer;
+                opacity: 0.7;
+                transition: opacity 0.2s ease;
+            }
+
+            .minimax-close-icon:hover {
+                opacity: 1;
+            }
+        </style>
+        <div id="minimax-floating-ball">
+            <div class="minimax-ball-content">
+                <div class="minimax-logo-wave"></div>
+                <span class="minimax-ball-text">Created by MiniMax Agent</span>
+            </div>
+            <div class="minimax-close-icon">×</div>
+        </div>
+        <script>
+            // Initialize floating ball functionality
+            function initFloatingBall() {
+                const ball = document.getElementById("minimax-floating-ball");
+                if (!ball) return;
+
+                // Initial animation
+                ball.style.opacity = "0";
+                ball.style.transform = "translateY(20px)";
+
+                setTimeout(() => {
+                    ball.style.opacity = "1";
+                    ball.style.transform = "translateY(0)";
+                }, 500);
+
+                // Handle logo click
+                const ballContent = ball.querySelector(".minimax-ball-content");
+                ballContent.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    window.open("https://agent.minimaxi.com/", "_blank");
+                    ball.style.transform = "scale(0.95)";
+                    setTimeout(() => {
+                        ball.style.transform = "scale(1)";
+                    }, 100);
+                });
+
+                // Handle close button click
+                const closeIcon = ball.querySelector(".minimax-close-icon");
+                closeIcon.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    ball.style.opacity = "0";
+                    ball.style.transform = "translateY(20px)";
+
+                    setTimeout(() => {
+                        ball.style.display = "none";
+                    }, 300);
+                });
+            }
+
+            // Initialize when DOM is ready
+            document.addEventListener("DOMContentLoaded", initFloatingBall);
+        </script>
+    </body>
+</html>

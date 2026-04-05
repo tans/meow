@@ -1,3 +1,6 @@
+/**
+ * Storage Provider Implementation
+ */
 import {
   S3Client,
   DeleteObjectCommand,
@@ -43,15 +46,22 @@ export class RustfsStorageProvider implements StorageProvider {
     mimeType: string,
     expiresSeconds: number
   ): Promise<PresignedUploadResult> {
+    const conditions: [string, string, string][] = [
+      ["eq", "\$Content-Type", mimeType],
+    ];
+
     const options: PresignedPostOptions = {
       Bucket: this.bucket,
       Key: key,
+      Conditions: conditions,
       Expires: expiresSeconds,
       Fields: {
         "Content-Type": mimeType,
       },
     };
+
     const { url, fields } = await createPresignedPost(this.client, options);
+
     return {
       url,
       fields,
@@ -59,12 +69,18 @@ export class RustfsStorageProvider implements StorageProvider {
     };
   }
 
-  async createPresignedAccess(key: string, expiresSeconds: number): Promise<string> {
+  async createPresignedAccess(
+    key: string,
+    expiresSeconds: number
+  ): Promise<string> {
     const command = new GetObjectCommand({
       Bucket: this.bucket,
       Key: key,
     });
-    return getSignedUrl(this.client, command, { expiresIn: expiresSeconds });
+
+    return getSignedUrl(this.client, command, {
+      expiresIn: expiresSeconds,
+    });
   }
 
   async deleteObject(key: string): Promise<void> {
@@ -72,6 +88,7 @@ export class RustfsStorageProvider implements StorageProvider {
       Bucket: this.bucket,
       Key: key,
     });
+
     await this.client.send(command);
   }
 
@@ -81,10 +98,13 @@ export class RustfsStorageProvider implements StorageProvider {
         Bucket: this.bucket,
         Key: key,
       });
+
       const response = await this.client.send(command);
+
       if (!response.LastModified || !response.ContentLength || !response.ETag) {
         return null;
       }
+
       return {
         key,
         size: response.ContentLength,
@@ -93,15 +113,19 @@ export class RustfsStorageProvider implements StorageProvider {
         etag: response.ETag.replace(/"/g, ""),
       };
     } catch (error: unknown) {
-      const err = error as { name?: string; $metadata?: { httpStatusCode?: number } };
-      if (err.name === "NotFound" || err.$metadata?.httpStatusCode === 404) {
+      const err = error as { name?: string; \$metadata?: { httpStatusCode?: number } };
+      if (err.name === "NotFound" || err.\$metadata?.httpStatusCode === 404) {
         return null;
       }
       throw error;
     }
   }
 
-  async uploadBuffer(key: string, buffer: Buffer, mimeType: string): Promise<void> {
+  async uploadBuffer(
+    key: string,
+    buffer: Buffer,
+    mimeType: string
+  ): Promise<void> {
     const command = new PutObjectCommand({
       Bucket: this.bucket,
       Key: key,
@@ -109,6 +133,7 @@ export class RustfsStorageProvider implements StorageProvider {
       ContentType: mimeType,
       ContentLength: buffer.length,
     });
+
     await this.client.send(command);
   }
 }
@@ -125,14 +150,9 @@ export function createStorageProvider(
     case "s3":
       return new RustfsStorageProvider(config);
     default:
-      throw new Error(`Unsupported storage provider type: ${type}`);
+      throw new Error(\`Unsupported storage provider type: \${type}\`);
   }
 }
 
-export type {
-  StorageConfig,
-  StorageProvider,
-  PresignedUploadResult,
-  ObjectMetadata,
-  StorageProviderType,
-};
+export { RustfsStorageProvider };
+export type { StorageConfig, StorageProvider, PresignedUploadResult, ObjectMetadata, StorageProviderType };

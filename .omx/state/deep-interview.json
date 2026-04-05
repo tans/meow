@@ -1,0 +1,62 @@
+{
+  "active": true,
+  "current_phase": "deep-interview",
+  "state": {
+    "interview_id": "storage-material-work-001",
+    "profile": "standard",
+    "type": "brownfield",
+    "initial_idea": "基于 Rustfs 的素材与作品管理功能",
+    "rounds": [
+      {
+        "round": 1,
+        "question": "在当前系统中，素材和作品分别指什么？",
+        "answer": "素材是商家上传的参考文件（任务附件），作品是创作者提交的投稿内容",
+        "clarifications": ["素材=任务附件(商家上传)", "作品=投稿内容(创作者提交)"]
+      },
+      {
+        "round": 2,
+        "question": "作品要分预览版本和正式版本，这是什么意思？",
+        "answer": "预览版是低像素/压缩版本，商家可先查看内容但不能下载原文件；正式版是完整分辨率原文件，只有结账/结算后才能下载；系统自动转换生成预览版",
+        "clarifications": ["预览版=低像素/压缩", "正式版=完整原文件", "系统自动生成预览版"]
+      },
+      {
+        "round": 3,
+        "question": "视频预览版怎么处理？",
+        "answer": "视频预览版通过降低码率转码生成；预览版不限制查看权限，在线播放",
+        "clarifications": ["视频预览=降低码率转码", "预览版在线播放"]
+      },
+      {
+        "round": 4,
+        "question": "什么时候可以下载正式版？",
+        "answer": "作品审核通过即可下载正式版",
+        "clarifications": ["审核通过=可下载正式版"]
+      },
+      {
+        "round": 5,
+        "question": "谁可以下载作品的正式版？",
+        "answer": "素材是开放访问都可以下载；通过审核的作品即可下载；商家和作者可以下载正式版作品",
+        "clarifications": ["素材=开放下载", "作品正式版=审核通过后商家和作者可下载"]
+      },
+      {
+        "round": 6,
+        "question": "Rustfs部署方式？",
+        "answer": "Rustfs需要新部署，其他由我规划；现有本地存储直接丢弃不做迁移",
+        "clarifications": ["Rustfs新部署", "不兼容现有本地存储"]
+      },
+      {
+        "round": 7,
+        "question": "预览版的具体规格和访问方式？",
+        "answer": "预览版前端不提供下载功能，但API支持下载；图片480px宽，视频原始码率30%；预签名URL访问",
+        "clarifications": ["预览图片=480px宽", "预览视频=原始码率30%", "预签名URL访问", "前端不展示下载按钮"]
+      }
+    ],
+    "current_ambiguity": 0.15,
+    "threshold": 0.20,
+    "max_rounds": 12,
+    "challenge_modes_used": [],
+    "codebase_context": "Brownfield: existing upload system uses local filesystem",
+    "current_stage": "feasibility",
+    "current_focus": "success-criteria",
+    "context_snapshot_path": ".omx/context/storage-material-work-management-20250404T154800Z.md"
+  }
+}

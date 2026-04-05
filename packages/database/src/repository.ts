@@ -144,3 +144,67 @@ export interface DatabaseRepository {
 
   close(): void;
 }
+
+// File Storage Records
+export interface FileObjectRecord {
+  id: string;
+  bucket: string;
+  objectKey: string;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  checksumSha256?: string;
+  createdBy: string;
+  createdAt: number;
+  expiresAt?: number;
+}
+
+export interface FileDerivativeRecord {
+  id: string;
+  sourceFileId: string;
+  derivativeType: 'preview_image' | 'preview_video';
+  fileObjectId: string;
+  processingStatus: 'pending' | 'processing' | 'completed' | 'failed';
+  processingMetadata?: string;
+  errorMessage?: string;
+  retryCount: number;
+  nextRetryAt?: number;
+  workerId?: string;
+  createdAt: number;
+  completedAt?: number;
+}
+
+export interface FileAccessLogRecord {
+  id: string;
+  fileId: string;
+  fileType: 'original' | 'preview';
+  userId: string;
+  userRole: string;
+  accessMethod: 'api' | 'presigned_url';
+  ipAddress?: string;
+  userAgent?: string;
+  accessedAt: number;
+}
+
+export interface CreateFileObjectInput extends Omit<FileObjectRecord, 'id'> {}
+export interface CreateFileDerivativeInput extends Omit<FileDerivativeRecord, 'id'> {}
+export interface CreateFileAccessLogInput extends Omit<FileAccessLogRecord, 'id'> {}
+
+export interface FileStorageRepository {
+  createFileObject(input: CreateFileObjectInput): FileObjectRecord;
+  getFileObject(fileId: string): FileObjectRecord | undefined;
+  getFileObjectByKey(objectKey: string): FileObjectRecord | undefined;
+  
+  createFileDerivative(input: CreateFileDerivativeInput): FileDerivativeRecord;
+  getFileDerivative(derivativeId: string): FileDerivativeRecord | undefined;
+  getFileDerivativesBySource(sourceFileId: string): FileDerivativeRecord[];
+  updateFileDerivativeStatus(
+    derivativeId: string, 
+    status: FileDerivativeRecord['processingStatus'],
+    updates?: Partial<FileDerivativeRecord>
+  ): FileDerivativeRecord | undefined;
+  getPendingFileDerivatives(limit?: number): FileDerivativeRecord[];
+  
+  createFileAccessLog(input: CreateFileAccessLogInput): FileAccessLogRecord;
+  getFileAccessLogs(fileId: string): FileAccessLogRecord[];
+}
