@@ -37,6 +37,20 @@ export const userDomainBlueprint: UserDomainBlueprint = {
   ]
 };
 
+export const creditRules: CreditRule[] = userDomainBlueprint.creditRules;
+
+export const getCreditRuleForScore = (score: number): CreditRule => {
+  return (
+    creditRules.find((rule) => score >= rule.minScore) ?? creditRules[creditRules.length - 1]
+  );
+};
+
+export const canSubmit = (score: number): boolean =>
+  getCreditRuleForScore(score).canSubmit;
+
+export const getMaxSubmissionsForScore = (score: number): number =>
+  getCreditRuleForScore(score).maxSubmissionsPerDay;
+
 export const appUserModules: AppModule[] = [
   {
     id: "merchant-center",
