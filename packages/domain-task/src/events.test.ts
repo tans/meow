@@ -8,6 +8,7 @@ import {
   endTask$,
   settleTask$,
   closeTask$,
+  createSubmission$,
   approveSubmission$,
   rejectSubmission$,
   withdrawSubmission$,
@@ -214,6 +215,22 @@ describe("taskEventBus", () => {
       expect(events[0]).toMatchObject({
         from: SubmissionState.Submitted,
         to: SubmissionState.Withdrawn,
+      });
+    });
+
+    it("emits submission.created when createSubmission$ succeeds", () => {
+      const events: unknown[] = [];
+      taskEventBus.on("submission.created", (e) => events.push(e));
+
+      const submission = createSubmission$("task-1", "creator-1", "my content");
+      expect(submission).not.toBeInstanceOf(Error);
+      expect(events).toHaveLength(1);
+      expect(events[0]).toMatchObject({
+        submission: expect.objectContaining({
+          taskId: "task-1",
+          creatorId: "creator-1",
+          state: SubmissionState.Submitted,
+        }),
       });
     });
 

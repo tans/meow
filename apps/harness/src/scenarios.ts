@@ -32,7 +32,8 @@ export const scenarios: ScenarioDefinition[] = [
       "任务上线前必须完成预算托管",
       "审核动作必须保留通过/驳回理由",
       "任务结束时未使用赏金原路退回"
-    ]
+    ],
+    replaySteps: ["fund", "publish", "end", "settle"]
   },
   {
     id: "creator-earning-loop",

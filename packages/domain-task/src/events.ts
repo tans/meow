@@ -14,6 +14,7 @@ import {
   endTask as _endTask,
   settleTask as _settleTask,
   closeTask as _closeTask,
+  createSubmission as _createSubmission,
   approveSubmission as _approveSubmission,
   rejectSubmission as _rejectSubmission,
   withdrawSubmission as _withdrawSubmission,
@@ -205,6 +206,25 @@ export const closeTask$ = (task: Task): Task | Error => {
       to: TaskState.Closed,
       task: result,
     });
+  }
+  return result;
+};
+
+// ---------------------------------------------------------------------------
+// Wrapped submission creation
+// ---------------------------------------------------------------------------
+
+/**
+ * Create a submission and emit a `submission.created` event.
+ */
+export const createSubmission$ = (
+  taskId: string,
+  creatorId: string,
+  content: string
+): Submission | Error => {
+  const result = _createSubmission(taskId, creatorId, content);
+  if (!(result instanceof Error)) {
+    taskEventBus.emit("submission.created", { submission: result });
   }
   return result;
 };

@@ -7,7 +7,14 @@ import {
 } from "@meow/domain-core";
 import { escrowRules } from "@meow/domain-finance";
 import { riskRules } from "@meow/domain-risk";
-import { submissionGuardrails } from "@meow/domain-task";
+import {
+  submissionGuardrails,
+  createTaskDraft,
+  fundTask$,
+  publishTask$,
+  endTask$,
+  settleTask$,
+} from "@meow/domain-task";
 import { userDomainBlueprint } from "@meow/domain-user";
 
 import type { ScenarioDefinition } from "./scenarios.js";
@@ -33,6 +40,42 @@ function replayScenario(scenario: ScenarioDefinition): HarnessReplayResult {
     return {
       scenarioId: scenario.id,
       steps: ["publish", "submit", "approve", "settle"],
+      ok: true
+    };
+  }
+
+  if (scenario.id === "merchant-funded-task") {
+    const task = createTaskDraft(
+      "merchant-test-1",
+      "Test Campaign",
+      "Test description",
+      3,
+      100,
+      50,
+      Date.now() + 60_000
+    );
+    if (task instanceof Error) {
+      return { scenarioId: scenario.id, steps: [], ok: false };
+    }
+    const funded = fundTask$(task);
+    if (funded instanceof Error) {
+      return { scenarioId: scenario.id, steps: [], ok: false };
+    }
+    const published = publishTask$(funded);
+    if (published instanceof Error) {
+      return { scenarioId: scenario.id, steps: [], ok: false };
+    }
+    const ended = endTask$(published);
+    if (ended instanceof Error) {
+      return { scenarioId: scenario.id, steps: [], ok: false };
+    }
+    const settled = settleTask$(ended);
+    if (settled instanceof Error) {
+      return { scenarioId: scenario.id, steps: [], ok: false };
+    }
+    return {
+      scenarioId: scenario.id,
+      steps: ["fund", "publish", "end", "settle"],
       ok: true
     };
   }

@@ -1,3 +1,22 @@
+// Re-export the event-emitter wrappers so consumers can import from the package root
+export {
+  taskEventBus,
+  fundTask$,
+  publishTask$,
+  pauseTask$,
+  resumeTask$,
+  endTask$,
+  settleTask$,
+  closeTask$,
+  createSubmission$,
+  approveSubmission$,
+  rejectSubmission$,
+  withdrawSubmission$,
+} from "./events.js";
+
+// Re-export event types for consumers
+export type { TaskEvents } from "./events.js";
+
 export enum TaskState {
   Draft = "draft",
   Funded = "funded",
