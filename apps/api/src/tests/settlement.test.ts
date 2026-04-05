@@ -1,48 +1,10 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { app } from "../app.js";
 import { db } from "../lib/db.js";
-
-const originalDemoAuth = process.env.MEOW_DEMO_AUTH;
-
-const toCookieHeader = (setCookieHeader: string): string =>
-  setCookieHeader
-    .split(/,(?=[^;]+=[^;]+)/)
-    .map((cookie) => cookie.split(";")[0]?.trim() ?? "")
-    .filter((cookie) => cookie.length > 0)
-    .join("; ");
-
-const loginAs = async (
-  identifier: "merchant@example.com" | "creator@example.com"
-): Promise<string> => {
-  process.env.MEOW_DEMO_AUTH = "true";
-
-  const response = await app.request("/auth/login", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      identifier,
-      secret: "demo-pass",
-      client: "web"
-    })
-  });
-
-  expect(response.status).toBe(200);
-  const setCookieHeader = response.headers.get("set-cookie") ?? "";
-  const cookieHeader = toCookieHeader(setCookieHeader);
-  expect(cookieHeader).toContain("meow_session=");
-
-  return cookieHeader;
-};
+import { createDemoAuthCleanup, loginAs } from "./helpers.js";
 
 describe("merchant settlement flow", () => {
-  afterAll(() => {
-    if (originalDemoAuth === undefined) {
-      delete process.env.MEOW_DEMO_AUTH;
-      return;
-    }
-
-    process.env.MEOW_DEMO_AUTH = originalDemoAuth;
-  });
+  afterAll(createDemoAuthCleanup());
 
   it("moves approved rewards to creator available balance and refunds unused escrow", async () => {
     const merchantCookie = await loginAs("merchant@example.com");

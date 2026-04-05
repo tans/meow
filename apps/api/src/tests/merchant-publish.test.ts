@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { app } from "../app.js";
+import { createDemoAuthCleanup, toCookieHeader } from "./helpers.js";
 
 interface CreateTaskDraftResponse {
   taskId: string;
@@ -15,15 +16,6 @@ interface UploadMerchantTaskAssetsResponse {
     mimeType: string;
   }>;
 }
-
-const originalDemoAuth = process.env.MEOW_DEMO_AUTH;
-
-const toCookieHeader = (setCookieHeader: string): string =>
-  setCookieHeader
-    .split(/,(?=[^;]+=[^;]+)/)
-    .map((cookie) => cookie.split(";")[0]?.trim() ?? "")
-    .filter((cookie) => cookie.length > 0)
-    .join("; ");
 
 const loginMerchant = async (): Promise<string> => {
   process.env.MEOW_DEMO_AUTH = "true";
@@ -47,14 +39,7 @@ const loginMerchant = async (): Promise<string> => {
 };
 
 describe("merchant publish flow", () => {
-  afterAll(() => {
-    if (originalDemoAuth === undefined) {
-      delete process.env.MEOW_DEMO_AUTH;
-      return;
-    }
-
-    process.env.MEOW_DEMO_AUTH = originalDemoAuth;
-  });
+  afterAll(createDemoAuthCleanup());
 
   it("locks base and ranking budget before publishing", async () => {
     const merchantCookie = await loginMerchant();
