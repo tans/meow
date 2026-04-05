@@ -13,7 +13,6 @@ export const operatorActionValues = [
   "update-settings"
 ] as const;
 export const operatorTargetTypeValues = ["task", "user", "ledger", "settings"] as const;
-
 export const taskStatuses = [
   "draft",
   "published",
@@ -30,6 +29,9 @@ export const submissionStatuses = [
 ] as const;
 export const rewardTypes = ["base", "ranking", "tip"] as const;
 export const rewardStatuses = ["frozen", "available", "cancelled"] as const;
+export const derivativeTypeValues = ["preview_image", "preview_video"] as const;
+export const processingStatusValues = ["pending", "processing", "completed", "failed"] as const;
+export const fileTypeValues = ["original", "derivative"] as const;
 
 export type Role = (typeof roleValues)[number];
 export type SessionClient = (typeof sessionClientValues)[number];
@@ -40,6 +42,9 @@ export type TaskStatus = (typeof taskStatuses)[number];
 export type SubmissionStatus = (typeof submissionStatuses)[number];
 export type RewardType = (typeof rewardTypes)[number];
 export type RewardStatus = (typeof rewardStatuses)[number];
+export type DerivativeType = (typeof derivativeTypeValues)[number];
+export type ProcessingStatus = (typeof processingStatusValues)[number];
+export type FileType = (typeof fileTypeValues)[number];
 
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
@@ -115,4 +120,52 @@ export const operatorActions = sqliteTable("operator_actions", {
   targetId: text("target_id").notNull(),
   reason: text("reason").notNull(),
   createdAt: integer("created_at").notNull()
+});
+
+// Rustfs Storage System Tables
+
+export const fileObjects = sqliteTable("file_objects", {
+  id: text("id").primaryKey(),
+  bucket: text("bucket").notNull(),
+  objectKey: text("object_key").notNull(),
+  originalName: text("original_name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  sizeBytes: integer("size_bytes").notNull(),
+  checksumSha256: text("checksum_sha256"),
+  createdBy: text("created_by").notNull(),
+  createdAt: integer("created_at").notNull(),
+  expiresAt: integer("expires_at")
+});
+
+export const fileDerivatives = sqliteTable("file_derivatives", {
+  id: text("id").primaryKey(),
+  sourceFileId: text("source_file_id")
+    .notNull()
+    .references(() => fileObjects.id),
+  derivativeType: text("derivative_type").$type<DerivativeType>().notNull(),
+  fileObjectId: text("file_object_id")
+    .notNull()
+    .references(() => fileObjects.id),
+  processingStatus: text("processing_status").$type<ProcessingStatus>().notNull().default("pending"),
+  processingMetadata: text("processing_metadata"),
+  errorMessage: text("error_message"),
+  retryCount: integer("retry_count").notNull().default(0),
+  nextRetryAt: integer("next_retry_at"),
+  workerId: text("worker_id"),
+  createdAt: integer("created_at").notNull(),
+  completedAt: integer("completed_at")
+});
+
+export const fileAccessLogs = sqliteTable("file_access_logs", {
+  id: text("id").primaryKey(),
+  fileId: text("file_id")
+    .notNull()
+    .references(() => fileObjects.id),
+  fileType: text("file_type").$type<FileType>().notNull(),
+  userId: text("user_id").notNull(),
+  userRole: text("user_role").notNull(),
+  accessMethod: text("access_method").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  accessedAt: integer("accessed_at").notNull()
 });
