@@ -12,9 +12,12 @@ app.onError((error, c) => {
   if (isAppError(error)) {
     return c.json({ error: error.message }, { status: error.status });
   }
-
-  throw error;
+  // Catch all unexpected errors — don't re-throw, return safe 500
+  console.error("[api] unhandled error:", error);
+  return c.json({ error: "INTERNAL_ERROR", message: "An unexpected error occurred" }, 500);
 });
+
+app.notFound((c) => c.json({ error: "NOT_FOUND", message: "Route not found" }, 404));
 
 const startTime = Date.now();
 app.get("/health", (c) =>

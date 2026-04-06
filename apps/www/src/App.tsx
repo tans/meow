@@ -393,11 +393,27 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="font-bold text-[#1a1a2e] mb-4">入口</h4>
+            <h4 className="font-bold text-[#1a1a2e] mb-4">创作者</h4>
             <ul className="space-y-2 text-[#6b7280]">
-              <li><a href="https://meow.ali.minapp.xin/square" className="hover:text-[#4f8ef7]">创作者工作台</a></li>
-              <li><a href="https://meow.ali.minapp.xin/admin" className="hover:text-[#4f8ef7]">管理后台</a></li>
               <li><a href="https://meow.ali.minapp.xin/square" className="hover:text-[#4f8ef7]">任务广场</a></li>
+              <li><a href="https://meow.ali.minapp.xin/square/#/earnings" className="hover:text-[#4f8ef7]">收益中心</a></li>
+              <li><a href="https://meow.ali.minapp.xin/square/#/profile" className="hover:text-[#4f8ef7]">个人中心</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-[#1a1a2e] mb-4">商家</h4>
+            <ul className="space-y-2 text-[#6b7280]">
+              <li><a href="https://meow.ali.minapp.xin/buyer" className="hover:text-[#4f8ef7]">商家工作台</a></li>
+              <li><a href="https://meow.ali.minapp.xin/buyer/#/tasks" className="hover:text-[#4f8ef7]">需求管理</a></li>
+              <li><a href="https://meow.ali.minapp.xin/buyer/#/wallet" className="hover:text-[#4f8ef7]">资金中心</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-[#1a1a2e] mb-4">运营</h4>
+            <ul className="space-y-2 text-[#6b7280]">
+              <li><a href="https://meow.ali.minapp.xin/admin" className="hover:text-[#4f8ef7]">管理后台</a></li>
+              <li><a href="https://meow.ali.minapp.xin/admin/#/users" className="hover:text-[#4f8ef7]">用户管理</a></li>
+              <li><a href="https://meow.ali.minapp.xin/admin/#/ledger" className="hover:text-[#4f8ef7]">账务台账</a></li>
             </ul>
           </div>
         </div>
