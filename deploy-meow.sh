@@ -297,38 +297,6 @@ NGINXEOF
     rm -f /tmp/meow_nginx_root.conf
 
     # 重新加载 nginx (openresty in docker)
-    # 先修复 SSL cert 问题（1Panel 创建的 conf 有 SSL 但 cert 文件不存在）
-    # 写入 nginx conf 到本地，然后 scp 上传
-    cat > /tmp/meow_domain.conf << 'NGINXEOF'
-server {
-    listen 80 ;
-    listen 443 ;
-    server_name meow.ali.minapp.xin miao.ali.minapp.xin;
-    index index.php index.html index.htm default.php default.htm default.html;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Host $server_name;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection $http_connection;
-    access_log /www/sites/meow.ali.minapp.xin/log/access.log main;
-    error_log /www/sites/meow.ali.minapp.xin/log/error.log;
-    location ^~ /.well-known/acme-challenge {
-        allow all;
-        root /usr/share/nginx/html;
-    }
-    include /www/sites/meow.ali.minapp.xin/proxy/*.conf;
-}
-NGINXEOF
-
-    # 用 base64 传输 nginx conf 到容器内
-    local nginx_conf_b64=$(cat /tmp/meow_domain.conf | base64)
-    ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
-        "echo '$nginx_conf_b64' | base64 -d > /tmp/meow_domain.conf && docker exec $container_id cp /tmp/meow_domain.conf /usr/local/openresty/nginx/conf/conf.d/meow.ali.minapp.xin.conf && mkdir -p /www/sites/meow.ali.minapp.xin/log"
-
-    rm -f /tmp/meow_domain.conf
-
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
         "docker exec $container_id /usr/local/openresty/bin/openresty -t && docker exec $container_id /usr/local/openresty/bin/openresty -s reload"
 
