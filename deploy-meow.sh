@@ -171,7 +171,7 @@ deploy_api() {
         apps/api/package.json "$REMOTE_USER@$REMOTE_HOST:$api_dir/package.json"
 
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
-        "cd $api_dir && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && cd current && pnpm install && chmod +x index.js" \
+        "cd $api_dir && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && cd current && sed -i 's/"workspace:\*/"*/g' package.json && npm install --legacy-peer-deps && chmod +x index.js" \
         || { log_error "API 安装失败"; return 1; }
 
     # PM2 配置 (通过 printf 写入，避免 heredoc 问题)
@@ -230,6 +230,10 @@ NGINXEOF
         -e "s|REMOTE_PATH|$REMOTE_PATH|g" \
         /tmp/meow_nginx_root.conf
     rm -f /tmp/meow_nginx_root.conf.bak
+
+    # 确保 proxy 目录存在，再上传配置
+    ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
+        "mkdir -p $REMOTE_PATH/proxy"
 
     scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
         /tmp/meow_nginx_root.conf "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/proxy/root.conf"
