@@ -7,6 +7,7 @@ type DomainTaskApi = typeof import("./index.js");
 const api = domainTask as DomainTaskApi;
 const now = 1_700_000_000_000;
 const hour = 60 * 60 * 1000;
+const validOwners = ["merchant", "platform", "creator"] as const;
 
 const createTask = (
   overrides: Partial<domainTask.Task> = {}
@@ -46,6 +47,41 @@ describe("@meow/domain-task", () => {
     expect(api.SubmissionState?.Approved).toBe("approved");
     expect(api.SubmissionState?.Rejected).toBe("rejected");
     expect(api.SubmissionState?.Withdrawn).toBe("withdrawn");
+  });
+
+  describe("task metadata exports", () => {
+    it("defines a seven-stage task lifecycle with required fields", () => {
+      expect(api.taskLifecycle).toHaveLength(7);
+
+      for (const stage of api.taskLifecycle) {
+        expect(stage.id).toBeTruthy();
+        expect(stage.label).toEqual(expect.any(String));
+        expect(stage.owner).toEqual(expect.any(String));
+        expect(stage.checkpoints).toEqual(expect.any(Array));
+
+        expect(validOwners).toContain(stage.owner);
+        expect(stage.checkpoints.length).toBeGreaterThan(0);
+      }
+    });
+
+    it("defines submission guardrails with required fields and valid owners", () => {
+      expect(api.submissionGuardrails.length).toBeGreaterThan(0);
+
+      for (const guardrail of api.submissionGuardrails) {
+        expect(typeof guardrail.id).toBe("string");
+        expect(guardrail.id.trim().length).toBeGreaterThan(0);
+
+        expect(typeof guardrail.description).toBe("string");
+        expect(guardrail.description.trim().length).toBeGreaterThan(0);
+
+        expect(Array.isArray(guardrail.appliesTo)).toBe(true);
+        expect(guardrail.appliesTo.length).toBeGreaterThan(0);
+
+        for (const owner of guardrail.appliesTo) {
+          expect(validOwners).toContain(owner);
+        }
+      }
+    });
   });
 
   describe("task creation validation", () => {
@@ -394,6 +430,17 @@ describe("@meow/domain-task", () => {
       expect(
         api.isDeadlinePassed(createTask({ deadline: now - 1 }))
       ).toBe(true);
+    });
+
+    it("returns positive ms for a future deadline and negative ms for a past deadline", () => {
+      vi.spyOn(Date, "now").mockReturnValue(now);
+
+      expect(
+        api.getTimeUntilDeadline(createTask({ deadline: now + hour }))
+      ).toBe(hour);
+      expect(
+        api.getTimeUntilDeadline(createTask({ deadline: now - hour }))
+      ).toBe(-hour);
     });
 
     it("only allows deadline-driven ending for published or paused expired tasks", () => {
