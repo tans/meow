@@ -2421,7 +2421,6 @@
                 cursor: pointer;
             }
 
-            .minimax-link {
                 display: flex;
                 align-items: center;
                 cursor: pointer;
@@ -2430,11 +2429,9 @@
                 text-decoration: none;
             }
 
-            .minimax-link:visited {
                 color: #adadad;
             }
 
-            .minimax-link:hover {
                 color: #666666;
             }
 
@@ -2506,12 +2503,9 @@
                     background-color: transparent;
                 }
 
-                .minimax-link,
-                .minimax-link:visited {
                     color: #666666;
                 }
 
-                .minimax-link:hover {
                     color: #adadad;
                 }
 
@@ -2530,74 +2524,6 @@
                 }
             }
         </style>
-        <div class="inland-security-footer">
-            <div class="tooltip-container">
-                <div class="trigger-content">
-                    <a
-                        href="https://www.minimaxi.com/"
-                        target="_blank"
-                        rel="noreferrer"
-                        class="minimax-link"
-                    >
-                        <span>© 2026 MiniMax</span>
-                    </a>
-                </div>
-                <div class="tooltip-content">
-                    <section class="info-section">
-                        <span>上海稀宇科技有限公司</span>
-                    </section>
-
-                    <section class="info-section">
-                        <a
-                            class="beian-link"
-                            href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010402010179"
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            <img
-                                alt="hailuo-beian-icon"
-                                src="https://cdn.hailuoai.com/hailuo-video-web/public_assets/223037d3-79fd-4db0-a456-749f38a6a14b.png"
-                                class="beian-icon"
-                            />
-                            <span class="underline-text"
-                                >沪公网安备31010402010179号</span
-                            >
-                        </a>
-                        <a
-                            href="https://beian.miit.gov.cn/"
-                            target="_blank"
-                            rel="noreferrer"
-                            class="underline-text"
-                        >
-                            沪ICP备2023003282号-38
-                        </a>
-                    </section>
-
-                    <section class="info-section">
-                        <span>模型名称：MiniMax</span>
-                        <span>备案号：Shanghai-MiniMax-202505230046</span>
-                    </section>
-
-                    <section class="info-section">
-                        <a
-                            href="https://agent.minimaxi.com/doc/zh/terms-of-service.html"
-                            target="_blank"
-                            rel="noreferrer"
-                            class="underline-text"
-                        >
-                            用户协议
-                        </a>
-                        <a
-                            href="https://agent.minimaxi.com/doc/zh/privacy-policy.html"
-                            target="_blank"
-                            rel="noreferrer"
-                            class="underline-text"
-                        >
-                            隐私政策
-                        </a>
-                    </section>
-                </div>
-            </div>
         </div>
 
         <script>
@@ -3780,7 +3706,6 @@
             })();
         </script>
         <style>
-            #minimax-floating-ball {
                 position: fixed;
                 bottom: 20px;
                 right: 20px;
@@ -3800,17 +3725,14 @@
                 cursor: pointer;
             }
 
-            #minimax-floating-ball:hover {
                 transform: translateY(-2px);
                 background: #383838;
             }
-            .minimax-ball-content {
                 display: flex;
                 align-items: center;
                 gap: 8px;
             }
 
-            .minimax-logo-wave {
                 width: 20px;
                 height: 17px;
                 background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='17' viewBox='0 0 20 17' fill='none'%3E%3Cpath d='M20 12.3718L16.283 16.2413H12.2518V13.1614H9.17175V16.2413H7.00999V13.1613H3.92998V16.2413H0V4.00101L3.84145 0H20V12.3718Z' fill='white'/%3E%3C/svg%3E");
@@ -3818,13 +3740,11 @@
                 background-position: center;
             }
 
-            .minimax-ball-text {
                 font-size: 12px;
                 font-weight: 500;
                 white-space: nowrap;
             }
 
-            .minimax-close-icon {
                 margin-left: 8px;
                 font-size: 16px;
                 width: 18px;
@@ -3838,58 +3758,6 @@
                 transition: opacity 0.2s ease;
             }
 
-            .minimax-close-icon:hover {
                 opacity: 1;
             }
         </style>
-        <div id="minimax-floating-ball">
-            <div class="minimax-ball-content">
-                <div class="minimax-logo-wave"></div>
-                <span class="minimax-ball-text">Created by MiniMax Agent</span>
-            </div>
-            <div class="minimax-close-icon">×</div>
-        </div>
-        <script>
-            // Initialize floating ball functionality
-            function initFloatingBall() {
-                const ball = document.getElementById("minimax-floating-ball");
-                if (!ball) return;
-
-                // Initial animation
-                ball.style.opacity = "0";
-                ball.style.transform = "translateY(20px)";
-
-                setTimeout(() => {
-                    ball.style.opacity = "1";
-                    ball.style.transform = "translateY(0)";
-                }, 500);
-
-                // Handle logo click
-                const ballContent = ball.querySelector(".minimax-ball-content");
-                ballContent.addEventListener("click", function (e) {
-                    e.stopPropagation();
-                    window.open("https://agent.minimaxi.com/", "_blank");
-                    ball.style.transform = "scale(0.95)";
-                    setTimeout(() => {
-                        ball.style.transform = "scale(1)";
-                    }, 100);
-                });
-
-                // Handle close button click
-                const closeIcon = ball.querySelector(".minimax-close-icon");
-                closeIcon.addEventListener("click", function (e) {
-                    e.stopPropagation();
-                    ball.style.opacity = "0";
-                    ball.style.transform = "translateY(20px)";
-
-                    setTimeout(() => {
-                        ball.style.display = "none";
-                    }, 300);
-                });
-            }
-
-            // Initialize when DOM is ready
-            document.addEventListener("DOMContentLoaded", initFloatingBall);
-        </script>
-    </body>
-</html>

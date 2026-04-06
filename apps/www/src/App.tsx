@@ -35,13 +35,13 @@ function Nav() {
           {/* CTA Buttons */}
           <div className="flex items-center gap-4">
             <a 
-              href="https://miao.ali.minapp.xin/admin" 
+              href="https://meow.ali.minapp.xin/admin" 
               className="hidden sm:flex items-center gap-2 text-[#6b7280] font-medium hover:text-[#4f8ef7] transition-colors"
             >
               商家后台
             </a>
             <a 
-              href="https://miao.ali.minapp.xin/web" 
+              href="https://meow.ali.minapp.xin/square" 
               className="flex items-center gap-2 bg-[#4f8ef7] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#2b7de9] transition-all hover:-translate-y-0.5 shadow-lg shadow-[#4f8ef7]/25"
             >
               进入工作台
@@ -149,7 +149,7 @@ function Hero() {
 
             <div className="flex flex-wrap gap-4 mb-12">
               <a 
-                href="https://miao.ali.minapp.xin/web"
+                href="https://meow.ali.minapp.xin/square"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-[#4f8ef7] to-[#6366f1] text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl hover:shadow-[#4f8ef7]/30 transition-all hover:-translate-y-1"
               >
                 进入工作台
@@ -348,14 +348,14 @@ function CTA() {
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <a 
-            href="https://miao.ali.minapp.xin/web"
+            href="https://meow.ali.minapp.xin/square"
             className="inline-flex items-center gap-2 bg-white text-[#1a1a2e] px-8 py-4 rounded-full font-semibold hover:shadow-xl transition-all"
           >
             <Users className="w-5 h-5" />
             我是创作者
           </a>
           <a 
-            href="https://miao.ali.minapp.xin/admin"
+            href="https://meow.ali.minapp.xin/admin"
             className="inline-flex items-center gap-2 bg-[#ff6b35] text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl hover:shadow-[#ff6b35]/30 transition-all"
           >
             <Target className="w-5 h-5" />
@@ -395,8 +395,9 @@ function Footer() {
           <div>
             <h4 className="font-bold text-[#1a1a2e] mb-4">入口</h4>
             <ul className="space-y-2 text-[#6b7280]">
-              <li><a href="https://miao.ali.minapp.xin/web" className="hover:text-[#4f8ef7]">创作者工作台</a></li>
-              <li><a href="https://miao.ali.minapp.xin/admin" className="hover:text-[#4f8ef7]">商家后台</a></li>
+              <li><a href="https://meow.ali.minapp.xin/square" className="hover:text-[#4f8ef7]">创作者工作台</a></li>
+              <li><a href="https://meow.ali.minapp.xin/admin" className="hover:text-[#4f8ef7]">管理后台</a></li>
+              <li><a href="https://meow.ali.minapp.xin/square" className="hover:text-[#4f8ef7]">任务广场</a></li>
             </ul>
           </div>
         </div>
