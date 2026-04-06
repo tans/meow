@@ -1,6 +1,7 @@
 import { surfaceIds } from "@meow/contracts";
 import { Hono } from "hono";
 import { isAppError } from "./lib/errors.js";
+import { sqliteDb } from "./lib/db.js";
 import { adminRoutes } from "./routes/admin.js";
 import { authRoutes } from "./routes/auth.js";
 import { creatorRoutes } from "./routes/creator.js";
@@ -41,6 +42,25 @@ app.get("/version", (c) =>
     uptime: `${Math.round((Date.now() - startTime) / 1000)}s`,
   })
 );
+
+// Public platform stats (no auth required)
+app.get("/stats", (c) => {
+  try {
+    const totalTasks = sqliteDb.prepare("select count(*) as c from tasks where status = 'published'").get() as { c: number };
+    const totalSubmissions = sqliteDb.prepare("select count(*) as c from submissions").get() as { c: number };
+    const totalCreators = sqliteDb.prepare("select count(*) as c from users where role = 'creator'").get() as { c: number };
+    return c.json({
+      tasks: totalTasks.c,
+      submissions: totalSubmissions.c,
+      creators: totalCreators.c,
+      surfaces: surfaceIds,
+      timestamp: new Date().toISOString(),
+    });
+  } catch {
+    return c.json({ tasks: 0, submissions: 0, creators: 0, surfaces: surfaceIds, timestamp: new Date().toISOString() });
+  }
+});
+
 app.route("/auth", authRoutes);
 app.route("/admin", adminRoutes);
 app.route("/creator", creatorRoutes);
