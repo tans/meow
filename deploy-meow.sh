@@ -178,7 +178,7 @@ deploy_api() {
         apps/api/package.json "$REMOTE_USER@$REMOTE_HOST:$api_dir/package.json"
 
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
-        "cd $api_dir && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && cd current && sed -i 's|"workspace:\*|"*"|g' package.json && npm install --legacy-peer-deps && chmod +x index.js" \
+        "cd $api_dir && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && cd current && perl -i -pe 's/"workspace:\Q*\E"/*"/g' package.json && npm install --legacy-peer-deps && chmod +x index.js" \
         || { log_error "API 安装失败"; return 1; }
 
     # PM2 配置 (通过 printf 写入，避免 heredoc 问题)
