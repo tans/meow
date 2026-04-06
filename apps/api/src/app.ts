@@ -16,8 +16,15 @@ app.onError((error, c) => {
   throw error;
 });
 
+const startTime = Date.now();
 app.get("/health", (c) =>
-  c.json({ ok: true, service: "meow-api", surfaces: surfaceIds })
+  c.json({
+    ok: true,
+    service: "meow-api",
+    surfaces: surfaceIds,
+    uptime: `${Math.round((Date.now() - startTime) / 1000)}s`,
+    timestamp: new Date().toISOString(),
+  })
 );
 app.route("/auth", authRoutes);
 app.route("/admin", adminRoutes);
