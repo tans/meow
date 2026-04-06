@@ -159,7 +159,7 @@ deploy_static() {
 deploy_api() {
     log_step "部署 API..."
 
-    local api_dir="/data/meow-api"
+    local api_dir="/data/meow"
 
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
         "mkdir -p $api_dir/shared/data $api_dir/shared/logs"
@@ -171,7 +171,7 @@ deploy_api() {
         apps/api/package.json "$REMOTE_USER@$REMOTE_HOST:$api_dir/package.json"
 
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
-        "cd $api_dir && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && cd current && pnpm install --prod 2>/dev/null || npm install --omit=dev 2>/dev/null || true && chmod +x index.js" \
+        "cd $api_dir && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && cd current && pnpm install && chmod +x index.js" \
         || { log_error "API 安装失败"; return 1; }
 
     # PM2 配置 (通过 printf 写入，避免 heredoc 问题)
