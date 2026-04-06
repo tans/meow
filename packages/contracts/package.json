@@ -13,8 +13,12 @@
   },
   "scripts": {
     "build": "tsc -b tsconfig.json",
+    "test": "vitest run",
     "typecheck": "tsc -b tsconfig.json",
     "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "vitest": "^3.1.2"
   },
   "dependencies": {
     "@meow/domain-core": "workspace:*"
