@@ -165,13 +165,20 @@ deploy_api() {
         "mkdir -p $api_dir/shared/data $api_dir/shared/logs"
 
     log_info "上传 API..."
+    # Bundle @meow/* packages into API dist so they're available at runtime
+    mkdir -p apps/api/dist/node_modules/@meow
+    for pkg in packages/*/dist; do
+      pkg_name=$(basename "$(dirname \"$pkg\")")
+      mkdir -p "apps/api/dist/node_modules/@meow/$pkg_name"
+      cp -r "$pkg/"* "apps/api/dist/node_modules/@meow/$pkg_name/"
+    done
     scp -r -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
         apps/api/dist "$REMOTE_USER@$REMOTE_HOST:$api_dir/current_dist"
     scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
         apps/api/package.json "$REMOTE_USER@$REMOTE_HOST:$api_dir/package.json"
 
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
-        "cd $api_dir && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && cd current && sed -i 's/"workspace:\*/"*/g' package.json && npm install --legacy-peer-deps && chmod +x index.js" \
+        "cd $api_dir && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && cd current && sed -i 's|"workspace:\*|"*"|g' package.json && npm install --legacy-peer-deps && chmod +x index.js" \
         || { log_error "API 安装失败"; return 1; }
 
     # PM2 配置 (通过 printf 写入，避免 heredoc 问题)
