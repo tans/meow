@@ -20,7 +20,9 @@ export const listPublicTasks = (): CreatorTaskFeedItem[] =>
     .map((task) => ({
       id: task.id,
       merchantId: task.merchantId,
-      status: "published"
+      status: "published",
+      title: task.title,
+      rewardAmount: task.escrowLockedAmount,
     }));
 
 export const getCreatorTaskDetail = (

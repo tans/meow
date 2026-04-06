@@ -74,6 +74,8 @@ export interface CreatorTaskFeedItem {
   id: string;
   merchantId: string;
   status: "published";
+  title: string;
+  rewardAmount: number;
 }
 
 export interface CreatorTaskDetail {
