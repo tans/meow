@@ -224,7 +224,7 @@ deploy_api() {
         || { log_error "@meow packages setup failed"; return 1; }
 
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
-        "cd $api_dir && pnpm install 2>&1 | tail -3 && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && mkdir -p current/node_modules/@meow && cd current && for pkg in contracts database domain-core domain-finance domain-risk domain-task domain-user storage; do ln -sfn $api_dir/packages/@meow/\$pkg node_modules/@meow/\$pkg; done && chmod +x index.js && npm install drizzle-orm better-sqlite3 --legacy-peer-deps 2>&1 | tail -3" \
+        "cd $api_dir && pnpm install 2>&1 | tail -3 && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && mkdir -p current/node_modules/@meow && cd current && for pkg in contracts database domain-core domain-finance domain-risk domain-task domain-user storage; do ln -sfn $api_dir/packages/@meow/\$pkg node_modules/@meow/\$pkg; done && chmod +x index.js && sed -i 's|workspace:\*|\*|g' package.json && npm install --legacy-peer-deps 2>&1 | tail -3" \
         || { log_error "API 安装失败"; return 1; }
 
     rm -f "$meow_pkg_tar"
@@ -297,6 +297,10 @@ NGINXEOF
     rm -f /tmp/meow_nginx_root.conf
 
     # 重新加载 nginx (openresty in docker)
+    # 先修复 SSL cert 问题（1Panel 创建的 conf 有 SSL 但 cert 文件不存在）
+    ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
+        "docker exec $container_id /bin/sh -c 'cat > /usr/local/openresty/nginx/conf/conf.d/meow.ali.minapp.xin.conf << \"NGINXEOF\"\nserver {\n    listen 80 ;\n    listen 443 ;\n    server_name meow.ali.minapp.xin miao.ali.minapp.xin;\n    index index.php index.html index.htm default.php default.htm default.html;\n    proxy_set_header Host \\\$host;\n    proxy_set_header X-Forwarded-For \\\$proxy_add_x_forwarded_for;\n    proxy_set_header X-Forwarded-Host \\\$server_name;\n    proxy_set_header X-Real-IP \\\$remote_addr;\n    proxy_http_version 1.1;\n    proxy_set_header Upgrade \\\$http_upgrade;\n    proxy_set_header Connection \\\$http_connection;\n    access_log /www/sites/meow.ali.minapp.xin/log/access.log main;\n    error_log /www/sites/meow.ali.minapp.xin/log/error.log;\n    location ^~ /.well-known/acme-challenge {\n        allow all;\n        root /usr/share/nginx/html;\n    }\n    include /www/sites/meow.ali.minapp.xin/proxy/*.conf;\n}\nNGINXEOF\n' && mkdir -p /www/sites/meow.ali.minapp.xin/log"
+
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
         "docker exec $container_id /usr/local/openresty/bin/openresty -t && docker exec $container_id /usr/local/openresty/bin/openresty -s reload"
 
