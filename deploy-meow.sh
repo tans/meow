@@ -55,8 +55,8 @@ build_project() {
     rm -rf apps/square/dist apps/admin/dist apps/www/dist apps/api/dist apps/entry/dist
     rm -f apps/square/tsconfig.tsbuildinfo apps/admin/tsconfig.tsbuildinfo apps/www/tsconfig.tsbuildinfo apps/api/tsconfig.tsbuildinfo apps/entry/tsconfig.tsbuildinfo
 
-    log_info "安装依赖..."
-    pnpm install
+    # Skip pnpm install: workspace packages already built, dist is ready
+    log_info "跳过 pnpm install (workspace deps bundled)"
 
     log_info "构建 Contracts..."
     pnpm --filter @meow/contracts build
@@ -164,21 +164,17 @@ deploy_api() {
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
         "mkdir -p $api_dir/shared/data $api_dir/shared/logs"
 
+    # Remove bundled @meow packages (will be symlinked to remote packages)
+    rm -rf apps/api/dist/node_modules/@meow
+
     log_info "上传 API..."
-    # Bundle @meow/* packages into API dist so they're available at runtime
-    mkdir -p apps/api/dist/node_modules/@meow
-    for pkg in packages/*/dist; do
-      pkg_name=$(basename "$(dirname \"$pkg\")")
-      mkdir -p "apps/api/dist/node_modules/@meow/$pkg_name"
-      cp -r "$pkg/"* "apps/api/dist/node_modules/@meow/$pkg_name/"
-    done
     scp -r -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
         apps/api/dist "$REMOTE_USER@$REMOTE_HOST:$api_dir/current_dist"
     scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
         apps/api/package.json "$REMOTE_USER@$REMOTE_HOST:$api_dir/package.json"
 
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
-        "cd $api_dir && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && cd current && perl -i -pe 's/"workspace:\Q*\E"/*"/g' package.json && npm install --legacy-peer-deps && chmod +x index.js" \
+        "cd $api_dir && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && mkdir -p current/node_modules && ln -sf /data/meow/packages/@meow current/node_modules/@meow && cd current && chmod +x index.js && npm install --legacy-peer-deps 2>&1 | tail -3" \
         || { log_error "API 安装失败"; return 1; }
 
     # PM2 配置 (通过 printf 写入，避免 heredoc 问题)
@@ -237,10 +233,6 @@ NGINXEOF
         -e "s|REMOTE_PATH|$REMOTE_PATH|g" \
         /tmp/meow_nginx_root.conf
     rm -f /tmp/meow_nginx_root.conf.bak
-
-    # 确保 proxy 目录存在，再上传配置
-    ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
-        "mkdir -p $REMOTE_PATH/proxy"
 
     scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
         /tmp/meow_nginx_root.conf "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/proxy/root.conf"
