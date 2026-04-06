@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # meow.ali.minapp.xin 部署脚本
-# 部署: /square (用户端) /admin (管理后台) /api (后端接口)
+# 部署: /square (用户端) /buyer (商家端) /admin (管理后台) /api (后端接口)
 #
 
 set -e
@@ -67,6 +67,9 @@ build_project() {
     log_info "构建 Admin (管理后台)..."
     pnpm --filter @meow/admin build
 
+    log_info "构建 Buyer (商家端)..."
+    pnpm --filter @meow/buyer build
+
     log_info "构建 WWW (落地页)..."
     pnpm --filter @meow/www build
 
@@ -96,6 +99,13 @@ fix_paths() {
         sed -i.bak 's|src="/admin/assets/|src="./assets/|g; s|href="/admin/assets/|href="./assets/|g' apps/admin/dist/index.html
         rm -f apps/admin/dist/index.html.bak
         log_info "Admin index.html 路径已修复"
+    fi
+
+    # Buyer: base 是 /buyer/
+    if [ -f "apps/buyer/dist/index.html" ]; then
+        sed -i.bak 's|src="/buyer/assets/|src="./assets/|g; s|href="/buyer/assets/|href="./assets/|g' apps/buyer/dist/index.html
+        rm -f apps/buyer/dist/index.html.bak
+        log_info "Buyer index.html 路径已修复"
     fi
 
     # WWW: 落地页，资源路径 /assets/，但 served at / 所以用 ./
@@ -153,6 +163,9 @@ deploy_static() {
 
     # Admin -> /admin/
     deploy_dir "apps/admin/dist" "$REMOTE_PATH/admin" "Admin"
+
+    # Buyer -> /buyer/
+    deploy_dir "apps/buyer/dist" "$REMOTE_PATH/buyer" "Buyer"
 }
 
 # 部署 API
@@ -220,6 +233,12 @@ location /admin/ {
     try_files $uri $uri/ /admin/index.html;
 }
 
+location /buyer/ {
+    alias REMOTE_PATH/buyer/;
+    index index.html;
+    try_files $uri $uri/ /buyer/index.html;
+}
+
 location / {
     root REMOTE_PATH;
     index index.html;
@@ -266,6 +285,7 @@ verify_deployment() {
     check_url "/" "Landing (/)"
     check_url "/square/" "Square (/square/)"
     check_url "/admin/" "Admin (/admin/)"
+    check_url "/buyer/" "Buyer (/buyer/)"
     check_url "/api/health" "API (/api/health)"
 
     [ $failed -eq 0 ] && log_info "所有验证通过!" || log_error "部分验证失败"
@@ -309,6 +329,7 @@ usage() {
 访问地址:
     Landing: $DOMAIN/
     Square:  $DOMAIN/square/
+    Buyer:   $DOMAIN/buyer/
     Admin:   $DOMAIN/admin/
     API:     $DOMAIN/api/
 EOF
@@ -346,6 +367,7 @@ main() {
             echo "访问地址:"
             echo "  Landing: $DOMAIN/"
             echo "  Square:  $DOMAIN/square/"
+            echo "  Buyer:   $DOMAIN/buyer/"
             echo "  Admin:   $DOMAIN/admin/"
             echo "  API:     $DOMAIN/api/"
             ;;

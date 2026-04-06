@@ -6,8 +6,9 @@ import process from "node:process";
 
 const entryPort = Number(process.env.ENTRY_PORT ?? "26401");
 const apiPort = Number(process.env.API_PORT ?? "26411");
-const webPort = Number(process.env.WEB_PORT ?? "26412");
+const squarePort = Number(process.env.WEB_PORT ?? "26412");
 const adminPort = Number(process.env.ADMIN_PORT ?? "26413");
+const buyerPort = Number(process.env.BUYER_PORT ?? "20404");
 
 const processes = [];
 
@@ -59,13 +60,14 @@ function spawnService(name, args, env = {}) {
 ensureWorkspaceDepsBuilt();
 
 spawnService("api", ["--filter", "@meow/api", "dev"], { PORT: String(apiPort) });
-spawnService("web", ["--filter", "@meow/web", "dev", "--host", "127.0.0.1", "--port", String(webPort), "--strictPort"]);
+spawnService("square", ["--filter", "@meow/square", "dev", "--host", "127.0.0.1", "--port", String(squarePort), "--strictPort"]);
 spawnService("admin", ["--filter", "@meow/admin", "dev", "--host", "127.0.0.1", "--port", String(adminPort), "--strictPort"]);
+spawnService("buyer", ["--filter", "@meow/buyer", "dev", "--host", "127.0.0.1", "--port", String(buyerPort), "--strictPort"]);
 
 function route(pathname) {
   if (pathname === "/") {
     return {
-      targetPort: webPort,
+      targetPort: squarePort,
       targetPath: "/"
     };
   }
@@ -78,10 +80,10 @@ function route(pathname) {
     };
   }
 
-  if (pathname.startsWith("/web")) {
-    const suffix = pathname.slice(4) || "/";
+  if (pathname.startsWith("/web") || pathname.startsWith("/square")) {
+    const suffix = pathname.slice(pathname.startsWith("/web") ? 4 : 6) || "/";
     return {
-      targetPort: webPort,
+      targetPort: squarePort,
       targetPath: suffix
     };
   }
@@ -93,8 +95,15 @@ function route(pathname) {
     };
   }
 
+  if (pathname.startsWith("/buyer")) {
+    return {
+      targetPort: buyerPort,
+      targetPath: pathname
+    };
+  }
+
   return {
-    targetPort: webPort,
+    targetPort: squarePort,
     targetPath: pathname
   };
 }
@@ -176,7 +185,7 @@ server.on("upgrade", (req, socket, head) => {
 
 server.listen(entryPort, () => {
   console.log(`[entry] listening on http://127.0.0.1:${entryPort}`);
-  console.log(`[entry] routes: /web -> ${webPort}, /api -> ${apiPort}, /admin -> ${adminPort}`);
+  console.log(`[entry] routes: / -> ${squarePort}, /square -> ${squarePort}, /api -> ${apiPort}, /admin -> ${adminPort}, /buyer -> ${buyerPort}`);
 });
 
 function shutdown() {
