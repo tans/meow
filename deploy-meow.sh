@@ -173,11 +173,32 @@ deploy_api() {
     log_step "部署 API..."
 
     local api_dir="/data/meow"
+    local meow_pkg_tar="/tmp/meow-pkgs.tar.gz"
+
+    # Build @meow packages and package into tar for upload
+    log_info "构建 @meow workspace packages..."
+    pnpm build --filter='@meow/contracts' --filter='@meow/database' --filter='@meow/domain-core' --filter='@meow/domain-finance' --filter='@meow/domain-risk' --filter='@meow/domain-task' --filter='@meow/domain-user' --filter='@meow/storage' 2>&1 | tail -3
+
+    # Create tar of @meow package dists + package.json (for proper node_modules resolution)
+    tar -czf "$meow_pkg_tar" \
+        packages/contracts/package.json packages/contracts/dist \
+        packages/database/package.json packages/database/dist \
+        packages/domain-core/package.json packages/domain-core/dist \
+        packages/domain-finance/package.json packages/domain-finance/dist \
+        packages/domain-risk/package.json packages/domain-risk/dist \
+        packages/domain-task/package.json packages/domain-task/dist \
+        packages/domain-user/package.json packages/domain-user/dist \
+        packages/storage/package.json packages/storage/dist 2>/dev/null
 
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
         "mkdir -p $api_dir/shared/data $api_dir/shared/logs"
 
-    # Remove bundled @meow packages (will be symlinked to remote packages)
+    # Upload @meow packages tar and extract to proper location
+    log_info "上传 @meow packages..."
+    scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
+        "$meow_pkg_tar" "$REMOTE_USER@$REMOTE_HOST:/tmp/meow-pkgs.tar.gz"
+
+    # Remove bundled @meow packages (will be re-created below)
     rm -rf apps/api/dist/node_modules/@meow
 
     log_info "上传 API..."
@@ -186,9 +207,27 @@ deploy_api() {
     scp -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
         apps/api/package.json "$REMOTE_USER@$REMOTE_HOST:$api_dir/package.json"
 
+    # Fix @meow packages on server: extract to /data/meow/packages/@meow/, create node_modules/@meow/ symlinks
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
-        "cd $api_dir && pnpm install 2>&1 | tail -3 && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && mkdir -p current/node_modules && ln -sf /data/meow/packages/@meow current/node_modules/@meow && cd current && chmod +x index.js" \
+        "
+        cd $api_dir && rm -rf packages/@meow && mkdir -p packages/@meow && cd packages/@meow && \
+        tar -xzf /tmp/meow-pkgs.tar.gz && \
+        for pkg in contracts database domain-core domain-finance domain-risk domain-task domain-user storage; do \
+            rm -rf \$pkg && mkdir -p \$pkg && cp -r packages/\$pkg/* \$pkg/ 2>/dev/null || true; \
+        done && rm -rf packages && \
+        mkdir -p node_modules/@meow && \
+        for pkg in contracts database domain-core domain-finance domain-risk domain-task domain-user storage; do \
+            ln -sfn $api_dir/packages/@meow/\$pkg node_modules/@meow/\$pkg; \
+        done && \
+        echo 'Extracted @meow packages'
+        " \
+        || { log_error "@meow packages setup failed"; return 1; }
+
+    ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
+        "cd $api_dir && pnpm install 2>&1 | tail -3 && rm -rf current && mkdir -p current && mv current_dist/* current/ && mv package.json current/ && rm -rf current_dist && mkdir -p current/node_modules/@meow && cd current && for pkg in contracts database domain-core domain-finance domain-risk domain-task domain-user storage; do ln -sfn $api_dir/packages/@meow/\$pkg node_modules/@meow/\$pkg; done && chmod +x index.js && npm install drizzle-orm better-sqlite3 --legacy-peer-deps 2>&1 | tail -3" \
         || { log_error "API 安装失败"; return 1; }
+
+    rm -f "$meow_pkg_tar"
 
     # PM2 配置 (通过 printf 写入，避免 heredoc 问题)
     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$REMOTE_USER@$REMOTE_HOST" \
