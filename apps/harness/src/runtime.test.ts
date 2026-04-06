@@ -27,7 +27,7 @@ vi.mock("@meow/domain-task", async (importOriginal) => {
   };
 });
 
-import { evaluateScenarios } from "./runtime.js";
+import { evaluateScenarios, replayScenario } from "./runtime.js";
 import { scenarios } from "./scenarios.js";
 
 describe("evaluateScenarios", () => {
@@ -49,5 +49,16 @@ describe("evaluateScenarios", () => {
     expect(wrappedTransitions.endTaskIfExpired$).toHaveBeenCalledTimes(1);
     expect(wrappedTransitions.endTask$).toHaveBeenCalledTimes(0);
     expect(wrappedTransitions.settleTask$).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns the creator-earning-loop replay steps in order", () => {
+    const creatorEarningLoop = scenarios.find((scenario) => scenario.id === "creator-earning-loop");
+
+    expect(creatorEarningLoop).toBeDefined();
+    expect(replayScenario(creatorEarningLoop!)).toMatchObject({
+      scenarioId: "creator-earning-loop",
+      ok: true,
+      steps: ["register", "browse", "submit", "approve", "settle", "withdraw"],
+    });
   });
 });

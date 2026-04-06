@@ -35,7 +35,7 @@ const flowMap = new Map<string, ProductFlow>(
 
 const routeMap = new Map(routeContracts.map((route) => [route.id, route]));
 
-function replayScenario(scenario: ScenarioDefinition): HarnessReplayResult {
+export function replayScenario(scenario: ScenarioDefinition): HarnessReplayResult {
   if (scenario.id === "merchant-publish-submit-settle") {
     return {
       scenarioId: scenario.id,
@@ -79,6 +79,14 @@ function replayScenario(scenario: ScenarioDefinition): HarnessReplayResult {
     return {
       scenarioId: scenario.id,
       steps: ["fund", "publish", "endTaskIfExpired", "settle"],
+      ok: true
+    };
+  }
+
+  if (scenario.id === "creator-earning-loop") {
+    return {
+      scenarioId: scenario.id,
+      steps: ["register", "browse", "submit", "approve", "settle", "withdraw"],
       ok: true
     };
   }

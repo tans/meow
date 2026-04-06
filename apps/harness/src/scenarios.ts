@@ -47,7 +47,8 @@ export const scenarios: ScenarioDefinition[] = [
       "信用分规则决定每日投稿上限",
       "审核通过前允许修改或删除投稿",
       "任务结束后冻结收益才能进入提现流程"
-    ]
+    ],
+    replaySteps: ["register", "browse", "submit", "approve", "settle", "withdraw"]
   },
   {
     id: "appeal-reconciles-risk-and-funds",
