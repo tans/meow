@@ -29,6 +29,18 @@ app.get("/health", (c) =>
     timestamp: new Date().toISOString(),
   })
 );
+
+// Version endpoint for monitoring
+const BUILD_TIME = new Date().toISOString();
+const VERSION = process.env.npm_package_version ?? "0.1.0";
+app.get("/version", (c) =>
+  c.json({
+    version: VERSION,
+    buildTime: BUILD_TIME,
+    nodeVersion: process.version,
+    uptime: `${Math.round((Date.now() - startTime) / 1000)}s`,
+  })
+);
 app.route("/auth", authRoutes);
 app.route("/admin", adminRoutes);
 app.route("/creator", creatorRoutes);
