@@ -1,4 +1,4 @@
-export type AppErrorStatus = 400 | 401 | 403 | 404;
+export type AppErrorStatus = 400 | 401 | 403 | 404 | 413;
 export type ErrorResponseStatus = AppErrorStatus | 500;
 
 export interface ErrorResponse {
