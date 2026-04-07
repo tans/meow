@@ -39,7 +39,19 @@ creatorRoutes.get("/tasks/:taskId/submissions", (c) => {
 });
 creatorRoutes.get("/submissions", (c) => {
   const session = requireCreatorSession(c);
-  return c.json(listCreatorSubmissions(session.userId));
+  const pageRaw = c.req.query("page");
+  const pageSizeRaw = c.req.query("pageSize");
+  const page = pageRaw ? Number(pageRaw) : 1;
+  const pageSize = pageSizeRaw ? Number(pageSizeRaw) : 20;
+
+  if (!Number.isInteger(page) || !Number.isInteger(pageSize) || page <= 0 || pageSize <= 0 || pageSize > 100) {
+    throw new AppError(400, "invalid pagination");
+  }
+  const all = listCreatorSubmissions(session.userId);
+  const total = all.length;
+  const offset = (page - 1) * pageSize;
+  const items = all.slice(offset, offset + pageSize);
+  return c.json({ items, pagination: { page, pageSize, total } });
 });
 creatorRoutes.get("/wallet", (c) => {
   const session = requireCreatorSession(c);

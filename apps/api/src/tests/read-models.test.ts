@@ -182,13 +182,16 @@ describe("api read models for native miniapp", () => {
     });
 
     expect(creatorSubmissionsResponse.status).toBe(200);
-    await expect(creatorSubmissionsResponse.json()).resolves.toEqual([
-      expect.objectContaining({
-        id: submission.id,
-        status: "approved",
-        rewardTags: ["base", "tip", "ranking"]
-      })
-    ]);
+    await expect(creatorSubmissionsResponse.json()).resolves.toMatchObject({
+      items: expect.arrayContaining([
+        expect.objectContaining({
+          id: submission.id,
+          status: "approved",
+          rewardTags: ["base", "tip", "ranking"]
+        })
+      ]),
+      pagination: expect.objectContaining({ page: 1 })
+    });
 
     const creatorWalletBeforeSettlement = await app.request("/creator/wallet", {
       headers: { cookie: creatorCookie }
