@@ -6,8 +6,12 @@ import { adminRoutes } from "./routes/admin.js";
 import { authRoutes } from "./routes/auth.js";
 import { creatorRoutes } from "./routes/creator.js";
 import { merchantRoutes } from "./routes/merchant.js";
+import { requestLogger } from "./middleware/requestLogger.js";
 
 export const app = new Hono();
+
+// Request logging must come before error handler and routes
+app.use("*", requestLogger);
 
 app.onError((error, c) => {
   if (isAppError(error)) {
