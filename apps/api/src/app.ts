@@ -25,15 +25,23 @@ app.onError((error, c) => {
 app.notFound((c) => c.json({ error: "NOT_FOUND", message: "Route not found" }, 404));
 
 const startTime = Date.now();
-app.get("/health", (c) =>
-  c.json({
+app.get("/health", (c) => {
+  let dbOk = false;
+  try {
+    sqliteDb.exec("SELECT 1");
+    dbOk = true;
+  } catch {
+    dbOk = false;
+  }
+  return c.json({
     ok: true,
     service: "meow-api",
     surfaces: surfaceIds,
     uptime: `${Math.round((Date.now() - startTime) / 1000)}s`,
     timestamp: new Date().toISOString(),
-  })
-);
+    db: dbOk ? "ok" : "error",
+  });
+});
 
 // Version endpoint for monitoring
 const BUILD_TIME = new Date().toISOString();
