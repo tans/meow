@@ -1,6 +1,6 @@
 import { surfaceIds } from "@meow/contracts";
 import { Hono } from "hono";
-import { isAppError } from "./lib/errors.js";
+import { createErrorResponse, toErrorResponse } from "./lib/errors.js";
 import { sqliteDb } from "./lib/db.js";
 import { adminRoutes } from "./routes/admin.js";
 import { authRoutes } from "./routes/auth.js";
@@ -14,15 +14,20 @@ export const app = new Hono();
 app.use("*", requestLogger);
 
 app.onError((error, c) => {
-  if (isAppError(error)) {
-    return c.json({ error: error.message }, { status: error.status });
+  const response = toErrorResponse(error);
+
+  if (response.status === 500) {
+    console.error("[api] unhandled error:", error);
   }
-  // Catch all unexpected errors — don't re-throw, return safe 500
-  console.error("[api] unhandled error:", error);
-  return c.json({ error: "INTERNAL_ERROR", message: "An unexpected error occurred" }, 500);
+
+  return c.json(response, response.status);
 });
 
-app.notFound((c) => c.json({ error: "NOT_FOUND", message: "Route not found" }, 404));
+app.notFound((c) => {
+  const response = createErrorResponse(404, "Route not found");
+
+  return c.json(response, response.status);
+});
 
 const startTime = Date.now();
 app.get("/health", (c) => {

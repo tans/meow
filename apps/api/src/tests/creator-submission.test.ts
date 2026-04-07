@@ -76,7 +76,8 @@ describe("creator submission flow", () => {
 
     expect(response.status).toBe(403);
     await expect(response.json()).resolves.toEqual({
-      error: "task is not published"
+      error: "task is not published",
+      status: 403
     });
   });
 
@@ -102,7 +103,8 @@ describe("creator submission flow", () => {
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
-      error: "invalid submission json"
+      error: "invalid submission json",
+      status: 400
     });
   });
 
@@ -131,7 +133,8 @@ describe("creator submission flow", () => {
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({
-      error: "invalid submission input"
+      error: "invalid submission input",
+      status: 400
     });
   });
 
@@ -278,7 +281,8 @@ describe("creator submission flow", () => {
 
     expect(reviewResponse.status).toBe(403);
     await expect(reviewResponse.json()).resolves.toEqual({
-      error: "submission is withdrawn"
+      error: "submission is withdrawn",
+      status: 403
     });
 
     const tipResponse = await app.request(`/merchant/submissions/${created.id}/tips`, {
@@ -288,7 +292,8 @@ describe("creator submission flow", () => {
 
     expect(tipResponse.status).toBe(403);
     await expect(tipResponse.json()).resolves.toEqual({
-      error: "submission is withdrawn"
+      error: "submission is withdrawn",
+      status: 403
     });
 
     const rankingResponse = await app.request("/merchant/tasks/task-1/rewards/ranking", {
@@ -302,7 +307,8 @@ describe("creator submission flow", () => {
 
     expect(rankingResponse.status).toBe(403);
     await expect(rankingResponse.json()).resolves.toEqual({
-      error: "submission is withdrawn"
+      error: "submission is withdrawn",
+      status: 403
     });
   });
 });

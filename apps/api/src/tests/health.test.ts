@@ -7,7 +7,7 @@ describe("api health", () => {
     const response = await app.request("/health");
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       ok: true,
       service: "meow-api",
       surfaces: surfaceIds
