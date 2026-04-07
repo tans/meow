@@ -24,6 +24,47 @@ import { getMerchantWalletSnapshot } from "../services/wallet.js";
 
 export const merchantRoutes = new Hono();
 
+const MAX_UPLOAD_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_UPLOAD_REQUEST_BYTES = 10 * 1024 * 1024;
+
+const parseContentLength = (value: string | undefined): number | null => {
+  if (!value) {
+    return null;
+  }
+
+  const size = Number(value);
+  if (!Number.isFinite(size) || size < 0) {
+    return null;
+  }
+
+  return Math.floor(size);
+};
+
+const ensureMerchantUploadRequestSize = (c: Context): void => {
+  const contentLength = parseContentLength(c.req.header("content-length"));
+  if (
+    contentLength !== null &&
+    contentLength > MAX_UPLOAD_REQUEST_BYTES
+  ) {
+    throw new AppError(413, "upload request too large");
+  }
+};
+
+const ensureMerchantUploadFileSizes = (files: File[]): void => {
+  let totalSize = 0;
+
+  for (const file of files) {
+    if (file.size > MAX_UPLOAD_FILE_BYTES) {
+      throw new AppError(413, "upload file too large");
+    }
+
+    totalSize += file.size;
+    if (totalSize > MAX_UPLOAD_REQUEST_BYTES) {
+      throw new AppError(413, "upload request too large");
+    }
+  }
+};
+
 const requireMerchantSession = (c: Context) => {
   const session = requireSession(c);
 
@@ -153,10 +194,12 @@ merchantRoutes.get("/tasks/:taskId/submissions", (c) => {
 
 merchantRoutes.post("/uploads", async (c) => {
   requireMerchantSession(c);
+  ensureMerchantUploadRequestSize(c);
   const formData = await c.req.formData();
   const files = formData
     .getAll("files")
     .filter((item): item is File => item instanceof File);
+  ensureMerchantUploadFileSizes(files);
   const attachments = await saveMerchantTaskAssets(files);
 
   return c.json({ attachments }, 201);

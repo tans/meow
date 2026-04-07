@@ -2,6 +2,8 @@ import { afterAll, describe, expect, it } from "vitest";
 import { app } from "../app.js";
 import { createDemoAuthCleanup, toCookieHeader } from "./helpers.js";
 
+const MAX_UPLOAD_FILE_BYTES = 10 * 1024 * 1024;
+
 interface CreateTaskDraftResponse {
   taskId: string;
   status: "draft";
@@ -130,6 +132,50 @@ describe("merchant publish flow", () => {
           fileName: "brief.mp4"
         })
       ]
+    });
+  });
+
+  it("rejects upload requests whose declared body size exceeds the limit", async () => {
+    const merchantCookie = await loginMerchant();
+    const request = new Request("http://localhost/merchant/uploads", {
+      method: "POST",
+      headers: {
+        cookie: merchantCookie,
+        "content-type": "multipart/form-data; boundary=upload-limit-test",
+        "content-length": String(MAX_UPLOAD_FILE_BYTES + 1)
+      },
+      body: "--upload-limit-test--"
+    });
+
+    const response = await app.request(request);
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({
+      error: "upload request too large",
+      status: 413
+    });
+  });
+
+  it("rejects uploaded files larger than the per-file limit before reading them", async () => {
+    const merchantCookie = await loginMerchant();
+    const formData = new FormData();
+    formData.append(
+      "files",
+      new File([new Uint8Array(MAX_UPLOAD_FILE_BYTES + 1)], "too-large.png", {
+        type: "image/png"
+      })
+    );
+
+    const response = await app.request("/merchant/uploads", {
+      method: "POST",
+      headers: { cookie: merchantCookie },
+      body: formData
+    });
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({
+      error: "upload file too large",
+      status: 413
     });
   });
 });
