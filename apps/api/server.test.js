@@ -385,4 +385,31 @@ describe("api server", () => {
       },
     });
   });
+
+  it("returns 403 when creator accesses merchant-only endpoints", async () => {
+    const ctx = await createTestApp();
+    cleanup = ctx.cleanup;
+
+    const creatorCookie = await loginAs(ctx.app, "creator@example.com");
+
+    // Creator cannot publish tasks
+    const publish = await ctx.app.request("/merchant/tasks/task-1/publish", {
+      method: "POST",
+      headers: { cookie: creatorCookie },
+    });
+    expect(publish.status).toBe(403);
+
+    // Creator cannot access admin dashboard
+    const adminDash = await ctx.app.request("/admin/dashboard", {
+      headers: { cookie: creatorCookie },
+    });
+    expect(adminDash.status).toBe(403);
+
+    // Creator cannot review submissions
+    const review = await ctx.app.request("/merchant/tasks/task-1/rewards/ranking", {
+      method: "POST",
+      headers: { cookie: creatorCookie },
+    });
+    expect(review.status).toBe(403);
+  });
 });
