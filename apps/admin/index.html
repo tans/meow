@@ -1,15 +1,51 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="corporate">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>创意喵运营后台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
     />
-    <title>创意喵后台</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.24/dist/full.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/admin/styles.css" />
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body class="ops-body">
+    <div class="ops-shell">
+      <aside class="ops-sidebar">
+        <div class="ops-logo">
+          <span>创意喵</span>
+          <small>运营台</small>
+        </div>
+        <nav id="nav-links" class="menu menu-lg gap-2"></nav>
+        <div class="ops-sidebar-footer">
+          <button id="logout-btn" class="btn btn-outline btn-sm w-full">退出登录</button>
+        </div>
+      </aside>
+      <section class="ops-main">
+        <header class="ops-header">
+          <div>
+            <p class="ops-overline">Admin Console</p>
+            <h1 id="page-title">运营后台</h1>
+          </div>
+          <div id="session-pill" class="badge badge-lg badge-outline">未登录</div>
+        </header>
+        <main id="app" class="ops-content"></main>
+      </section>
+    </div>
+    <script src="/admin/app.js"></script>
   </body>
 </html>

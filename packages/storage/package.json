@@ -1,26 +1,10 @@
 {
   "name": "@meow/storage",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "private": true,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./index.js",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "scripts": {
-    "build": "tsc",
-    "test": "vitest"
-  },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.1024.0",
-    "@aws-sdk/s3-presigned-post": "^3.1024.0",
-    "@aws-sdk/s3-request-presigner": "^3.1024.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.x",
-    "typescript": "^5.x"
+    ".": "./index.js"
   }
 }

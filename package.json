@@ -2,26 +2,17 @@
   "name": "meow",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.11.0",
-  "engines": {
-    "node": ">=22.0.0"
-  },
+  "packageManager": "bun@1.3.6",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "build": "turbo run build",
-    "db:schema-smoke": "pnpm --filter @meow/database test -- schema-smoke.test.ts",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "dev": "turbo run dev --parallel",
-    "harness": "pnpm build && pnpm --filter @meow/harness harness:dist",
-    "smoke": "pnpm --filter @meow/database test -- session-schema.test.ts task-persistence.test.ts && pnpm --filter @meow/api test && pnpm --filter @meow/web build && pnpm --filter @meow/admin build && pnpm --filter @meow/wechat-miniapp typecheck && pnpm harness",
-    "entry": "pnpm --filter @meow/entry dev"
-  },
-  "devDependencies": {
-    "@types/node": "^24.0.0",
-    "tsx": "^4.20.0",
-    "turbo": "^2.5.8",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.2"
+    "dev": "bun run apps/entry/server.js",
+    "entry": "bun run apps/entry/server.js",
+    "api": "bun run apps/api/server.js",
+    "test:api": "bun test apps/api/tests --timeout 20000",
+    "test:entry": "bun test apps/entry/server.test.js apps/entry/tests/server.test.js --timeout 20000",
+    "test": "bun run test:api && bun run test:entry"
   }
 }

@@ -1,16 +1,171 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>创意喵 - AI内容众包撮合平台 | 专业、高效、安全</title>
-    <meta name="description" content="创意喵是新一代AI内容众包撮合平台，汇聚10万+优质创作者，为企业提供短视频、图片等AI内容一站式服务。低成本、高效率、强保障。" />
+    <title>创意喵 | AI 内容众包撮合平台</title>
+    <meta
+      name="description"
+      content="创意喵用 Bun、SQLite 与轻量前端重建 AI 内容众包撮合体验，让商家、创作者和运营团队在同一条链路上协作。"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.24/dist/full.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body class="landing-body">
+    <div class="landing-grid"></div>
+    <header class="topbar">
+      <a class="brand" href="#hero">创意喵</a>
+      <nav class="topnav">
+        <a href="#features">能力</a>
+        <a href="#workflow">流程</a>
+        <a href="#cases">案例</a>
+        <a href="#cta">开始</a>
+      </nav>
+    </header>
+
+    <main>
+      <section id="hero" class="hero-shell">
+        <div class="hero-copy">
+          <span class="eyebrow">Bun + SQLite + daisyUI + jQuery</span>
+          <h1>把 AI 内容众包，做成一条真正能结算的生产链路。</h1>
+          <p>
+            商家发布任务，创作者交付投稿，运营在同一个资金与治理视图里完成审核、奖励、冻结和结算。
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="/buyer/">进入商家端</a>
+            <a class="btn btn-outline btn-lg" href="/square/">进入创作者端</a>
+          </div>
+          <div class="hero-stats">
+            <article>
+              <strong>3 端</strong>
+              <span>商家 / 创作者 / 运营统一路由</span>
+            </article>
+            <article>
+              <strong>SQLite</strong>
+              <span>单文件部署，演示环境可直接起盘</span>
+            </article>
+            <article>
+              <strong>Hash SPA</strong>
+              <span>全静态前端，由 entry 网关托管</span>
+            </article>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-header">
+            <span class="badge badge-primary badge-outline">实时链路</span>
+            <span>demo</span>
+          </div>
+          <div class="hero-card-body">
+            <div class="pulse-dot"></div>
+            <div>
+              <h2>从任务发布到结算，一屏看完。</h2>
+              <p>发布锁定预算，审核生成奖励，运营干预留痕，任务结束自动释放冻结收益。</p>
+            </div>
+          </div>
+          <ul class="hero-card-list">
+            <li>商家端任务创建、投稿审核、打赏与排名奖励</li>
+            <li>创作者端任务 feed、投稿记录、收益快照</li>
+            <li>运营端任务暂停、封禁用户、异常账务标记</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="features" class="content-section">
+        <div class="section-heading">
+          <span>核心能力</span>
+          <h2>更轻、更直接，也更像产品而不是 demo 拼图。</h2>
+        </div>
+        <div class="feature-grid">
+          <article>
+            <h3>预算先锁，再发任务</h3>
+            <p>基础奖励和排名奖励在发布时即形成 escrow，商家钱包与创作者收益可以同步追踪。</p>
+          </article>
+          <article>
+            <h3>投稿链路可编辑、可撤回</h3>
+            <p>创作者在提交后仍可更新内容，直到商家审核；已撤回内容不会再进入后续奖励动作。</p>
+          </article>
+          <article>
+            <h3>治理动作留下审计痕迹</h3>
+            <p>暂停任务、更新设置、封禁用户、异常标记都进入运营日志，便于复盘与风控。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="workflow" class="content-section workflow-section">
+        <div class="section-heading">
+          <span>协作流程</span>
+          <h2>一个网关，四个入口，统一一份会话与账本。</h2>
+        </div>
+        <div class="workflow-rail">
+          <article>
+            <strong>01</strong>
+            <h3>商家发布任务</h3>
+            <p>标题、预算、附件通过 `/buyer/` 创建草稿并发布。</p>
+          </article>
+          <article>
+            <strong>02</strong>
+            <h3>创作者交付作品</h3>
+            <p>通过 `/square/` 查看公开任务、提交 asset URL 与描述。</p>
+          </article>
+          <article>
+            <strong>03</strong>
+            <h3>运营跟踪风险</h3>
+            <p>通过 `/admin/` 管理任务状态、用户状态和异常账务。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="cases" class="content-section">
+        <div class="section-heading">
+          <span>场景样例</span>
+          <h2>适合视频征稿、门店探店、图文混剪等高频素材任务。</h2>
+        </div>
+        <div class="case-grid">
+          <article>
+            <h3>门店探店招募</h3>
+            <p>围绕门店活动发布投稿任务，按通过、排名、额外打赏三段式结算。</p>
+          </article>
+          <article>
+            <h3>品牌素材共创</h3>
+            <p>把脚本、参考图和视频素材直接作为附件上传，让投稿上下文更完整。</p>
+          </article>
+          <article>
+            <h3>小团队运营台</h3>
+            <p>无需复杂基础设施，单机 Bun + SQLite 就能跑通一个演示或内部小流量版本。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="cta" class="cta-section">
+        <div>
+          <span class="eyebrow">立即体验</span>
+          <h2>用 demo 账号直接体验完整链路。</h2>
+        </div>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="/admin/#/login">运营登录</a>
+          <a class="btn btn-secondary" href="/buyer/#/login">商家登录</a>
+          <a class="btn btn-accent" href="/square/#/feed">创作者首页</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer-shell">
+      <span>Meow · Bun Demo Stack</span>
+      <span>统一入口 `/` `/square/` `/admin/` `/buyer/`</span>
+    </footer>
+
+    <script src="/app.js"></script>
   </body>
 </html>

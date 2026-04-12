@@ -3,16 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc -b tsconfig.json",
-    "typecheck": "tsc -b tsconfig.json",
-    "dev": "tsx watch src/index.ts",
-    "test": "NODE_OPTIONS=--disable-warning=ExperimentalWarning vitest run"
+    "dev": "bun run server.js",
+    "start": "bun run server.js",
+    "test": "bun test tests --timeout 20000"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.8",
     "@meow/contracts": "workspace:*",
     "@meow/database": "workspace:*",
     "@meow/domain-core": "workspace:*",
@@ -20,10 +16,6 @@
     "@meow/domain-risk": "workspace:*",
     "@meow/domain-task": "workspace:*",
     "@meow/domain-user": "workspace:*",
-    "hono": "^4.7.2",
     "@meow/storage": "workspace:*"
-  },
-  "devDependencies": {
-    "vitest": "^3.1.2"
   }
 }

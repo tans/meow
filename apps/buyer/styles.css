@@ -1,0 +1,69 @@
+:root {
+  --merchant-primary: #ff6b35;
+}
+
+body.merchant-body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Outfit", "Noto Sans SC", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(255, 107, 53, 0.16), transparent 28%),
+    linear-gradient(180deg, #fff8f4 0%, #fffdfb 100%);
+}
+
+.merchant-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.merchant-sidebar {
+  padding: 24px 18px;
+  background: #1f2937;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.merchant-sidebar p,
+.merchant-sidebar h1 {
+  margin: 0;
+}
+
+.merchant-sidebar h1 {
+  font-size: 1.5rem;
+}
+
+.merchant-sidebar a {
+  color: white;
+}
+
+.merchant-sidebar a.active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.merchant-main {
+  padding: 24px;
+}
+
+.merchant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.merchant-content > * {
+  border-radius: 24px;
+  border: 1px solid rgba(31, 41, 55, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 22px 48px rgba(255, 107, 53, 0.08);
+  padding: 22px;
+}
+
+@media (max-width: 920px) {
+  .merchant-shell {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,12 +1,42 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>创意喵商家端</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.24/dist/full.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="/buyer/styles.css" />
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body class="merchant-body">
+    <div class="merchant-shell">
+      <aside class="merchant-sidebar">
+        <div>
+          <p>商家空间</p>
+          <h1>Buyer Console</h1>
+        </div>
+        <nav id="merchant-nav" class="menu gap-2"></nav>
+        <button id="merchant-logout" class="btn btn-outline btn-sm mt-auto">退出登录</button>
+      </aside>
+      <section class="merchant-main">
+        <header class="merchant-header">
+          <h2 id="merchant-title">任务概览</h2>
+          <button id="merchant-login" class="btn btn-primary btn-sm">Demo 登录</button>
+        </header>
+        <main id="app" class="merchant-content"></main>
+      </section>
+    </div>
+    <script src="/buyer/app.js"></script>
   </body>
 </html>

@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node src/index.mjs",
-    "start": "node src/index.mjs"
+    "dev": "bun run server.js",
+    "start": "bun run server.js",
+    "test": "bun test server.test.js tests/server.test.js --timeout 20000"
   }
 }
