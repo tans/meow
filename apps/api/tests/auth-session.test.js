@@ -95,6 +95,20 @@ describe("auth session routes", () => {
     expect(response.status).toBe(401);
   });
 
+  it("returns 400 for invalid JSON login payload", async () => {
+    const response = await testContext.app.request("/auth/login", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: '{"identifier":',
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: expect.any(String),
+      status: 400,
+    });
+  });
+
   it("switches hybrid session from creator to merchant", async () => {
     const loginResponse = await login();
     const cookie = toCookieHeader(loginResponse.headers.get("set-cookie"));
