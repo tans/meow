@@ -3,6 +3,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+const MAX_UPLOAD_FILE_BYTES = 10 * 1024 * 1024;
+
 const login = async (app, identifier, client = "web") => {
   const response = await app.request("/auth/login", {
     method: "POST",
@@ -251,6 +253,52 @@ describe("bun api server", () => {
       activeTasks: expect.any(Number),
       submissionsToday: expect.any(Number),
       frozenAmount: expect.any(Number),
+    });
+  });
+
+  describe("upload validation", () => {
+    test("rejects upload requests with no files", async () => {
+      const { createApp } = await import("../app.js");
+      const app = createApp();
+      const merchantCookie = await login(app, "merchant@example.com");
+      const uploadForm = new FormData();
+
+      const upload = await app.request("/merchant/uploads", {
+        method: "POST",
+        headers: { cookie: merchantCookie },
+        body: uploadForm,
+      });
+
+      expect(upload.status).toBe(400);
+      expect(await upload.json()).toEqual({
+        error: "missing upload files",
+        status: 400,
+      });
+    });
+
+    test("rejects upload files that exceed the size limit", async () => {
+      const { createApp } = await import("../app.js");
+      const app = createApp();
+      const merchantCookie = await login(app, "merchant@example.com");
+      const uploadForm = new FormData();
+      uploadForm.append(
+        "files",
+        new File([new Uint8Array(MAX_UPLOAD_FILE_BYTES + 1)], "too-large.mp4", {
+          type: "video/mp4",
+        }),
+      );
+
+      const upload = await app.request("/merchant/uploads", {
+        method: "POST",
+        headers: { cookie: merchantCookie },
+        body: uploadForm,
+      });
+
+      expect(upload.status).toBe(413);
+      expect(await upload.json()).toEqual({
+        error: "upload file too large",
+        status: 413,
+      });
     });
   });
 });
