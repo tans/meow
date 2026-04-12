@@ -55,4 +55,38 @@ describe("api health and error responses", () => {
       status: 500,
     });
   });
+
+  it("returns the shared 401 error shape for unauthenticated admin dashboard requests", async () => {
+    const response = await testContext.app.request("/admin/dashboard");
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: expect.any(String),
+      status: 401,
+    });
+  });
+
+  it("returns the shared 401 error shape for unauthenticated role switch requests", async () => {
+    const response = await testContext.app.request("/auth/switch-role", {
+      method: "POST",
+    });
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: expect.any(String),
+      status: 401,
+    });
+  });
+
+  it("returns the shared 401 error shape for unauthenticated submission withdraw requests", async () => {
+    const response = await testContext.app.request("/creator/submissions/test-id/withdraw", {
+      method: "POST",
+    });
+
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: expect.any(String),
+      status: 401,
+    });
+  });
 });
