@@ -264,6 +264,26 @@ describe("api server", () => {
       merchantRefundDelta: 2,
     });
 
+    // Paginated creator submissions list
+    const submissionsList = await ctx.app.request("/creator/submissions?page=1&pageSize=10", {
+      headers: { cookie: creatorCookie },
+    });
+    expect(submissionsList.status).toBe(200);
+    await expect(readJson(submissionsList)).resolves.toMatchObject({
+      items: expect.arrayContaining([expect.objectContaining({ taskId })]),
+      pagination: { page: 1, pageSize: 10, total: expect.any(Number) },
+    });
+
+    // Paginated per-task submissions for merchant
+    const taskSubmissions = await ctx.app.request(`/merchant/tasks/${taskId}/submissions?page=1&pageSize=20`, {
+      headers: { cookie: merchantCookie },
+    });
+    expect(taskSubmissions.status).toBe(200);
+    await expect(readJson(taskSubmissions)).resolves.toMatchObject({
+      items: expect.any(Array),
+      pagination: { page: 1, pageSize: 20, total: expect.any(Number) },
+    });
+
     const creatorWallet = await ctx.app.request("/creator/wallet", {
       headers: { cookie: creatorCookie },
     });

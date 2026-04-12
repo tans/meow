@@ -924,13 +924,23 @@ export function createApiApp(options = {}) {
     });
   });
 
-  app.get("/merchant/tasks/:taskId/submissions", ({ request, params }) => {
+  app.get("/merchant/tasks/:taskId/submissions", ({ request, params, query }) => {
     const session = requireRole(request, "merchant");
     getMerchantOwnedTask(session.userId, params.taskId);
 
-    return json(
-      repository.listSubmissionsByTask(params.taskId).map(toSubmissionReadModel)
-    );
+    const all = repository.listSubmissionsByTask(params.taskId).map(toSubmissionReadModel);
+
+    if (!query.get("page") && !query.get("pageSize")) {
+      return json(all);
+    }
+
+    const page = coercePositiveInteger(query.get("page"), 1);
+    const pageSize = coercePositiveInteger(query.get("pageSize"), 20);
+    if (pageSize > 100) {
+      throw new AppError(400, "invalid pagination");
+    }
+
+    return json(paginate(all, page, pageSize));
   });
 
   app.get("/merchant/wallet", ({ request }) => {
